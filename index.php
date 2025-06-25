@@ -10,3 +10,8 @@ echo "welcome";
 if(isset($_GET['url'])) {
     include "loadController.php";
 }
+
+
+$conn = App\Models\Database::getConnection();
+
+var_dump($conn);
