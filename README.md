@@ -41,8 +41,10 @@ A side project to understand more about web development.
     mysqld --install MySQL80 --defaults-file="C:/mysql/my.ini"
     ```
 #### PHP
+- Add root directory to Path (environment variables)
 - Copy php.ini-development and rename it to php.ini
-- Add root directory to Path (environment variables) 
+- Set `date.timezone = "America/Sao_Paulo"` in php.ini
+- Uncomment `;extension=pdo_mysql` in php.ini
 #### Composer
 ```
 composer init
