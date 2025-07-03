@@ -1,0 +1,69 @@
+CREATE TABLE usuario(
+    id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    cpf VARCHAR(11) NOT NULL,
+    nome VARCHAR(45) NOT NULL,
+    senha VARCHAR(255) NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_edicao DATETIME ON UPDATE NOW()
+) ENGINE=INNODB;
+
+CREATE TABLE conta(
+    id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(45) NOT NULL,
+    saldo_em_centavos INT NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_edicao DATETIME ON UPDATE NOW()
+) ENGINE=INNODB;
+
+CREATE TABLE centro_de_custo(
+    id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(45) NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_edicao DATETIME ON UPDATE NOW()
+) ENGINE=INNODB;
+
+CREATE TABLE fornecedor(
+    id MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(55) NOT NULL,
+    telefone VARCHAR(45),
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_edicao DATETIME ON UPDATE NOW()
+) ENGINE=INNODB;
+
+CREATE TABLE status(
+    id TINYINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(45) NOT NULL
+) ENGINE=INNODB;
+
+CREATE TABLE despesa(
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    descricao TEXT,
+    valor_em_centavos INT UNSIGNED NOT NULL,
+    total_parcelas SMALLINT UNSIGNED NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_edicao DATETIME ON UPDATE NOW(),
+    usuario_id SMALLINT UNSIGNED NOT NULL,
+    conta_id SMALLINT UNSIGNED NOT NULL,
+    centro_de_custo_id SMALLINT UNSIGNED NOT NULL,
+    fornecedor_id MEDIUMINT UNSIGNED NOT NULL,
+    status_id TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+    FOREIGN KEY (conta_id) REFERENCES conta(id),
+    FOREIGN KEY (centro_de_custo_id) REFERENCES centro_de_custo(id),
+    FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id),
+    FOREIGN KEY (status_id) REFERENCES status(id)
+) ENGINE=INNODB;
+
+CREATE TABLE parcela(
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    numero_parcela SMALLINT UNSIGNED NOT NULL,
+    valor_em_centavos INT UNSIGNED NOT NULL,
+    data_vencimento DATE NOT NULL,
+    data_pagamento DATE,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_edicao DATETIME ON UPDATE NOW(),
+    despesa_id INT UNSIGNED NOT NULL,
+    status_id TINYINT UNSIGNED NOT NULL,
+    FOREIGN KEY (despesa_id) REFERENCES despesa(id),
+    FOREIGN KEY (status_id) REFERENCES status(id)
+) ENGINE=INNODB;
