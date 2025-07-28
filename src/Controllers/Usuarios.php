@@ -6,6 +6,13 @@ class Usuarios
 {
     function __construct()
     {
-        echo "Controler Encontrada: Usuarios";
+        $this->loadView();
+    }
+    
+    private function loadView() : void
+    {
+        include 'templates/header.php';
+        include 'src/Views/usuarios.php';
+        include 'templates/footer.php';
     }
 }

@@ -6,6 +6,13 @@ class Despesas
 {
     function __construct()
     {
-        echo "Controler Encontrada: Despesas";
+        $this->loadView();
+    }
+    
+    private function loadView() : void
+    {
+        include 'templates/header.php';
+        include 'src/Views/despesas.php';
+        include 'templates/footer.php';
     }
 }

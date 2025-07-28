@@ -2,7 +2,7 @@
 
 namespace App\Controllers;
 
-class Contas
+class CentrosDeCusto
 {
     function __construct()
     {
@@ -12,7 +12,7 @@ class Contas
     private function loadView() : void
     {
         include 'templates/header.php';
-        include 'src/Views/contas.php';
+        include 'src/Views/centros-de-custo.php';
         include 'templates/footer.php';
     }
 }

@@ -6,6 +6,13 @@ class Fornecedores
 {
     function __construct()
     {
-        echo "Controler Encontrada: Fornecedores";
+        $this->loadView();
+    }
+    
+    private function loadView() : void
+    {
+        include 'templates/header.php';
+        include 'src/Views/fornecedores.php';
+        include 'templates/footer.php';
     }
 }
