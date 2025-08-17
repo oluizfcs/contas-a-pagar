@@ -2,8 +2,10 @@
 
 namespace App\Controllers;
 
-class Dashboard
+class Dashboard implements Controller
 {
+    public bool $needLogin = true;
+
     function __construct()
     {
         $this->loadView();

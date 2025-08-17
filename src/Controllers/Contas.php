@@ -2,8 +2,10 @@
 
 namespace App\Controllers;
 
-class Contas
+class Contas implements Controller
 {
+    public bool $needLogin = true;
+
     function __construct()
     {
         $this->loadView();

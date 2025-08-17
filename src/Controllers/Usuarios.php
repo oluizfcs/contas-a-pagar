@@ -2,8 +2,10 @@
 
 namespace App\Controllers;
 
-class Usuarios
+class Usuarios implements Controller
 {
+    public bool $needLogin = true;
+
     function __construct()
     {
         $this->loadView();
