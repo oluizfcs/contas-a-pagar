@@ -1,0 +1,25 @@
+.input-wrapper {
+    position: relative;
+    width: max-content;
+    margin-bottom: 15px;
+}
+
+.input-wrapper input,
+.input-wrapper textarea {
+    width: max-content;
+    padding-right: 55px;
+    box-sizing: border-box;
+    font-family: inherit;
+    font-size: 1em;
+    resize: vertical;
+}
+
+.char-counter {
+    position: absolute;
+    right: 10px;
+    bottom: 8px;
+    font-size: 0.75em;
+    color: #888;
+    pointer-events: none;
+    font-family: monospace;
+}

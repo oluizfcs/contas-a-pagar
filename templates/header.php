@@ -5,14 +5,15 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contas a pagar</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/public/css/base.css">
+    <!-- <link rel="stylesheet" href="/public/css/base.css">
     <link rel="stylesheet" href="/public/css/topbar.css">
     <link rel="stylesheet" href="/public/css/sidebar.css">
-    <link rel="stylesheet" href="/public/css/content.css">
+    <link rel="stylesheet" href="/public/css/content.css"> -->
+    <link rel="stylesheet" href="/public/css/charcounter.css">
 </head>
 <body>
     <header id="topbar">
-        <a href="<?=$_ENV['BASE_URL']?>"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a>
+        <a href="<?=$_ENV['BASE_URL']?>/login/sair"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a>
     </header>
     <div class="main-layout">
         <div id="sidebar">
