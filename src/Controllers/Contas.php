@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-class Contas implements Controller
+class Contas
 {
-    public bool $needLogin = true;
+    public static bool $needLogin = true;
 
     function __construct()
     {

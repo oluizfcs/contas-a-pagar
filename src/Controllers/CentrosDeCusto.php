@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-class CentrosDeCusto implements Controller
+class CentrosDeCusto
 {
-    public bool $needLogin = true;
+    public static bool $needLogin = true;
 
     function __construct()
     {

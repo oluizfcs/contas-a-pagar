@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-class Usuarios implements Controller
+class Usuarios
 {
-    public bool $needLogin = true;
+    public static bool $needLogin = true;
 
     function __construct()
     {

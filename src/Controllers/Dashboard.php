@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-class Dashboard implements Controller
+class Dashboard
 {
-    public bool $needLogin = true;
+    public static bool $needLogin = true;
 
     function __construct()
     {

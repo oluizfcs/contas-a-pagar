@@ -2,9 +2,9 @@
 
 namespace App\Controllers;
 
-class Despesas implements Controller
+class Bancos
 {
-    public bool $needLogin = true;
+    public static bool $needLogin = true;
 
     function __construct()
     {
@@ -14,7 +14,7 @@ class Despesas implements Controller
     private function loadView() : void
     {
         include 'templates/header.php';
-        include 'src/Views/despesas.php';
+        include 'src/Views/bancos.php';
         include 'templates/footer.php';
     }
 }
