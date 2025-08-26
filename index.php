@@ -3,7 +3,7 @@
 session_start();
 
 if(!isset($_GET['url'])) {
-    header('Location: ' . $_ENV['BASE_URL'] . '/login');
+    header('Location: /login');
     exit;
 }
 
