@@ -6,9 +6,7 @@ document.querySelectorAll('.input-wrapper').forEach(wrapper => {
         const max = field.getAttribute('maxlength');
 
         const updateCounter = () => {
-            if (field.value.length > max/2) {
-                counter.textContent = `${field.value.length}/${max}`;
-            }
+            counter.textContent = `${field.value.length}/${max}`;
         };
 
         field.addEventListener('input', updateCounter);
