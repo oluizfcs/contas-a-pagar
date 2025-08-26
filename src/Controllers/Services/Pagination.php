@@ -10,17 +10,21 @@ class Pagination
     private int $maxRowsPerPage;
     private int $lastPage;
 
-    public function __construct(string $table, int $maxRowsPerPage)
+    public function __construct(string $table, int $maxRowsPerPage, bool $deleted)
     {
         $this->table = $table;
         $this->maxRowsPerPage = $maxRowsPerPage;
 
-        $this->calculateLastPage();
+        $this->calculateLastPage($deleted);
     }
 
-    private function calculateLastPage(): void
+    private function calculateLastPage(bool $deleted): void
     {
-        $rowCount = Database::countAll($this->table);
+        if($deleted) {
+            $rowCount = Database::countDeleted($this->table, true);
+        } else {
+            $rowCount = Database::countDeleted($this->table, false);
+        }
 
         $this->lastPage = (int) ($rowCount / $this->maxRowsPerPage);
 
@@ -29,9 +33,9 @@ class Pagination
         }
     }
 
-    public function getPage(int $page, string $columns): array
+    public function getPage(int $page, string $columns, bool $deleted): array
     {
-        return Database::getByPage($this->table, $columns, $this->maxRowsPerPage, $page);
+        return Database::getByPage($this->table, $columns, $this->maxRowsPerPage, $page, $deleted);
     }
 
     public function getLastPage(): int
