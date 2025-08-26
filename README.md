@@ -40,6 +40,10 @@ A side project to understand more about web development.
     ```
     mysqld --install MySQL80 --defaults-file="C:/mysql/my.ini"
     ```
+    ```
+    mysql -u root
+    source C:\Apache24\htdocs\database\schema.sql;
+    ```
 - Remember to check the timezone: `SELECT NOW();`
 #### PHP
 - Add root directory to Path (environment variables)
