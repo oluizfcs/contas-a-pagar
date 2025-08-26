@@ -4,12 +4,15 @@ namespace App\Models;
 
 class Usuario
 {
-    private int $id;
-    private string $cpf;
-    private string $nome;
-    private string $senha;
-    private string $data_criacao;
-    private string $data_edicao;
+    public function __construct(
+        private int $id,
+        private string $cpf,
+        private string $nome,
+        private string $senha,
+        private string $data_criacao,
+        private string|null $data_edicao,
+        private bool $enabled
+    ) {}
 
     /**
      * Get the value of id
@@ -129,5 +132,12 @@ class Usuario
         $this->data_edicao = $data_edicao;
 
         return $this;
+    }
+
+    public static function getById(int $id): Usuario
+    {
+        $data = Database::getById('usuario', $id);
+        extract($data);
+        return new Usuario($id, $cpf, $nome, $senha, $data_criacao, $data_edicao, $enabled);
     }
 }
