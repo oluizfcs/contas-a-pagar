@@ -2,29 +2,31 @@
 
 namespace App\Controllers;
 
+use App\Controllers\Services\Logger;
 use App\Models\Database;
-use App\Logs\EntityLogger;
-use PDO;
-use PDOException;
-use App\Controllers\Services\Pagination;
+use App\Models\Fornecedor;
 
-class Fornecedores implements Controller
+class Fornecedores
 {
-    public bool $needLogin = true;
-    private array $views = ['index', 'adicionar'];
-    public static string $tableName = 'fornecedor';
-    private int $page;
-    private Pagination $pagination;
+    public static bool $needLogin = true;
+    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
+    private int $id;
+    private string $orderby = 'total';
+    private string $mostrar = '';
+    private string $search = '';
 
-    function __construct(string $view = "index")
+    function __construct(string $view = 'index', string $param = '')
     {
-        $page = filter_var($view, FILTER_VALIDATE_INT);
-        if ($page) {
-            $this->page = $page;
-            $view = 'index';
+        if (strlen($param) > 0) {
+            $id = filter_var($param, FILTER_VALIDATE_INT);
+            if ($id) {
+                $this->id = $id;
+            } else {
+                $_SESSION['message'] = ['Fornecedor não encontrado', 'fail'];
+                header("Location: /fornecedores");
+                exit;
+            }
         }
-
-        $this->loadView($view);
 
         if (!empty($_POST)) {
             switch ($_POST['type']) {
@@ -34,41 +36,73 @@ class Fornecedores implements Controller
                 case 'update':
                     $this->update();
                     break;
-                case 'delete':
-                    $this->delete();
+                case 'unable':
+                    $this->unable();
+                    break;
+                case 'enable':
+                    $this->enable();
+                    break;
+                case 'search':
+                    $this->search = $_POST['search'];
+                    $this->orderby = $_POST['orderby'];
+                    $this->mostrar = $_POST['mostrar'];
                     break;
             }
         }
+
+        $this->loadView($view);
     }
 
     private function create(): void
     {
-        try {
-            $conn = Database::getConnection();
+        $f = new Fornecedor(0, $_POST['nome'], $_POST['telefone'], '', null, 0);
 
-            $stmt = $conn->prepare("INSERT INTO " . Fornecedores::$tableName . "(nome, telefone) VALUES (:nome, :telefone)");
-
-            $stmt->bindParam(':nome', $_POST['nome'], PDO::PARAM_STR);
-            $stmt->bindParam(':telefone', $_POST['telefone'], PDO::PARAM_STR);
-
-            $stmt->execute();
-
-            EntityLogger::log_create($conn, Fornecedores::$tableName);
-
-            echo 'fornecedor criado com sucesso!';
-        } catch (PDOException $e) {
-            echo 'Erro ao criar fornecedor: ' . $e->getMessage();
+        if ($f->save()) {
+            $_SESSION['message'] = ['Fornecedor cadastrado com sucesso!', 'success'];
+            header("Location: /fornecedores");
+            exit;
         }
     }
 
     private function update(): void
     {
-        echo 'chamou a update';
+        $f = Fornecedor::getById($_POST['entity_id']);
+        $f->setNome($_POST['nome']);
+        $f->setTelefone($_POST['telefone']);
+
+        if ($f->save()) {
+            $_SESSION['message'] = ['Fornecedor atualizado com sucesso!', 'success'];
+            header("Location: /fornecedores/detalhar/" . $_POST['entity_id']);
+            exit;
+        }
     }
 
-    private function delete(): void
+    private function unable(): void
     {
-        echo 'chamou a delete';
+        $f = Fornecedor::getById($_POST['fornecedor_id']);
+        $f->setEnabled(0);
+
+        Logger::log_unable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
+
+        if ($f->save()) {
+            $_SESSION['message'] = ['Fornecedor inativado com sucesso!', 'success'];
+            header("Location: /fornecedores/detalhar/" . $f->getId());
+            exit;
+        }
+    }
+
+    private function enable(): void
+    {
+        $f = Fornecedor::getById($_POST['fornecedor_id']);
+        $f->setEnabled(1);
+
+        Logger::log_enable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
+
+        if ($f->save()) {
+            $_SESSION['message'] = ['Fornecedor ativado com sucesso!', 'success'];
+            header("Location: /fornecedores/detalhar/" . $f->getId());
+            exit;
+        }
     }
 
     private function loadView(string $view): void
@@ -78,18 +112,28 @@ class Fornecedores implements Controller
             exit;
         }
 
-        if (!isset($this->page) && $view == 'index') {
-            $this->page = 1;
+        if (isset($this->id)) {
+            $fornecedor = Fornecedor::getById($this->id);
+
+            if ($view == 'detalhar') {
+                $logs = Database::getLog(Fornecedor::$tableName, $this->id);
+            }
         }
 
-        if (isset($this->page)) {
-            $this->pagination = new Pagination(self::$tableName, 10);
-            $fornecedores = $this->pagination->getPage($this->page, 'id, nome, telefone');
-            $lastPage = $this->pagination->getLastPage();
+        if ($view == 'index') {
+
+            $enabled = $this->mostrar != 'inativados';
+            $paid = $this->mostrar == 'todos';
+
+            $fornecedores = Fornecedor::getAll($enabled, $paid, $this->orderby, $this->search);
         }
 
         include 'templates/header.php';
-        include "src/Views/fornecedores/$view.php";
+        if ($view == 'cadastrar' || $view == 'atualizar') {
+            include "src/Views/fornecedores/form.php";
+        } else {
+            include "src/Views/fornecedores/$view.php";
+        }
         include 'templates/footer.php';
     }
 }
