@@ -43,9 +43,13 @@ class Fornecedores
                     $this->enable();
                     break;
                 case 'search':
-                    $this->search = $_POST['search'];
-                    $this->orderby = $_POST['orderby'];
-                    $this->mostrar = $_POST['mostrar'];
+                    $_SESSION['fornecedores_filters'] = [
+                        'search' => $_POST['search'] ?? '',
+                        'orderby' => $_POST['orderby'] ?? 'total',
+                        'mostrar' => $_POST['mostrar'] ?? ''
+                    ];
+                    header("Location: /fornecedores");
+                    exit;
                     break;
             }
         }
@@ -121,6 +125,16 @@ class Fornecedores
         }
 
         if ($view == 'index') {
+
+            $filters = $_SESSION['fornecedores_filters'] ?? [
+                'search' => '',
+                'orderby' => 'total',
+                'mostrar' => ''
+            ];
+
+            $this->search = $filters['search'];
+            $this->orderby = $filters['orderby'];
+            $this->mostrar = $filters['mostrar'];
 
             $enabled = $this->mostrar != 'inativados';
             $paid = $this->mostrar == 'todos';

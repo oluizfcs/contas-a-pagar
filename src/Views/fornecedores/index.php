@@ -18,8 +18,20 @@
             }
             ?>
         </select>
-        <input type="checkbox" name="mostrar" value="todos" <?= $this->mostrar == 'todos' ? 'checked' : ''?> onclick="form.submit()">todos os fornecedores
-        <input type="checkbox" name="mostrar" value="inativados" <?= $this->mostrar == 'inativados' ? 'checked' : ''?> onclick="form.submit()">apenas fornecedores inativados
+        <label>
+            <input type="radio" name="mostrar" value="" <?= $this->mostrar == '' ? 'checked' : '' ?> onclick="form.submit()">
+            contas a pagar
+        </label>
+
+        <label>
+            <input type="radio" name="mostrar" value="todos" <?= $this->mostrar == 'todos' ? 'checked' : '' ?> onclick="form.submit()">
+            todos
+        </label>
+
+        <label>
+            <input type="radio" name="mostrar" value="inativados" <?= $this->mostrar == 'inativados' ? 'checked' : '' ?> onclick="form.submit()">
+            inativados
+        </label>
     </form>
 </div>
 <?php
@@ -36,7 +48,7 @@ if ($fornecedores == []) {
         <table>
             <tr>
                 <th colspan="2">Informações do Fornecedor</th>
-                <th colspan="3"><?= $this->mostrar == 'emAberto' ? 'Contas a pagar' : 'Todas as contas (Pagas e não pagas)' ?></th>
+                <th colspan="3"><?= $this->mostrar == '' ? 'Contas a pagar' : 'Todas as contas (Pagas e não pagas)' ?></th>
             </tr>
             <tr>
                 <th>Nome</th>
