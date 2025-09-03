@@ -2,9 +2,9 @@
 
 use App\Models\Usuario;
 
-$data_criacao = DateTime::createFromFormat("Y-m-d H:i:s", $fornecedor->getData_criacao());
-if ($fornecedor->getData_edicao() != null) {
-    $data_edicao = DateTime::createFromFormat("Y-m-d H:i:s", $fornecedor->getData_edicao());
+$data_criacao = DateTime::createFromFormat("Y-m-d H:i:s", $centro_de_custo->getData_criacao());
+if ($centro_de_custo->getData_edicao() != null) {
+    $data_edicao = DateTime::createFromFormat("Y-m-d H:i:s", $centro_de_custo->getData_edicao());
     $data_edicao = $data_edicao->format("d/m/Y \à\s H:i");
 } else {
     $data_edicao = 'nunca';
@@ -12,16 +12,15 @@ if ($fornecedor->getData_edicao() != null) {
 
 ?>
 
-<h1>Fornecedor: <?= $fornecedor->getNome() ?></h1>
-Telefone: <?= $fornecedor->getTelefone() ?> <br>
+<h1>Centro de Custo: <?= $centro_de_custo->getNome() ?></h1>
 <br>
-<a class="btn" href="/fornecedores" style="margin-right: 3px;">Voltar</a> <a class="btn" href="/fornecedores/atualizar/<?= $fornecedor->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
+<a class="btn" href="/centros-de-custo" style="margin-right: 3px;">Voltar</a> <a class="btn" href="/centros-de-custo/atualizar/<?= $centro_de_custo->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 <br><br>
 
 <form method="POST" action="">
-    <input type="hidden" name="fornecedor_id" value="<?= $fornecedor->getId() ?>">
-    <?php if($fornecedor->isEnabled()): ?>
-        <button class="btn" name="type" value="unable" onclick="return confirm('Realmente deseja inativar este fornecedor?')">
+    <input type="hidden" name="centro_de_custo_id" value="<?= $centro_de_custo->getId() ?>">
+    <?php if($centro_de_custo->isEnabled()): ?>
+        <button class="btn" name="type" value="unable" onclick="return confirm('Realmente deseja inativar este centro de custo?')">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </button>
         <a class="btn btn-disabled">
@@ -31,7 +30,7 @@ Telefone: <?= $fornecedor->getTelefone() ?> <br>
         <a class="btn btn-disabled">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </a>
-        <button class="btn" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este fornecedor?')">
+        <button class="btn" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este centro de custo?')">
             <i class="fa-solid fa-box-open"></i> Ativar</a>
         </button>
     <?php endif; ?>
