@@ -1,3 +1,7 @@
+<!DOCTYPE html>
+<head>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+</head>
 <link rel="stylesheet" href="/public/css/login.css">
 
 <div id="login">
@@ -10,3 +14,11 @@
         <input id="submit" type="submit" value="Entrar">
     </form>
 </div>
+
+<script>
+    var cleave = new Cleave('#cpf', {
+        delimiters: ['.', '.', '-'],
+        blocks: [3, 3, 3, 2],
+        numericOnly: true
+    });
+</script>
