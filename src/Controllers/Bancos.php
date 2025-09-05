@@ -73,11 +73,8 @@ class Bancos
 
     private function update(): void
     {
-        $_POST['saldo_em_centavos'] = Money::reais_para_centavos($_POST['saldo_em_centavos']);
-
         $b = Banco::getById($_POST['entity_id']);
         $b->setNome($_POST['nome']);
-        $b->setSaldo_em_centavos($_POST['saldo_em_centavos']);
 
         if ($b->save()) {
             $_SESSION['message'] = ['Banco atualizado com sucesso!', 'success'];
