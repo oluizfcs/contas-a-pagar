@@ -1,7 +1,4 @@
 <?php
-
-use App\Models\Usuario;
-
 $data_criacao = DateTime::createFromFormat("Y-m-d H:i:s", $fornecedor->getData_criacao());
 if ($fornecedor->getData_edicao() != null) {
     $data_edicao = DateTime::createFromFormat("Y-m-d H:i:s", $fornecedor->getData_edicao());
@@ -9,7 +6,6 @@ if ($fornecedor->getData_edicao() != null) {
 } else {
     $data_edicao = 'nunca';
 }
-
 ?>
 
 <h1>Fornecedor: <?= $fornecedor->getNome() ?></h1>
@@ -43,64 +39,4 @@ Telefone: <?= $fornecedor->getTelefone() ?> <br>
     <img src="/public/images/graph.jpg" alt="example graph" width="525" height="412.5">
 </div>
 
-<div class="section">
-    <h2><i class="fa-solid fa-scroll"></i> Auditoria</h2>
-    <?php
-    echo "Cadastrado em: " . $data_criacao->format("d/m/Y \à\s H:i");
-    if (isset($data_edicao)) {
-        echo "<br>Última modificação: $data_edicao";
-    }
-    ?>
-
-    <table class="auditoria">
-        <tr>
-            <th>Usuário</th>
-            <th>Ação</th>
-            <th>Campo</th>
-            <th>Antigo</th>
-            <th>Novo</th>
-            <th>Data e Hora</th>
-        </tr>
-        <?php foreach ($logs as $log) {
-            $usuario = Usuario::getById($log['usuario_id'])->getNome();
-            $data = DateTime::createFromFormat('Y-m-d H:i:s', $log['data_log'])->format('d/m/Y \à\s H:i');
-
-            $msg = "<br> $usuario";
-            $acao = 'atualizar';
-            $campo = $log['campo'];
-            $antigo = $log['valor_antigo'];
-            $novo = $log['valor_novo'];
-
-            if ($log['campo'] == 'create') {
-                $acao = 'cadastrar';
-                $campo = '-';
-                $antigo = '-';
-                $novo = '-';
-            }
-
-            if ($log['campo'] == 'unable') {
-                $acao = 'inativar';
-                $campo = '-';
-                $antigo = '-';
-                $novo = '-';
-            }
-
-            if ($log['campo'] == 'enable') {
-                $acao = 'ativar';
-                $campo = '-';
-                $antigo = '-';
-                $novo = '-';
-            }
-
-            echo "<tr>";
-            echo "<td>$usuario</td>";
-            echo "<td>$acao</td>";
-            echo "<td>$campo</td>";
-            echo "<td>$antigo</td>";
-            echo "<td>$novo</td>";
-            echo "<td>$data</td>";
-            echo "</tr>";
-        }
-        ?>
-    </table>
-</div>
+<?php include 'templates/auditoria.php'; ?>

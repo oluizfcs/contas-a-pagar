@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Controllers\Services\Logger;
+use App\Controllers\Services\Money;
 use App\Models\Database;
 use PDO;
 use PDOException;
@@ -78,6 +79,11 @@ class Banco
         $this->saldo_em_centavos = $saldo_em_centavos;
 
         return $this;
+    }
+
+    public function getSaldo_em_reais(): string
+    {
+        return Money::centavos_para_reais($this->saldo_em_centavos);
     }
 
     /**
