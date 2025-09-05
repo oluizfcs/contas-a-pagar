@@ -2,10 +2,9 @@
 
 namespace App\Controllers;
 
-use App\Controllers\Services\Logger;
-use App\Models\Database;
-use PDO;
-use PDOException;
+use App\Controllers\Services\Cpf;
+use App\Models\Usuario;
+use Exception;
 
 class Login
 {
@@ -13,8 +12,6 @@ class Login
 
     function __construct(string $p1 = '')
     {
-        $this->loadView();
-
         if (!empty($_POST)) {
             $this->login();
         }
@@ -22,22 +19,24 @@ class Login
         if ($p1 == 'sair') {
             $this->logout();
         }
+
+        $this->loadView();
     }
 
     private function login(): void
     {
         try {
-            $conn = Database::getConnection();
+            $usuario = Usuario::getByCpf(Cpf::unmaskCpf($_POST['cpf']));
 
-            $stmt = $conn->prepare("SELECT id, nome, senha FROM usuario WHERE cpf = :cpf");
-            $stmt->bindParam(':cpf', $_POST['cpf'], PDO::PARAM_STR);
-            $stmt->execute();
-
-            $usuario = $stmt->fetch(PDO::FETCH_ASSOC);
-
-            // yes, ik it's unsafe
-            if (!$usuario || $usuario['senha'] != $_POST['senha']) {
+            if (!$usuario || !password_verify($_POST['senha'], $usuario['senha'])) {
                 $_SESSION['message'] = ['Credenciais inválidas', 'fail'];
+                $this->loadView();
+                exit;
+            }
+
+            if ($usuario['enabled'] == 0) {
+                $_SESSION['message'] = ['Este usuário foi inativado.', 'fail'];
+                $this->loadView();
                 exit;
             }
 
@@ -45,10 +44,9 @@ class Login
             $_SESSION['usuario_nome'] = $usuario['nome'];
 
             header('Location: /dashboard');
-        } catch (PDOException $e) {
-            Logger::error('Erro de banco de dados', ['PDOException' => $e->getMessage()]);
-            $_SESSION['message'] = ['Houve um erro sério, favor contatar o desenvolvedor do sistema', 'fail'];
-            header("Location: /login");
+        } catch (Exception $e) {
+            $_SESSION['message'] = ['Credenciais inválidas', 'fail'];
+            $this->loadView();
             exit;
         }
     }

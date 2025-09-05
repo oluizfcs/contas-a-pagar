@@ -92,18 +92,24 @@ class Database
         return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
-    public static function getByColumn(string $table, string $column, string $value): array
+    public static function getByColumn(string $table, string $column, string $value): array|false
     {
         $stmt = self::getConnection()->query("SELECT * FROM $table WHERE $column = $value");
         if (!$stmt) {
-            die("Erro ao buscar por coluna");
+            return false;
         }
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function getLog(string $table, int $id): array
     {
-        $sql = "SELECT * FROM log_$table WHERE $table" . "_id = $id ORDER BY data_log DESC";
+        $entity = $table;
+
+        if ($table == 'usuario') {
+            $entity = $table . '_editado';
+        }
+
+        $sql = "SELECT * FROM log_$table WHERE $entity" . "_id = $id ORDER BY data_log DESC";
 
         $stmt = self::getConnection()->query($sql);
         if (!$stmt) {
