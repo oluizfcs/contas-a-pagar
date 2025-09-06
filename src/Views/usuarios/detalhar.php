@@ -14,7 +14,7 @@ CPF: <?= $usuario->getMaskedCpf() ?> <br>
 <a class="btn" href="/usuarios" style="margin-right: 3px;">Voltar</a> <?php if ($_SESSION['usuario_id'] == $usuario->getId() || $_SESSION['usuario_id'] == 1): ?> <a class="btn" href="/usuarios/alterar-senha/<?= $usuario->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Alterar Senha</a> <?php endif; ?>
 <br><br>
 
-<?php if ($_SESSION['usuario_id'] == 1): ?>
+<?php if ($_SESSION['usuario_id'] == 1 && $usuario->getId() != 1): ?>
     <form method="POST" action="">
         <input type="hidden" name="usuario_id" value="<?= $usuario->getId() ?>">
         <?php if ($usuario->isEnabled()): ?>
