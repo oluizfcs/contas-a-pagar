@@ -48,8 +48,10 @@ A side project to understand more about web development.
 #### PHP
 - Add root directory to Path (environment variables)
 - Copy php.ini-development and rename it to php.ini
-- Set `date.timezone = "America/Sao_Paulo"` in php.ini
-- Uncomment `;extension=pdo_mysql` in php.ini
+- Inside php.ini:
+    - Set `date.timezone = "America/Sao_Paulo"`
+    - Uncomment `;extension=pdo_mysql`
+    - Uncomment `;extension=intl`
 #### Composer
 ```
 composer init
