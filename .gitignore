@@ -1,3 +1,4 @@
 /vendor/
 .env
 /Logs/
+/public/images/
