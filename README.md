@@ -54,13 +54,7 @@ A side project to understand more about web development.
     - Uncomment `;extension=intl`
 #### Composer
 ```
-composer init
-```
-```
-composer require vlucas/phpdotenv
-```
-```
-composer require monolog/monolog
+$ composer install
 ```
 #### Ready to start
 - Start Apache2.4
