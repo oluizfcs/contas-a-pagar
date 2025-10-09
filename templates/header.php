@@ -5,32 +5,19 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Contas a pagar</title>
+    <link rel="shortcut icon" href="/public/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="/public/css/reset.css">
+    <link rel="stylesheet" href="/public/css/style.css">
+    <link rel="stylesheet" href="/public/css/bsbuttons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link rel="stylesheet" href="/public/css/base.css">
-    <link rel="stylesheet" href="/public/css/charcounter.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
     <script src="/public/js/jquery.maskMoney.js" type="text/javascript"></script>
 </head>
 
 <body>
-    <header id="topbar">
-        <a onclick="collapse()"><i class="fa-solid fa-bars"></i></a>
-        <script>
-            function collapse() {
-                sidebar = document.getElementById('sidebar');
-
-                if (sidebar.style.width == "0px") {
-                    document.getElementById('sidebar').style.width = "220px";
-                } else {
-                    document.getElementById('sidebar').style.width = "0px";
-                }
-            }
-        </script>
-        <a href="/usuarios/detalhar/<?= $_SESSION['usuario_id'] ?? '#' ?>"><i class="fa-solid fa-user"></i></a>
-        <a href="/login/sair"><i class="fa-solid fa-arrow-right-from-bracket"></i> Sair</a>
-    </header>
-    <div class="main-layout">
+    <button type="button" id="toggle-sidebar" onclick="document.getElementById('sidebar').classList.toggle('sidebar-overlay');"><i class="fa-solid fa-bars"></i></button>
+    <div id="main-layout">
         <div id="sidebar">
             <?php
             $controller = explode('/', $_SERVER['REQUEST_URI'])[1];
@@ -45,12 +32,15 @@
             ];
 
             foreach ($menuItems as $item => $info) {
-                $active = $controller == $item ? '#0d3263' : '#08203f';
-                echo "<a href='/$item' style='background: $active'>
-                    <i class='{$info['icon']}'></i>{$info['label']}
-                </a>";
+                $selected = $controller == $item ? "style='background-color: hsl(214, 77%, 22%)'" : '';
+                echo "<a href='/$item' $selected><i class='{$info['icon']}'></i><span class='link-text'>{$info['label']}</span></a>";
             }
             ?>
+
+            <div id="sidebar-actions">
+                <a id="user" href="<?= $_ENV['BASE_URL'] ?>/usuarios/detalhar/<?= $_SESSION['usuario_id'] ?>"><i class="fa-solid fa-user"></i><?= $_SESSION['usuario_nome'] ?></a>
+                <a id="logout" href="<?= $_ENV['BASE_URL'] ?>/login/sair"><i class="fa-solid fa-arrow-right-from-bracket"></i></a>
+            </div>
         </div>
-        <div class="content">
+        <div id="content">
             <?php include 'templates/message.php'; ?>

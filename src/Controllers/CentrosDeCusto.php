@@ -11,9 +11,8 @@ class CentrosDeCusto
     public static bool $needLogin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
-    private string $orderby = 'total';
-    private string $mostrar = '';
     private string $search = '';
+    private string $status = 'contas a pagar';
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -44,9 +43,8 @@ class CentrosDeCusto
                     break;
                 case 'search':
                     $_SESSION['centrosDeCusto_filters'] = [
-                        'search' => $_POST['search'] ?? '',
-                        'orderby' => $_POST['orderby'] ?? 'total',
-                        'mostrar' => $_POST['mostrar'] ?? ''
+                        'search' => $_POST['search'],
+                        'status' => $_POST['status']
                     ];
                     header("Location: /centros-de-custo");
                     exit;
@@ -85,9 +83,8 @@ class CentrosDeCusto
         $cc = CentroDeCusto::getById($_POST['centro_de_custo_id']);
         $cc->setEnabled(0);
 
-        Logger::log_unable(CentroDeCusto::$tableName, $cc->getId(), $_SESSION['usuario_id']);
-
         if ($cc->save()) {
+            Logger::log_unable(CentroDeCusto::$tableName, $cc->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Centro de custo inativado com sucesso!', 'success'];
             header("Location: /centros-de-custo/detalhar/" . $cc->getId());
             exit;
@@ -99,9 +96,8 @@ class CentrosDeCusto
         $cc = CentroDeCusto::getById($_POST['centro_de_custo_id']);
         $cc->setEnabled(1);
 
-        Logger::log_enable(CentroDeCusto::$tableName, $cc->getId(), $_SESSION['usuario_id']);
-
         if ($cc->save()) {
+            Logger::log_enable(CentroDeCusto::$tableName, $cc->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Centro de custo ativado com sucesso!', 'success'];
             header("Location: /centros-de-custo/detalhar/" . $cc->getId());
             exit;
@@ -131,14 +127,18 @@ class CentrosDeCusto
                 'mostrar' => ''
             ];
 
-            $this->search = $filters['search'];
-            $this->orderby = $filters['orderby'];
-            $this->mostrar = $filters['mostrar'];
+            $this->search = $_SESSION['centrosDeCusto_filters']['search'] ?? $this->search;
+            $this->status = $_SESSION['centrosDeCusto_filters']['status'] ?? $this->status;
+    
 
-            $enabled = $this->mostrar != 'inativados';
-            $paid = $this->mostrar == 'todos';
+            $enabled = $this->status != 'inativados';
+            $paid = $this->status == 'contas pagas';
 
-            $centrosDeCusto = CentroDeCusto::getAll($enabled, $paid, $this->orderby, $this->search);
+            if($this->status == 'contas pagas e não pagas') {
+                $paid = 2;
+            }
+
+            $centrosDeCusto = CentroDeCusto::getAll($enabled, $paid, $this->search);
         }
 
         include 'templates/header.php';

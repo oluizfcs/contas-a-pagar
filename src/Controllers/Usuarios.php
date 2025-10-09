@@ -106,9 +106,8 @@ class Usuarios
         $u = Usuario::getById($_POST['usuario_id']);
         $u->setEnabled(0);
 
-        Logger::log_unable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
-
         if ($u->save()) {
+            Logger::log_unable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Usuário inativado com sucesso!', 'success'];
             header("Location: /usuarios/detalhar/" . $u->getId());
             exit;
@@ -120,9 +119,8 @@ class Usuarios
         $u = Usuario::getById($_POST['usuario_id']);
         $u->setEnabled(1);
 
-        Logger::log_enable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
-
         if ($u->save()) {
+            Logger::log_enable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Usuario ativado com sucesso!', 'success'];
             header("Location: /usuarios/detalhar/" . $u->getId());
             exit;

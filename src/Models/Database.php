@@ -109,12 +109,30 @@ class Database
             $entity = $table . '_editado';
         }
 
-        $sql = "SELECT * FROM log_$table WHERE $entity" . "_id = $id ORDER BY data_log DESC";
+        $sql = "SELECT * FROM log_$table WHERE $entity" . "_id = :id ORDER BY data_log DESC";
 
-        $stmt = self::getConnection()->query($sql);
-        if (!$stmt) {
-            die("Erro ao buscar log");
+        try{
+            $stmt = self::getConnection()->prepare($sql);
+            $stmt->bindValue(':id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+            
+        } catch(PDOException $e) {
+            $_SESSION['message'] = ['Erro inesperado, favor contatar o desenvolvedor do sistema', 'fail'];
+            Logger::error("Falha ao recuperar logs", ["table" => $table]);
+            exit;
         }
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    /**
+     * Retrieves every enabled row's name and id, used as <option></option> in forms
+     *
+     * @param string $table
+     * @return array
+     */
+    public static function getOptions(string $table): array
+    {
+        $stmt = self::getConnection()->query("SELECT id, nome FROM $table WHERE `enabled` = 1");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 }

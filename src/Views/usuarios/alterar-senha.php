@@ -1,32 +1,33 @@
-<h1>Alterar Senha</h1>
-<form action="" method="post" onsubmit="return check()">
+<div class="form-section">
+    <div class="section">
+        <h1>Alterar Senha</h1>
+        <form action="" method="post" onsubmit="return check()">
+            <input type="hidden" name="entity_id" value="<?= $usuario->getId() ?>">
+            <p>Usuário: <?= $usuario->getNome() ?></p>
+            <p>CPF: <?= $usuario->getMaskedCpf() ?></p>
+            <label for="senha">Senha:</label>
+            <div class="input-wrapper">
+                <input
+                    type="password"
+                    id="senha"
+                    name="senha"
+                    required maxlength="100"
+                    autofocus>
+            </div>
 
-    <input type="hidden" name="entity_id" value="<?= $usuario->getId() ?>">
+            <label for="senha">Confirmar senha:</label>
+            <div class="input-wrapper">
+                <input
+                    type="password"
+                    id="confirmarsenha"
+                    required maxlength="100">
+            </div>
 
-    <p>Usuário: <?= $usuario->getNome() ?></p>
-    <p>CPF: <?= $usuario->getMaskedCpf() ?></p>
-    <label for="senha">Senha:</label>
-    <div class="input-wrapper">
-        <input
-            type="password"
-            id="senha"
-            name="senha"
-            required maxlength="100">
-        <span class="char-counter"></span>
+            <button class="btn btn-primary" type="submit" name="type" value="update">Alterar Senha</button>
+            <a class="btn btn-secondary" href="/usuarios/detalhar/<?= $usuario->getId() ?>">Cancelar</a>
+        </form>
     </div>
-
-    <label for="senha">Confirmar senha:</label>
-    <div class="input-wrapper">
-        <input
-            type="password"
-            id="confirmarsenha"
-            required maxlength="100">
-        <span class="char-counter"></span>
-    </div>
-
-    <button class="btn btn-primary" type="submit" name="type" value="update">Alterar Senha</button>
-    <a class="btn" href="/usuarios/detalhar/<?= $usuario->getId() ?>">Cancelar</a>
-</form>
+</div>
 
 <script>
     var cleave = new Cleave('#cpf', {

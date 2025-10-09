@@ -182,7 +182,7 @@ class Banco
         }
     }
 
-    public static function getAll(bool $enabled, bool $paid, string $orderBy, string $search): array
+    public static function getAll(bool $enabled, int $paid, string $search): array
     {
         $sql = "SELECT 
             banco.id,
@@ -196,15 +196,19 @@ class Banco
         WHERE banco.enabled = :enabled
         AND (conta.enabled = 1 OR conta.enabled IS NULL)";
 
-        if (!$paid && $enabled) {
+        if (($paid == 0) && $enabled) {
             $sql = $sql . ' AND conta.paid = 0';
         }
 
-        if (strlen($search) > 0) {
-            $sql = $sql . " AND nome LIKE :search";
+        if (($paid == 1) && $enabled) {
+            $sql = $sql . ' AND conta.paid = 1';
         }
 
-        $sql = $sql . " GROUP BY banco.id ORDER BY $orderBy DESC";
+        if (strlen($search) > 0) {
+            $sql = $sql . ' AND nome LIKE :search';
+        }
+
+        $sql = $sql . ' GROUP BY banco.id';
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
@@ -218,7 +222,7 @@ class Banco
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao listar bancos', ['enabled' => $enabled, 'paid' => $paid, 'orderBy' => $orderBy, 'search' => $search, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao listar bancos', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header("Location: /dashboard");
             exit;

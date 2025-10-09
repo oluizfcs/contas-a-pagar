@@ -10,13 +10,13 @@ if ($centro_de_custo->getData_edicao() != null) {
 
 <h1>Centro de Custo: <?= $centro_de_custo->getNome() ?></h1>
 <br>
-<a class="btn" href="/centros-de-custo" style="margin-right: 3px;">Voltar</a> <a class="btn" href="/centros-de-custo/atualizar/<?= $centro_de_custo->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
-<br><br>
+<a class="btn btn-secondary" href="/centros-de-custo">Voltar</a>
+<a class="btn btn-secondary" href="/centros-de-custo/atualizar/<?= $centro_de_custo->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="centro_de_custo_id" value="<?= $centro_de_custo->getId() ?>">
     <?php if($centro_de_custo->isEnabled()): ?>
-        <button class="btn" name="type" value="unable" onclick="return confirm('Realmente deseja inativar este centro de custo?')">
+        <button class="btn btn-secondary" name="type" value="unable" onclick="return confirm('Realmente deseja inativar este centro de custo?')">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </button>
         <a class="btn btn-disabled">
@@ -26,7 +26,7 @@ if ($centro_de_custo->getData_edicao() != null) {
         <a class="btn btn-disabled">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </a>
-        <button class="btn" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este centro de custo?')">
+        <button class="btn btn-secondary" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este centro de custo?')">
             <i class="fa-solid fa-box-open"></i> Ativar</a>
         </button>
     <?php endif; ?>

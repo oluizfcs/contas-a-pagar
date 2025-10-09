@@ -11,13 +11,13 @@ if ($fornecedor->getData_edicao() != null) {
 <h1>Fornecedor: <?= $fornecedor->getNome() ?></h1>
 Telefone: <?= $fornecedor->getTelefone() ?> <br>
 <br>
-<a class="btn" href="/fornecedores" style="margin-right: 3px;">Voltar</a> <a class="btn" href="/fornecedores/atualizar/<?= $fornecedor->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
-<br><br>
+<a class="btn btn-secondary" href="/fornecedores">Voltar</a>
+<a class="btn btn-secondary" href="/fornecedores/atualizar/<?= $fornecedor->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="fornecedor_id" value="<?= $fornecedor->getId() ?>">
     <?php if($fornecedor->isEnabled()): ?>
-        <button class="btn" name="type" value="unable" onclick="return confirm('Realmente deseja inativar este fornecedor?')">
+        <button class="btn btn-secondary" name="type" value="unable" onclick="return confirm('Realmente deseja inativar este fornecedor?')">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </button>
         <a class="btn btn-disabled">
@@ -27,7 +27,7 @@ Telefone: <?= $fornecedor->getTelefone() ?> <br>
         <a class="btn btn-disabled">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </a>
-        <button class="btn" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este fornecedor?')">
+        <button class="btn btn-secondary" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este fornecedor?')">
             <i class="fa-solid fa-box-open"></i> Ativar</a>
         </button>
     <?php endif; ?>

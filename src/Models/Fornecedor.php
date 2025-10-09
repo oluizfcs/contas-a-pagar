@@ -180,7 +180,7 @@ class Fornecedor
         }
     }
 
-    public static function getAll(bool $enabled, bool $paid, string $orderBy, string $search): array
+    public static function getAll(bool $enabled, int $paid, string $search): array
     {
         $sql = "SELECT 
             fornecedor.id,
@@ -194,15 +194,19 @@ class Fornecedor
         WHERE fornecedor.enabled = :enabled
         AND (conta.enabled = 1 OR conta.enabled IS NULL)";
 
-        if (!$paid && $enabled) {
+        if (($paid == 0) && $enabled) {
             $sql = $sql . ' AND conta.paid = 0';
         }
 
+        if ($paid == 1) {
+            $sql = $sql . ' AND conta.paid = 1';
+        }
+
         if(strlen($search) > 0) {
-            $sql = $sql . " AND nome LIKE :search OR telefone LIKE :search";
+            $sql = $sql . ' AND nome LIKE :search OR telefone LIKE :search';
         }
         
-        $sql = $sql . " GROUP BY fornecedor.id ORDER BY $orderBy DESC";
+        $sql = $sql . ' GROUP BY fornecedor.id';
         
         try {
             $stmt = Database::getConnection()->prepare($sql);
@@ -216,7 +220,7 @@ class Fornecedor
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao listar fornecedores', ['enabled' => $enabled, 'paid' => $paid, 'orderBy' => $orderBy, 'search' => $search, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao listar fornecedores', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header("Location: /dashboard");
             exit;

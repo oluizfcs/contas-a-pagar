@@ -8,25 +8,30 @@ if ($view == 'atualizar') {
 }
 ?>
 
-<h1><?= ucfirst($view) ?> Centro de Custo</h1>
-<form action="" method="post">
+<div class="form-section">
+    <div class="section">
+        <h1><?= ucfirst($view) ?> Centro de Custo</h1>
+        <form action="" method="post">
 
-    <?php if ($view == 'atualizar'): ?>
-        <input type="hidden" name="entity_id" value="<?= $centro_de_custo->getId() ?>">
-        <input type="hidden" name="old_nome" value="<?= $centro_de_custo->getNome() ?>">
-    <?php endif; ?>
+            <?php if ($view == 'atualizar'): ?>
+                <input type="hidden" name="entity_id" value="<?= $centro_de_custo->getId() ?>">
+                <input type="hidden" name="old_nome" value="<?= $centro_de_custo->getNome() ?>">
+            <?php endif; ?>
 
-    <label for="nome">Nome:</label>
-    <div class="input-wrapper">
-        <input
-            type="text"
-            id="nome"
-            name="nome"
-            required maxlength="45"
-            <?= $view == 'atualizar' ? "value=\"" . $centro_de_custo->getNome() . "\"" : '' ?>>
-        <span class="char-counter"></span>
+            <label for="nome">Nome:</label>
+            <div class="input-wrapper">
+                <input
+                    type="text"
+                    id="nome"
+                    name="nome"
+                    required maxlength="45"
+                    <?= $view == 'atualizar' ? "value=\"" . $centro_de_custo->getNome() . "\"" : '' ?>
+                    autofocus
+                    autocomplete="off">
+            </div>
+
+            <button class="btn btn-primary" type="submit" name="type" value="<?= $type ?>"><?= ucfirst($view) ?></button>
+            <a class="btn btn-secondary" href="<?= $href ?>">Cancelar</a>
+        </form>
     </div>
-
-    <button class="btn btn-primary" type="submit" name="type" value="<?= $type ?>"><?= ucfirst($view) ?></button>
-    <a class="btn" href="<?= $href ?>">Cancelar</a>
-</form>
+</div>

@@ -14,13 +14,13 @@ $extenso = $formatter->format($banco->getSaldo_em_centavos() / 100);
 <h1>Conta bancária: <?= $banco->getNome() ?></h1>
 <p title="<?= $extenso ?>">Saldo: R$ <?= $banco->getSaldo_em_reais() ?></p>
 <br>
-<a class="btn" href="/bancos" style="margin-right: 3px;">Voltar</a> <a class="btn" href="/bancos/atualizar/<?= $banco->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
-<br><br>
+<a class="btn btn-secondary" href="/bancos">Voltar</a>
+<a class="btn btn-secondary" href="/bancos/atualizar/<?= $banco->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="banco_id" value="<?= $banco->getId() ?>">
     <?php if ($banco->isEnabled()): ?>
-        <button class="btn" name="type" value="unable" onclick="return confirm('Realmente deseja inativar esta conta bancária?')">
+        <button class="btn btn-secondary" name="type" value="unable" onclick="return confirm('Realmente deseja inativar esta conta bancária?')">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </button>
         <a class="btn btn-disabled">
@@ -30,7 +30,7 @@ $extenso = $formatter->format($banco->getSaldo_em_centavos() / 100);
         <a class="btn btn-disabled">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </a>
-        <button class="btn" name="type" value="enable" onclick="return confirm('Realmente deseja ativar esta conta bancária?')">
+        <button class="btn btn-secondary" name="type" value="enable" onclick="return confirm('Realmente deseja ativar esta conta bancária?')">
             <i class="fa-solid fa-box-open"></i> Ativar</a>
         </button>
     <?php endif; ?>

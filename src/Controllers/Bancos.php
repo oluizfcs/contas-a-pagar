@@ -12,9 +12,8 @@ class Bancos
     public static bool $needLogin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
-    private string $orderby = 'total';
-    private string $mostrar = '';
     private string $search = '';
+    private string $status = 'contas a pagar';
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -45,9 +44,8 @@ class Bancos
                     break;
                 case 'search':
                     $_SESSION['bancos_filters'] = [
-                        'search' => $_POST['search'] ?? '',
-                        'orderby' => $_POST['orderby'] ?? 'total',
-                        'mostrar' => $_POST['mostrar'] ?? ''
+                        'search' => $_POST['search'],
+                        'status' => $_POST['status']
                     ];
                     header("Location: /bancos");
                     exit;
@@ -88,9 +86,8 @@ class Bancos
         $b = Banco::getById($_POST['banco_id']);
         $b->setEnabled(0);
 
-        Logger::log_unable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
-
         if ($b->save()) {
+            Logger::log_unable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Banco inativado com sucesso!', 'success'];
             header("Location: /bancos/detalhar/" . $b->getId());
             exit;
@@ -102,9 +99,8 @@ class Bancos
         $b = Banco::getById($_POST['banco_id']);
         $b->setEnabled(1);
 
-        Logger::log_enable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
-
         if ($b->save()) {
+            Logger::log_enable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Banco ativado com sucesso!', 'success'];
             header("Location: /bancos/detalhar/" . $b->getId());
             exit;
@@ -128,20 +124,17 @@ class Bancos
 
         if ($view == 'index') {
 
-            $filters = $_SESSION['bancos_filters'] ?? [
-                'search' => '',
-                'orderby' => 'total',
-                'mostrar' => ''
-            ];
+            $this->search = $_SESSION['bancos_filters']['search'] ?? $this->search;
+            $this->status = $_SESSION['bancos_filters']['status'] ?? $this->status;
 
-            $this->search = $filters['search'];
-            $this->orderby = $filters['orderby'];
-            $this->mostrar = $filters['mostrar'];
+            $enabled = $this->status != 'inativadas';
+            $paid = $this->status == 'contas pagas';
 
-            $enabled = $this->mostrar != 'inativadas';
-            $paid = $this->mostrar == 'todos';
+            if($this->status == 'contas pagas e não pagas') {
+                $paid = 2;
+            }
 
-            $bancos = Banco::getAll($enabled, $paid, $this->orderby, $this->search);
+            $bancos = Banco::getAll($enabled, $paid, $this->search);
         }
 
         include 'templates/header.php';

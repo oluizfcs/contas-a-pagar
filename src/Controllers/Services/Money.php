@@ -4,8 +4,9 @@ namespace App\Controllers\Services;
 
 class Money
 {
-    public static function centavos_para_reais(int|null $centavos): string
+    public static function centavos_para_reais(int|string|null $centavos): string
     {
+        $centavos = intval($centavos);
         return number_format($centavos/100, 2, ',', '.');
     }
 

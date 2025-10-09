@@ -1,15 +1,15 @@
 document.querySelectorAll('.input-wrapper').forEach(wrapper => {
     const field = wrapper.querySelector('input[maxlength], textarea[maxlength]');
-    const counter = wrapper.querySelector('.char-counter');
 
-    if (field && counter) {
+    if (field) {
         const max = field.getAttribute('maxlength');
 
         const updateCounter = () => {
-            counter.textContent = `${field.value.length}/${max}`;
+            if(field.value.length == max) {
+                alert("Limite de caracteres atingido!");
+            }
         };
 
         field.addEventListener('input', updateCounter);
-        updateCounter(); // atualiza ao carregar
     }
 });

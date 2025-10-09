@@ -11,9 +11,8 @@ class Fornecedores
     public static bool $needLogin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
-    private string $orderby = 'total';
-    private string $mostrar = '';
     private string $search = '';
+    private string $status = 'contas a pagar';
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -27,6 +26,8 @@ class Fornecedores
                 exit;
             }
         }
+
+        // var_dump($_POST); exit;
 
         if (!empty($_POST)) {
             switch ($_POST['type']) {
@@ -44,9 +45,8 @@ class Fornecedores
                     break;
                 case 'search':
                     $_SESSION['fornecedores_filters'] = [
-                        'search' => $_POST['search'] ?? '',
-                        'orderby' => $_POST['orderby'] ?? 'total',
-                        'mostrar' => $_POST['mostrar'] ?? ''
+                        'search' => $_POST['search'],
+                        'status' => $_POST['status']
                     ];
                     header("Location: /fornecedores");
                     exit;
@@ -86,9 +86,8 @@ class Fornecedores
         $f = Fornecedor::getById($_POST['fornecedor_id']);
         $f->setEnabled(0);
 
-        Logger::log_unable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
-
         if ($f->save()) {
+            Logger::log_unable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Fornecedor inativado com sucesso!', 'success'];
             header("Location: /fornecedores/detalhar/" . $f->getId());
             exit;
@@ -100,9 +99,8 @@ class Fornecedores
         $f = Fornecedor::getById($_POST['fornecedor_id']);
         $f->setEnabled(1);
 
-        Logger::log_enable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
-
         if ($f->save()) {
+            Logger::log_enable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Fornecedor ativado com sucesso!', 'success'];
             header("Location: /fornecedores/detalhar/" . $f->getId());
             exit;
@@ -126,20 +124,17 @@ class Fornecedores
 
         if ($view == 'index') {
 
-            $filters = $_SESSION['fornecedores_filters'] ?? [
-                'search' => '',
-                'orderby' => 'total',
-                'mostrar' => ''
-            ];
+            $this->search = $_SESSION['fornecedores_filters']['search'] ?? $this->search;
+            $this->status = $_SESSION['fornecedores_filters']['status'] ?? $this->status;
 
-            $this->search = $filters['search'];
-            $this->orderby = $filters['orderby'];
-            $this->mostrar = $filters['mostrar'];
+            $enabled = $this->status != 'inativados';
+            $paid = $this->status ==  'contas pagas';
 
-            $enabled = $this->mostrar != 'inativados';
-            $paid = $this->mostrar == 'todos';
+            if($this->status == 'contas pagas e não pagas') {
+                $paid = 2;
+            }
 
-            $fornecedores = Fornecedor::getAll($enabled, $paid, $this->orderby, $this->search);
+            $fornecedores = Fornecedor::getAll($enabled, $paid, $this->search);
         }
 
         include 'templates/header.php';
