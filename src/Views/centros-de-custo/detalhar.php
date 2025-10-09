@@ -10,8 +10,8 @@ if ($centro_de_custo->getData_edicao() != null) {
 
 <h1>Centro de Custo: <?= $centro_de_custo->getNome() ?></h1>
 <br>
-<a class="btn btn-secondary" href="/centros-de-custo">Voltar</a>
-<a class="btn btn-secondary" href="/centros-de-custo/atualizar/<?= $centro_de_custo->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
+<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/centros-de-custo">Voltar</a>
+<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/centros-de-custo/atualizar/<?= $centro_de_custo->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="centro_de_custo_id" value="<?= $centro_de_custo->getId() ?>">

@@ -23,7 +23,7 @@ class Bancos
                 $this->id = $id;
             } else {
                 $_SESSION['message'] = ['Banco não encontrado', 'fail'];
-                header("Location: /bancos");
+                header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
                 exit;
             }
         }
@@ -47,7 +47,7 @@ class Bancos
                         'search' => $_POST['search'],
                         'status' => $_POST['status']
                     ];
-                    header("Location: /bancos");
+                    header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
                     exit;
                     break;
             }
@@ -64,7 +64,7 @@ class Bancos
 
         if ($b->save()) {
             $_SESSION['message'] = ['Banco cadastrado com sucesso!', 'success'];
-            header("Location: /bancos");
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
             exit;
         }
     }
@@ -76,7 +76,7 @@ class Bancos
 
         if ($b->save()) {
             $_SESSION['message'] = ['Banco atualizado com sucesso!', 'success'];
-            header("Location: /bancos/detalhar/" . $_POST['entity_id']);
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar' . $_POST['entity_id']);
             exit;
         }
     }
@@ -89,7 +89,7 @@ class Bancos
         if ($b->save()) {
             Logger::log_unable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Banco inativado com sucesso!', 'success'];
-            header("Location: /bancos/detalhar/" . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar' . $b->getId());
             exit;
         }
     }
@@ -102,7 +102,7 @@ class Bancos
         if ($b->save()) {
             Logger::log_enable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Banco ativado com sucesso!', 'success'];
-            header("Location: /bancos/detalhar/" . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar' . $b->getId());
             exit;
         }
     }

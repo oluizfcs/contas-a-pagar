@@ -94,7 +94,7 @@
             <br>
 
             <button class="btn btn-primary" type="submit" name="type" value="create">Cadastrar</button>
-            <a class="btn btn-secondary" href="/contas">Cancelar</a>
+            <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas">Cancelar</a>
         </form>
     </div>
 </div>

@@ -1,10 +1,10 @@
 <?php
 $type = 'create';
-$href = '/fornecedores';
+$href = $_ENV['BASE_URL'] . '/fornecedores';
 
 if ($view == 'atualizar') {
     $type = 'update';
-    $href = '/fornecedores/detalhar/' . $fornecedor->getId();
+    $href = $_ENV['BASE_URL'] . '/fornecedores/detalhar/' . $fornecedor->getId();
 }
 ?>
 

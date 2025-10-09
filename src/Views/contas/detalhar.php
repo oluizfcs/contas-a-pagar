@@ -18,8 +18,8 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
 <p>Descrição:</p>
 <span class="description"><?= $conta->getDescricao() ?></span>
 <br><br>
-<a class="btn btn-secondary" href="/contas">Voltar</a>
-<a class="btn btn-secondary" href="/contas/atualizar/<?= $conta->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
+<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas">Voltar</a>
+<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas/atualizar/<?= $conta->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="conta_id" value="<?= $conta->getId() ?>">

@@ -22,12 +22,10 @@ class Fornecedores
                 $this->id = $id;
             } else {
                 $_SESSION['message'] = ['Fornecedor não encontrado', 'fail'];
-                header("Location: /fornecedores");
+                header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores');
                 exit;
             }
         }
-
-        // var_dump($_POST); exit;
 
         if (!empty($_POST)) {
             switch ($_POST['type']) {
@@ -48,7 +46,7 @@ class Fornecedores
                         'search' => $_POST['search'],
                         'status' => $_POST['status']
                     ];
-                    header("Location: /fornecedores");
+                    header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores');
                     exit;
                     break;
             }
@@ -63,7 +61,7 @@ class Fornecedores
 
         if ($f->save()) {
             $_SESSION['message'] = ['Fornecedor cadastrado com sucesso!', 'success'];
-            header("Location: /fornecedores");
+            header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores');
             exit;
         }
     }
@@ -76,7 +74,7 @@ class Fornecedores
 
         if ($f->save()) {
             $_SESSION['message'] = ['Fornecedor atualizado com sucesso!', 'success'];
-            header("Location: /fornecedores/detalhar/" . $_POST['entity_id']);
+            header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores/detalhar/' . $_POST['entity_id']);
             exit;
         }
     }
@@ -89,7 +87,7 @@ class Fornecedores
         if ($f->save()) {
             Logger::log_unable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Fornecedor inativado com sucesso!', 'success'];
-            header("Location: /fornecedores/detalhar/" . $f->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores/detalhar/' . $f->getId());
             exit;
         }
     }
@@ -102,7 +100,7 @@ class Fornecedores
         if ($f->save()) {
             Logger::log_enable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Fornecedor ativado com sucesso!', 'success'];
-            header("Location: /fornecedores/detalhar/" . $f->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores/detalhar/' . $f->getId());
             exit;
         }
     }

@@ -148,7 +148,7 @@ class CentroDeCusto
         } catch (PDOException $e) {
             Logger::error('Erro ao cadastrar|atualizar centro de custo', ['PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro ao cadastrar|atualizar centro de custo', 'fail'];
-            header("Location: /centros-de-custo");
+            header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo');
             exit;
         }
     }
@@ -194,7 +194,7 @@ class CentroDeCusto
         } catch (PDOException $e) {
             Logger::error('Falha ao listar centros de custo', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
-            header("Location: /dashboard");
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
     }
@@ -204,7 +204,7 @@ class CentroDeCusto
         $centroDeCusto = Database::getById(self::$tableName, $id);
         if (!$centroDeCusto) {
             $_SESSION['message'] = ['Centro de custo não encontrado', 'fail'];
-            header("Location: /centros-de-custo");
+            header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo');
             exit;
         }
 

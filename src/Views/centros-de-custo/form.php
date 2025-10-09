@@ -1,10 +1,10 @@
 <?php
 $type = 'create';
-$href = '/centros-de-custo';
+$href = $_ENV['BASE_URL'] . '/centros-de-custo';
 
 if ($view == 'atualizar') {
     $type = 'update';
-    $href = '/centros-de-custo/detalhar/' . $centro_de_custo->getId();
+    $href = $_ENV['BASE_URL'] . '/centros-de-custo/detalhar/' . $centro_de_custo->getId();
 }
 ?>
 

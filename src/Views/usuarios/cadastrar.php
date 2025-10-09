@@ -44,7 +44,7 @@
             </div>
 
             <button class="btn btn-primary" type="submit" name="type" value="create"><?= ucfirst($view) ?></button>
-            <a class="btn btn-secondary" href="/usuarios">Cancelar</a>
+            <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/usuarios">Cancelar</a>
         </form>
     </div>
 </div>

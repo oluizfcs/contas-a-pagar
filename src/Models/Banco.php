@@ -177,7 +177,7 @@ class Banco
         } catch (PDOException $e) {
             Logger::error('Erro ao cadastrar|atualizar banco', ['PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro ao cadastrar|atualizar banco', 'fail'];
-            header("Location: /bancos");
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
             exit;
         }
     }
@@ -224,7 +224,7 @@ class Banco
         } catch (PDOException $e) {
             Logger::error('Falha ao listar bancos', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
-            header("Location: /dashboard");
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
     }
@@ -234,7 +234,7 @@ class Banco
         $banco = Database::getById(self::$tableName, $id);
         if (!$banco) {
             $_SESSION['message'] = ['Banco não encontrado', 'fail'];
-            header("Location: /bancos");
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
             exit;
         }
 

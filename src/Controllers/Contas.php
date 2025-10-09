@@ -28,7 +28,7 @@ class Contas
                 $this->id = $id;
             } else {
                 $_SESSION['message'] = ['Conta não encontrada', 'fail'];
-                header("Location: /contas");
+                header('Location: ' . $_ENV['BASE_URL'] . '/contas');
                 exit;
             }
         }
@@ -54,7 +54,7 @@ class Contas
                         'status' => $_POST['status'] ?? 'a pagar',
                         'orderby' => $_POST['orderby'] ?? 'vencimento'
                     ];
-                    header("Location: /contas");
+                    header('Location: ' . $_ENV['BASE_URL'] . '/contas');
                     exit;
             }
         }
@@ -88,7 +88,7 @@ class Contas
                 $p->save();
             }
             
-            header("Location: /contas");
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;
         }
     }
@@ -101,7 +101,7 @@ class Contas
 
         // if ($b->save()) {
         //     $_SESSION['message'] = ['Conta atualizada com sucesso!', 'success'];
-        //     header("Location: /contas/detalhar/" . $_POST['entity_id']);
+        //     header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $_POST['entity_id']);
         //     exit;
         // }
     }
@@ -114,7 +114,7 @@ class Contas
         if ($b->save()) {
             Logger::log_unable(Conta::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Conta inativada com sucesso!', 'success'];
-            header("Location: /contas/detalhar/" . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $b->getId());
             exit;
         }
     }
@@ -127,7 +127,7 @@ class Contas
         if ($b->save()) {
             Logger::log_enable(Conta::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Conta ativada com sucesso!', 'success'];
-            header("Location: /contas/detalhar/" . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $b->getId());
             exit;
         }
     }
@@ -179,19 +179,19 @@ class Contas
 
             if(empty($centros)) {
                 $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há centros de custo cadastrados', 'warning'];
-                header("Location: /centros-de-custo/cadastrar");
+                header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/cadastrar');
                 exit;
             }
 
             if(empty($fornecedores)) {
                 $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há fornecedores cadastrados', 'warning'];
-                header("Location: /fornecedores/cadastrar");
+                header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores/cadastrar');
                 exit;
             }
 
             if(empty($bancos)) {
                 $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há bancos cadastrados', 'warning'];
-                header("Location: /bancos/cadastrar");
+                header('Location: ' . $_ENV['BASE_URL'] . '/bancos/cadastrar');
                 exit;
             }
         }

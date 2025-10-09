@@ -204,7 +204,7 @@ class Parcela
         } catch (PDOException $e) {
             Logger::error('Erro ao cadastrar|atualizar conta', ['PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro ao cadastrar|atualizar conta', 'fail'];
-            header("Location: /contas");
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;
         }
     }
@@ -253,7 +253,7 @@ class Parcela
         } catch (PDOException $e) {
             Logger::error('Falha ao listar contas', ['status' => $status, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
-            header("Location: /dashboard");
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
     }

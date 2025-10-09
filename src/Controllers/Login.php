@@ -3,6 +3,7 @@
 namespace App\Controllers;
 
 use App\Controllers\Services\Cpf;
+use App\Controllers\Services\Logger;
 use App\Models\Usuario;
 use Exception;
 
@@ -43,9 +44,10 @@ class Login
             $_SESSION['usuario_id'] = $usuario['id'];
             $_SESSION['usuario_nome'] = $usuario['nome'];
 
-            header('Location: /dashboard');
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
         } catch (Exception $e) {
             $_SESSION['message'] = ['Credenciais inválidas', 'fail'];
+            Logger::error('erro ao logar', ['$_POST' => $_POST]);
             $this->loadView();
             exit;
         }

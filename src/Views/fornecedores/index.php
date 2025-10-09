@@ -1,5 +1,5 @@
 <h1>Fornecedores</h1>
-<a class="btn btn-success" href="/fornecedores/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
+<a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/fornecedores/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <div class="section">
     <div class="section search-section">
         <form method="POST" action="">
@@ -38,7 +38,7 @@
                     <th>Média (R$)</th>
                 </tr>
                 <?php foreach ($fornecedores as $fornecedor): ?>
-                    <tr onclick="window.location.href='/fornecedores/detalhar/<?= $fornecedor['id'] ?>';">
+                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/fornecedores/detalhar/<?= $fornecedor['id'] ?>';">
                         <td><?= $fornecedor['nome'] ?></td>
                         <td><?= $fornecedor['telefone'] ?></td>
                         <td><?= Money::centavos_para_reais($fornecedor['total']) ?></td>

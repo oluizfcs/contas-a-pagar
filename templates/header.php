@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Contas a pagar</title>
-    <link rel="shortcut icon" href="/public/images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="/public/css/reset.css">
-    <link rel="stylesheet" href="/public/css/style.css">
-    <link rel="stylesheet" href="/public/css/bsbuttons.css">
+    <link rel="shortcut icon" href="<?= $_ENV['BASE_URL'] ?>/public/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/public/css/reset.css">
+    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/public/css/style.css">
+    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/public/css/bsbuttons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
-    <script src="/public/js/jquery.maskMoney.js" type="text/javascript"></script>
+    <script src="<?= $_ENV['BASE_URL'] ?>/public/js/jquery.maskMoney.js" type="text/javascript"></script>
 </head>
 
 <body>
@@ -33,7 +33,7 @@
 
             foreach ($menuItems as $item => $info) {
                 $selected = $controller == $item ? "style='background-color: hsl(214, 77%, 22%)'" : '';
-                echo "<a href='/$item' $selected><i class='{$info['icon']}'></i><span class='link-text'>{$info['label']}</span></a>";
+                echo "<a href='" . $_ENV['BASE_URL'] . "/$item' $selected><i class='{$info['icon']}'></i><span class='link-text'>{$info['label']}</span></a>";
             }
             ?>
 

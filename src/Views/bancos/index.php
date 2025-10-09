@@ -1,5 +1,5 @@
 <h1>Contas bancárias</h1>
-<a class="btn btn-success" href="/bancos/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
+<a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/bancos/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <div class="section">
     <div class="section search-section">
         <form method="POST" action="">
@@ -38,7 +38,7 @@
                     <th>Média (R$)</th>
                 </tr>
                 <?php foreach ($bancos as $banco): ?>
-                    <tr onclick="window.location.href='/bancos/detalhar/<?= $banco['id'] ?>';">
+                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/bancos/detalhar/<?= $banco['id'] ?>';">
                         <td><?= $banco['nome'] ?></td>
                         <td><?= Money::centavos_para_reais($banco['saldo_em_centavos']) ?></td>
                         <td><?= Money::centavos_para_reais($banco['total']) ?></td>

@@ -2,8 +2,8 @@
 <head>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
 </head>
-<link rel="stylesheet" href="/public/css/login.css">
-<link rel="shortcut icon" href="/public/images/favicon.ico" type="image/x-icon">
+<link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/public/css/login.css">
+<link rel="shortcut icon" href="<?= $_ENV['BASE_URL'] ?>/public/images/favicon.ico" type="image/x-icon">
 
 <div id="login">
     <?php include 'templates/message.php'; ?>

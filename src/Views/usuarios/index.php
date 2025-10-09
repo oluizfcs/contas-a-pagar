@@ -1,6 +1,6 @@
 <h1>Usuarios<?= $this->mostrar == 'inativados' ? ' Inativados' : '' ?></h1>
 <?php if ($_SESSION['usuario_id'] == 1): ?>
-    <a class="btn btn-success" href="/usuarios/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
+    <a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/usuarios/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <?php endif; ?>
 <div class="section">
     <div class="section search-section">
@@ -39,7 +39,7 @@
                     <th class="sorttable_nosort">CPF</th>
                 </tr>
                 <?php foreach ($usuarios as $usuario): ?>
-                    <tr onclick="window.location.href='/usuarios/detalhar/<?= $usuario['id'] ?>';">
+                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/usuarios/detalhar/<?= $usuario['id'] ?>';">
                         <td><?= $usuario['nome'] ?></td>
                         <td><?= Cpf::maskCpf($usuario['cpf']) ?></td>
                     </tr>

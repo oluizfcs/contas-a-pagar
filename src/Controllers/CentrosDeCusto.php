@@ -22,7 +22,7 @@ class CentrosDeCusto
                 $this->id = $id;
             } else {
                 $_SESSION['message'] = ['Centro de custo não encontrado', 'fail'];
-                header("Location: /centros-de-custo");
+                header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo');
                 exit;
             }
         }
@@ -46,7 +46,7 @@ class CentrosDeCusto
                         'search' => $_POST['search'],
                         'status' => $_POST['status']
                     ];
-                    header("Location: /centros-de-custo");
+                    header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo');
                     exit;
                     break;
             }
@@ -61,7 +61,7 @@ class CentrosDeCusto
 
         if ($cc->save()) {
             $_SESSION['message'] = ['Centro de custo cadastrado com sucesso!', 'success'];
-            header("Location: /centros-de-custo");
+            header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo');
             exit;
         }
     }
@@ -72,8 +72,8 @@ class CentrosDeCusto
         $cc->setNome($_POST['nome']);
 
         if ($cc->save()) {
-            $_SESSION['message'] = ['Centro de custo atualizado com sucesso!', 'success'];
-            header("Location: /centros-de-custo/detalhar/" . $_POST['entity_id']);
+            $_SESSION['message'] = ['Centro de custo atualizado com sucesso!', 'success'];;
+            header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/detalhar/' . $_POST['entity_id']);
             exit;
         }
     }
@@ -86,7 +86,7 @@ class CentrosDeCusto
         if ($cc->save()) {
             Logger::log_unable(CentroDeCusto::$tableName, $cc->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Centro de custo inativado com sucesso!', 'success'];
-            header("Location: /centros-de-custo/detalhar/" . $cc->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/detalhar/' . $cc->getId());
             exit;
         }
     }
@@ -99,7 +99,7 @@ class CentrosDeCusto
         if ($cc->save()) {
             Logger::log_enable(CentroDeCusto::$tableName, $cc->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Centro de custo ativado com sucesso!', 'success'];
-            header("Location: /centros-de-custo/detalhar/" . $cc->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/detalhar/' . $cc->getId());
             exit;
         }
     }

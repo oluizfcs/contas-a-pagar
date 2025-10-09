@@ -239,7 +239,7 @@ class Conta
         } catch (PDOException $e) {
             Logger::error('Erro ao cadastrar|atualizar conta', ['PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro ao cadastrar|atualizar conta', 'fail'];
-            header("Location: /contas");
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;
         }
     }
@@ -249,7 +249,7 @@ class Conta
         $conta = Database::getById(self::$tableName, $id);
         if (!$conta) {
             $_SESSION['message'] = ['Conta não encontrada', 'fail'];
-            header("Location: /contas");
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;
         }
 
@@ -297,7 +297,7 @@ class Conta
         } catch (PDOException $e) {
             Logger::error('Falha ao listar contas', ['status' => $status, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
-            header("Location: /dashboard");
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
     }
@@ -314,7 +314,7 @@ class Conta
         } catch (PDOException $e) {
             Logger::error('Falha ao encontrar parcelas', ['conta_id' => $id, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
-            header("Location: /dashboard");
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
     }

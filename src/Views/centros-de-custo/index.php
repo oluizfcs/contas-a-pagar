@@ -1,5 +1,5 @@
 <h1>Centros de Custo</h1>
-<a class="btn btn-success" href="/centros-de-custo/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
+<a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/centros-de-custo/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <div class="section">
     <div class="section search-section">
         <form method="POST" action="">
@@ -37,7 +37,7 @@
                     <th>Média (R$)</th>
                 </tr>
                 <?php foreach ($centrosDeCusto as $centro): ?>
-                    <tr onclick="window.location.href='/centros-de-custo/detalhar/<?= $centro['id'] ?>';">
+                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/centros-de-custo/detalhar/<?= $centro['id'] ?>';">
                         <td><?= $centro['nome'] ?></td>
                         <td><?= Money::centavos_para_reais($centro['total']) ?></td>
                         <td><?= $centro['quantidade'] ?></td>

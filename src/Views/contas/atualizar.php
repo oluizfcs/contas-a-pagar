@@ -100,7 +100,7 @@ var_dump($conta);
     <br>
 
     <button class="btn btn-primary" type="submit" name="type" value="update">Atualizar</button>
-    <a class="btn" href="<?= '/contas/detalhar/' . $conta->getId() ?>">Cancelar</a>
+    <a class="btn" href="<?= $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta->getId() ?>">Cancelar</a>
 </form>
 
 <script>

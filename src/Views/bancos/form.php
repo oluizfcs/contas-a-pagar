@@ -1,10 +1,10 @@
 <?php
 $type = 'create';
-$href = '/bancos';
+$href = $_ENV['BASE_URL'] . '/bancos';
 
 if ($view == 'atualizar') {
     $type = 'update';
-    $href = '/bancos/detalhar/' . $banco->getId();
+    $href = $_ENV['BASE_URL'] . '/bancos/detalhar/' . $banco->getId();
 }
 ?>
 

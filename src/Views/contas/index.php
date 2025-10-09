@@ -1,5 +1,5 @@
 <h1><?= ucfirst($this->rowType) ?> <?= $this->status == 'todas' ? '' : $this->status ?></h1>
-<a class="btn btn-success" href="/contas/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
+<a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/contas/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <div class="section">
     <div class="section search-section">
         <form method="POST" action="">
@@ -57,7 +57,7 @@
                     <th>Descrição</th>
                 </tr>
                 <?php foreach ($contas as $conta): ?>
-                    <tr onclick="window.location.href='/contas/detalhar/<?= $conta['id'] ?>';">
+                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $conta['id'] ?>';">
                         <td><?= $conta['centro'] ?></td>
                         <td><?= Money::centavos_para_reais($conta['valor_em_centavos']) ?></td>
                         <td>x</td>
@@ -78,7 +78,7 @@
                     <th>Parcela</th>
                 </tr>
                 <?php foreach ($parcelas as $parcela): ?>
-                    <tr onclick="window.location.href='/contas/detalhar/<?= $parcela['conta_id'] ?>';">
+                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $parcela['conta_id'] ?>';">
                         <td><?= $parcela['centro'] ?></td>
                         <td><?= Money::centavos_para_reais($parcela['valor_em_centavos']) ?></td>
                         <td><?= new DateTime($parcela['data_vencimento'])->format('d/m/Y') ?></td>

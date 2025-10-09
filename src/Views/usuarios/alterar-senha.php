@@ -24,7 +24,7 @@
             </div>
 
             <button class="btn btn-primary" type="submit" name="type" value="update">Alterar Senha</button>
-            <a class="btn btn-secondary" href="/usuarios/detalhar/<?= $usuario->getId() ?>">Cancelar</a>
+            <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/usuarios/detalhar/<?= $usuario->getId() ?>">Cancelar</a>
         </form>
     </div>
 </div>

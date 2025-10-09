@@ -24,7 +24,7 @@ class Usuarios
                 $this->id = $id;
             } else {
                 $_SESSION['message'] = ['Usuario não encontrado', 'fail'];
-                header("Location: /usuarios");
+                header('Location: ' . $_ENV['BASE_URL'] . '/usuarios');
                 exit;
             }
         }
@@ -48,7 +48,7 @@ class Usuarios
                         'search' => $_POST['search'] ?? '',
                         'mostrar' => $_POST['mostrar'] ?? ''
                     ];
-                    header("Location: /usuarios");
+                    header('Location: ' . $_ENV['BASE_URL'] . '/usuarios');
                     exit;
                     break;
             }
@@ -79,7 +79,7 @@ class Usuarios
 
             if ($usuario->save()) {
                 $_SESSION['message'] = ['Usuário cadastrado com sucesso!', 'success'];
-                header("Location: /usuarios");
+                header('Location: ' . $_ENV['BASE_URL'] . '/usuarios');
                 exit;
             }
         } catch (Exception $e) {
@@ -96,7 +96,7 @@ class Usuarios
 
         if ($usuario->save()) {
             $_SESSION['message'] = ['Senha alterada com sucesso!', 'success'];
-            header("Location: /usuarios/detalhar/" . $_POST['entity_id']);
+            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar' . $_POST['entity_id']);
             exit;
         }
     }
@@ -109,7 +109,7 @@ class Usuarios
         if ($u->save()) {
             Logger::log_unable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Usuário inativado com sucesso!', 'success'];
-            header("Location: /usuarios/detalhar/" . $u->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar' . $u->getId());
             exit;
         }
     }
@@ -122,7 +122,7 @@ class Usuarios
         if ($u->save()) {
             Logger::log_enable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Usuario ativado com sucesso!', 'success'];
-            header("Location: /usuarios/detalhar/" . $u->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar' . $u->getId());
             exit;
         }
     }

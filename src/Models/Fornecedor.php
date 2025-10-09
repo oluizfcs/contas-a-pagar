@@ -175,7 +175,7 @@ class Fornecedor
         } catch (PDOException $e) {
             Logger::error('Erro ao cadastrar|atualizar fornecedor', ['PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro ao cadastrar|atualizar fornecedor', 'fail'];
-            header("Location: /fornecedores");
+            header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores');
             exit;
         }
     }
@@ -222,7 +222,7 @@ class Fornecedor
         } catch (PDOException $e) {
             Logger::error('Falha ao listar fornecedores', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
-            header("Location: /dashboard");
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
     }
@@ -232,7 +232,7 @@ class Fornecedor
         $fornecedor = Database::getById(self::$tableName, $id);
         if (!$fornecedor) {
             $_SESSION['message'] = ['Fornecedor não encontrado', 'fail'];
-            header("Location: /fornecedores");
+            header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores');
             exit;
         }
 

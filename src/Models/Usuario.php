@@ -199,12 +199,12 @@ class Usuario
             if($e->getCode() == 23000) {
                 Logger::error('Este CPF já está cadastrado.', ['PDOException' => $e->getMessage()]);
                 $_SESSION['message'] = ['Este CPF já está cadastrado.', 'fail'];
-                header("Location: /usuarios/cadastrar");
+                header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/cadastrar');
                 exit;
             }
             Logger::error('Erro ao cadastrar|atualizar usuário', ['PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro ao cadastrar|atualizar usuário', 'fail'];
-            header("Location: /usuarios");
+                header('Location: ' . $_ENV['BASE_URL'] . '/usuarios');
             exit;
         }
     }
@@ -214,7 +214,7 @@ class Usuario
         $usuario = Database::getById('usuario', $id);
         if (!$usuario) {
             $_SESSION['message'] = ['Usuário não encontrado', 'fail'];
-            header("Location: /usuarios");
+                header('Location: ' . $_ENV['BASE_URL'] . '/usuarios');
             exit;
         }
         extract($usuario);
@@ -245,7 +245,7 @@ class Usuario
         } catch (PDOException $e) {
             Logger::error('Falha ao listar usuários', ['enabled' => $enabled, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
-            header("Location: /dashboard");
+            header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
     }

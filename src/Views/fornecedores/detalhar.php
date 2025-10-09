@@ -11,8 +11,8 @@ if ($fornecedor->getData_edicao() != null) {
 <h1>Fornecedor: <?= $fornecedor->getNome() ?></h1>
 Telefone: <?= $fornecedor->getTelefone() ?> <br>
 <br>
-<a class="btn btn-secondary" href="/fornecedores">Voltar</a>
-<a class="btn btn-secondary" href="/fornecedores/atualizar/<?= $fornecedor->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
+<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/fornecedores">Voltar</a>
+<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/fornecedores/atualizar/<?= $fornecedor->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="fornecedor_id" value="<?= $fornecedor->getId() ?>">
