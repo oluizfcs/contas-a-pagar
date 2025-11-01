@@ -9,7 +9,7 @@
     <?php include 'templates/message.php'; ?>
     <form action="" method="post">
         <label for="cpf">CPF</label>
-        <input type="text" id="cpf" name="cpf" required value="<?= $_POST['cpf'] ?? '' ?>">
+        <input type="text" id="cpf" name="cpf" required autofocus value="<?= $_POST['cpf'] ?? '' ?>">
         <label for="senha">Senha</label>
         <input type="password" id="senha" name="senha" required value="<?= $_POST['senha'] ?? '' ?>">
         <input id="submit" type="submit" value="Entrar">
