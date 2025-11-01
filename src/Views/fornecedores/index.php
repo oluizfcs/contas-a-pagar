@@ -6,13 +6,12 @@
             <input type="hidden" name="type" value="search">
             <i class="search-icon fa-solid fa-magnifying-glass"></i>
             <input type="text" name="search" id="search" autocomplete="off" value="<?= $this->search ?? '' ?>">
-            <select name="status">
+            <select name="status" onchange="form.submit()">
                 <?php
                 $options = ['contas a pagar', 'contas pagas', 'contas pagas e não pagas', 'inativados'];
-
                 foreach ($options as $option) {
                     $selected = $this->status == $option ? 'selected' : '';
-                    echo "<option value='$option' $selected onclick='form.submit()'>" . ucfirst($option) . '</option>';
+                    echo "<option value='$option' $selected>" . ucfirst($option) . '</option>';
                 }
                 ?>
             </select>

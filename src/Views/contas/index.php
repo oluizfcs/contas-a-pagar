@@ -8,18 +8,18 @@
             <i class="search-icon fa-solid fa-magnifying-glass"></i>
             <input type="text" name="search" id="search" autocomplete="off" value="<?= $this->search ?? '' ?>">
 
-            <select name="rowType">
+            <select name="rowType" onchange="form.submit()">
                 <?php
                 $options = ['contas', 'parcelas'];
 
                 foreach ($options as $option) {
                     $selected = $this->rowType == $option ? 'selected' : '';
-                    echo "<option value='$option' $selected onclick='form.submit()'>" . ucfirst($option) . '</option>';
+                    echo "<option value='$option' $selected>" . ucfirst($option) . '</option>';
                 }
                 ?>
             </select>
 
-            <select name="status">
+            <select name="status" onchange="form.submit()">
                 <?php
                 $options = ['a pagar', 'pagas', 'todas'];
 
@@ -29,7 +29,7 @@
 
                 foreach ($options as $option) {
                     $selected = $this->status == $option ? 'selected' : '';
-                    echo "<option value='$option' $selected onclick='form.submit()'>" . ucfirst($option) . '</option>';
+                    echo "<option value='$option' $selected>" . ucfirst($option) . '</option>';
                 }
                 ?>
             </select>
