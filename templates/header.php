@@ -20,7 +20,8 @@
     <div id="main-layout">
         <div id="sidebar">
             <?php
-            $controller = explode('/', $_SERVER['REQUEST_URI'])[1];
+            $controller = explode('/', $_SERVER['QUERY_STRING'])[0];
+            $controller = str_replace('url=', '', $controller);
 
             $menuItems = [
                 'dashboard' => ['icon' => 'fas fa-tachometer-alt', 'label' => 'Dashboard'],
@@ -32,7 +33,7 @@
             ];
 
             foreach ($menuItems as $item => $info) {
-                $selected = $controller == $item ? "style='background-color: hsl(214, 77%, 22%)'" : '';
+                $selected = $controller == $item ? "style='background-color: hsl(214, 77%, 30%)'" : '';
                 echo "<a href='" . $_ENV['BASE_URL'] . "/$item' $selected><i class='{$info['icon']}'></i><span class='link-text'>{$info['label']}</span></a>";
             }
             ?>
