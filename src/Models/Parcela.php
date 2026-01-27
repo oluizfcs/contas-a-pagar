@@ -18,8 +18,10 @@ class Parcela
         private string $data_vencimento,
         private string|null $data_pagamento,
         private int $conta_id,
+        private int|null $banco_id,
         private bool $paid
-    ) {}
+    ) {
+    }
 
     /**
      * Get the value of id
@@ -161,22 +163,38 @@ class Parcela
         return $this;
     }
 
+    public function getBanco_id(): int|null
+    {
+        return $this->banco_id;
+    }
+
+    public function setBanco_id($banco_id)
+    {
+        $this->banco_id = $banco_id;
+    }
+
     public function save(): bool
     {
         try {
             $conn = Database::getConnection();
-
-            $stmt = $conn->prepare('SELECT COUNT(*) FROM ' . self::$tableName . ' WHERE id = :id');
+            $stmt = $conn->prepare('SELECT * FROM ' . self::$tableName . ' WHERE id = :id');
             $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
             $stmt->execute();
 
-            if ($stmt->fetch()[0] == 0) {
+            $entry = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if ($entry == false) {
                 // criar
-                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (numero_parcela, valor_em_centavos, data_vencimento, conta_id) VALUES (:numero_parcela, :valor_em_centavos, :data_vencimento, :conta_id)');
+                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (numero_parcela, valor_em_centavos, data_vencimento, conta_id, paid) VALUES (:numero_parcela, :valor_em_centavos, :data_vencimento, :conta_id, :paid)');
                 $stmt->bindParam(':numero_parcela', $this->numero_parcela, PDO::PARAM_INT);
                 $stmt->bindParam(':valor_em_centavos', $this->valor_em_centavos, PDO::PARAM_INT);
                 $stmt->bindParam(':data_vencimento', $this->data_vencimento, PDO::PARAM_STR);
-                $stmt->bindParam(':conta_id', $this->conta_id, PDO::PARAM_INT);
+
+                if ($this->conta_id != null) {
+                    $stmt->bindParam(':conta_id', $this->conta_id, PDO::PARAM_INT);
+                }
+
+                $stmt->bindParam(':paid', $this->paid, PDO::PARAM_BOOL);
 
                 $stmt->execute();
 
@@ -184,22 +202,20 @@ class Parcela
 
                 return true;
             } else {
-                // // atualizar
-                // $bancoAntigo = self::getById($this->id);
+                if ($entry['paid'] == 1) {
+                    return false;
+                }
 
-                // $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET descricao = :descricao, saldo_em_centavos = :saldo_em_centavos, enabled = :enabled WHERE id = :id');
-                // $stmt->bindParam(':nome', $this->nome, PDO::PARAM_STR);
-                // $stmt->bindParam(':saldo_em_centavos', $this->saldo_em_centavos, PDO::PARAM_STR);
-                // $stmt->bindParam(':enabled', $this->enabled, PDO::PARAM_BOOL);
-                // $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
+                $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET data_pagamento = :data_pagamento, banco_id = :banco_id, paid = :paid WHERE id = :id');
 
-                // $stmt->execute();
+                $stmt->bindParam(':data_pagamento', $this->data_pagamento);
+                $stmt->bindParam(':banco_id', $this->banco_id);
+                $stmt->bindParam(':paid', $this->paid, PDO::PARAM_BOOL);
+                $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
 
-                // if ($bancoAntigo->getNome() != $this->nome) {
-                //     Logger::log(self::$tableName, 'nome', $bancoAntigo->getNome(), $this->nome, $this->id, $_SESSION['usuario_id']);
-                // }
+                $stmt->execute();
 
-                return false;
+                return true;
             }
         } catch (PDOException $e) {
             Logger::error('Erro ao cadastrar|atualizar conta', ['PDOException' => $e->getMessage()]);
@@ -240,7 +256,7 @@ class Parcela
                 $sql = $sql . ' AND p.paid = 1';
                 break;
             default: // also "todas"
-                // do nothing
+            // do nothing
         }
 
         $sql = $sql . ' ORDER BY data_vencimento';
@@ -256,5 +272,18 @@ class Parcela
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
+    }
+
+    public static function getById(int $id): Parcela
+    {
+        $parcela = Database::getById(self::$tableName, $id);
+        if (!$parcela) {
+            $_SESSION['message'] = ['Parcela não encontrada', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
+            exit;
+        }
+
+        extract($parcela);
+        return new Parcela($id, $numero_parcela, $valor_em_centavos, $data_vencimento, $data_pagamento, $conta_id, $banco_id, $paid);
     }
 }

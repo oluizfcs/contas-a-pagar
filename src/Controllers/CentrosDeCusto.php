@@ -134,7 +134,7 @@ class CentrosDeCusto
             $enabled = $this->status != 'inativados';
             $paid = $this->status == 'contas pagas';
 
-            if($this->status == 'contas pagas e não pagas') {
+            if($this->status == 'todos') {
                 $paid = 2;
             }
 

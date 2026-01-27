@@ -35,11 +35,9 @@ if ($view == 'atualizar') {
                 <div class="input-wrapper">
                     <input
                         type="text"
-                        id="money"
+                        class="money"
                         name="saldo_em_centavos"
                         maxlength="22"
-                        data-thousands="."
-                        data-decimal=","
                         autocomplete="off">
                 </div>
             <?php endif; ?>
@@ -49,11 +47,3 @@ if ($view == 'atualizar') {
         </form>
     </div>
 </div>
-
-<script>
-    $(function() {
-        $('#money').maskMoney({
-            prefix: 'R$ '
-        }).trigger('mask.maskMoney');
-    })
-</script>

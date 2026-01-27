@@ -18,7 +18,9 @@ class Fornecedor
         private string $data_criacao,
         private string|null $data_edicao,
         private bool $enabled
-    ) {}
+    ) {
+        $this->nome = htmlspecialchars($this->nome, ENT_QUOTES, 'UTF-8', false);
+    }
 
     /**
      * Get the value of id

@@ -17,6 +17,8 @@ class Money
         }
         
         preg_match_all('/[0-9]/', $reais, $matches);
-        return implode('', $matches[0]);
+
+        $result = implode('', $matches[0]);
+        return  $result != '' ? $result : 0;
     }
 }

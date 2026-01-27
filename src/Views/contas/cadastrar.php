@@ -2,310 +2,103 @@
     <div class="section">
         <h1>Cadastrar Conta</h1>
         <form action="" method="post">
+            <input type="hidden" id="today" value="<?= new DateTime()->format("Y-m-d") ?>">
             <div class="section">
-                <label for="centro">Centro de custo:</label>
-
-                <select id="centro" name="centro" autofocus>
-                    <?php foreach ($centros as $centro): ?>
-                        <option value="<?= $centro['id'] ?>"><?= $centro['nome'] ?></option>
-                    <?php endforeach; ?>
-                </select>
-                <br><br>
-
                 <label for="fornecedor">Fornecedor:</label>
-                <select id="fornecedor" name="fornecedor">
+                <select id="fornecedor" name="fornecedor" class="select2" style="width: 100%;">
+                    <option value="-1">-- Nenhum --</option>
                     <?php foreach ($fornecedores as $fornecedor): ?>
-                        <option value="<?= $fornecedor['id'] ?>"><?= $fornecedor['nome'] ?></option>
+                        <option value="<?= $fornecedor['id'] ?>" <?= ($_SESSION['post_data']['fornecedor'] ?? null) == $fornecedor['id'] ? 'selected' : '' ?>><?= $fornecedor['nome'] ?></option>
                     <?php endforeach; ?>
                 </select>
                 <br><br>
-
-                <label for="banco">Conta bancária:</label>
-                <select id="banco" name="banco">
-                    <?php foreach ($bancos as $banco): ?>
-                        <option value="<?= $banco['id'] ?>"><?= $banco['nome'] ?></option>
+                <label for="centros">Centro de custo:</label>
+                <select id="centros" name="centro" class="select2" style="width: 100%;">
+                    <?php foreach ($centros as $centro): ?>
+                        <option value="<?= $centro['id'] ?>" <?= ($_SESSION['post_data']['centro'] ?? null) == $centro['id'] ? 'selected' : '' ?>><?= $centro['nome'] ?></option>
                     <?php endforeach; ?>
                 </select>
                 <br><br>
-
                 <label for="descricao">Descrição/Observações:</label>
                 <div class="input-wrapper">
-                    <textarea id="descricao" name="descricao" required maxlength="500" autocomplete="off"></textarea>
+                    <textarea id="descricao" name="descricao" required maxlength="500" autocomplete="off"><?= isset($_SESSION['post_data']['descricao']) ? $_SESSION['post_data']['descricao'] : '' ?></textarea>
                 </div>
-
-                <label for="valor_em_centavos">Valor:</label>
+                <br>
                 <div class="input-wrapper">
+                    <label for="valor_em_reais">Valor:</label>
                     <input
                         type="text"
                         class="money"
-                        id="valor_em_centavos"
-                        name="valor_em_centavos"
+                        id="valor_em_reais"
+                        name="valor_em_reais"
                         maxlength="22"
                         autocomplete="off"
-                        data-thousands="."
-                        data-decimal=","
                         required
+                        value="<?= $_SESSION['post_data']['valor_em_reais'] ?? 'R$ 0,00' ?>"
                         onchange="generateInstallments()">
                     <span class="char-counter"></span>
                 </div>
-                <label for="qtd_parcela">Quantidade de parcelas:</label>
-                <input type="number" id="qtd_parcela" name="qtd_parcela" min="1" max="999" step="1" required value="1" onchange="generateInstallments()">
-                <br><br>
+                <div class="input-wrapper">
+                    <input type="radio" name="forma-pagamento" value="a vista" onclick="paymentMethod('a vista')" <?= ($_SESSION['post_data']['forma-pagamento'] ?? null) == 'a vista' ? 'checked' : (($_SESSION['post_data']['forma-pagamento'] ?? null) == null ? 'checked' : '') ?>> Á vista
+                    <input type="radio" name="forma-pagamento" value="parcelado" onclick="paymentMethod('parcelado')" <?= ($_SESSION['post_data']['forma-pagamento'] ?? null) == 'parcelado' ? 'checked' : '' ?>> Parcelado
+                </div>
+                <div id="quantidade-parcelas" class="hide">
+                    <label for="qtd_parcela">Quantidade de parcelas:</label>
+                    <input type="number" id="qtd_parcela" name="qtd_parcela" min="1" max="999" step="1" value="<?= isset($_SESSION['post_data']['qtd_parcela']) ? $_SESSION['post_data']['qtd_parcela'] : '1' ?>" onchange="generateInstallments()">
+                </div>
+                <div id="input-parcela-a-vista">
+                    <label for="dataParcelaAVista">Data de pagamento:</label>
+                    <input type="date" name="dataParcelaAVista" id="dataParcelaAVista" onchange="checkIfShouldShowBankAccounts()">
+                    <br>
+                </div>
+                <div id="input-banco" class="hide">
+                    <label for="banco">Conta bancária <span style="font-weight: 200; font-size: 13px;">(onde será descontado)<span></label>
+                    <br>
+                    <select id="bancos" name="banco" class="select2" style="width: 100%;">
+                        <option value="-1">-- Perguntar depois --</option>
+                        <?php foreach ($bancos as $banco): ?>
+                            <option value="<?= $banco['id'] ?>" <?= ($_SESSION['post_data']['banco'] ?? null) == $banco['id'] ? 'selected' : '' ?>><?= $banco['nome'] ?></option>
+                        <?php endforeach; ?>
+                    </select>
+                </div>
             </div>
-
-            <div id="auto-dates" class="section" style="display: none;">
+            <div id="auto-dates" class="section" style="display: hidden;">
                 <h2>Preenchimento automático de datas</h2>
                 <label for="initial-date">Data da primeira parcela:</label>
                 <input id="initial-date" type="date" onchange="updateButtonSempreDiaX()">
                 <br><br>
-                <button type="button" id="sempre-dia-x" onclick="sempreDiaX()">sempre no dia __</button>
-                <button type="button" onclick="aCadaXDias(30)">a cada 30 dias</button>
-                <button type="button" onclick="aCadaXDias(7)">a cada 7 dias</button>
+                <button type="button" id="sempre-dia-x" onclick="dateAutoFill(document.getElementById('initial-date').value.split('-')[2], 'alwaysOnDayX')">sempre no dia __</button>
+                <button type="button" onclick="dateAutoFill(30)">a cada 30 dias</button>
+                <button type="button" onclick="dateAutoFill(7)">a cada 7 dias</button>
                 <br><br>
-                <span>a cada </span><input id="a-cada-x" type="number" min="1" max="999" step="1" value="1" onchange="pluralOrNot()"> <select id="unit">
+                <span>a cada </span><input id="a-cada-x" type="number" min="1" max="999" step="1" value="1">
+                <select id="unit">
                     <option id="opt-dia" value="dia">dia</option>
                     <option id="opt-mes" value="mes">mês</option>
                     <option id="opt-ano" value="ano">ano</option>
-                </select> <button type="button" onclick="aCadaXX()">></button>
+                </select>
+                <button type="button" id="customPace">></button>
             </div>
+            <div id="secao-parcelas" class="hide">
+                <div class="section">
+                    <h2>Parcelas</h2>
+                    <div class="table-section">
+                        <table id="installments" class="non-clickable-table">
 
-            <div class="section">
-                <h2>Parcelas</h2>
-                <div class="table-section">
-                    <table id="installments" class="non-clickable-table">
-                        <tr>
-                            <th>#</th>
-                            <th>Vencimento</th>
-                            <th>Valor</th>
-                        </tr>
-                        <tr id="parcela1">
-                            <td>1ª</td>
-                            <td><input type="date" name="parcela1" id="parcela1_vencimento"></td>
-                            <td><input type="text" name="parcela1_valor" class="money" data-thousands="."
-                                    data-decimal=",">
-                            </td>
-                        </tr>
-                    </table>
+                        </table>
+                    </div>
+                    <br>
+                    <span id="centavos-faltando"></span>
                 </div>
-                <br>
-                <span id="centavos-faltando"></span>
             </div>
-
             <br>
-
             <button class="btn btn-primary" type="submit" name="type" value="create">Cadastrar</button>
             <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas">Cancelar</a>
         </form>
     </div>
 </div>
 
-<script>
-    const aCadaX = document.getElementById("a-cada-x");
-    aCadaX.addEventListener("keyup", pluralOrNot);
-
-    function pluralOrNot() {
-        if (aCadaX.value > 1) {
-            document.getElementById("opt-dia").setAttribute("label", "dias");
-            document.getElementById("opt-mes").setAttribute("label", "meses");
-            document.getElementById("opt-ano").setAttribute("label", "anos");
-        } else {
-            document.getElementById("opt-dia").setAttribute("label", "dia");
-            document.getElementById("opt-mes").setAttribute("label", "mês");
-            document.getElementById("opt-ano").setAttribute("label", "ano");
-        }
-    }
-
-    function updateButtonSempreDiaX() {
-        let input = document.getElementById("initial-date");
-        let btn = document.getElementById("sempre-dia-x");
-
-        dateFromInput = input.value.split("-");
-        year = dateFromInput[0];
-        month = dateFromInput[1];
-        day = dateFromInput[2];
-
-        date = new Date(year, month - 1, day).toISOString().split("T")[0];
-        btn.innerHTML = "sempre no dia " + day;
-    }
-
-    function aCadaXX() {
-
-        const n = parseInt(document.getElementById("a-cada-x").value);
-        const unit = document.getElementById("unit").selectedOptions[0].value;
-
-        let dias = 0;
-        let meses = 0;
-        let anos = 0;
-
-        switch (unit) {
-            case "dia":
-                dias = n;
-                break;
-            case "mes":
-                meses = n;
-                break;
-            case "ano":
-                anos = n;
-                break;
-        }
-
-        let parcelas = document.getElementById("installments").children;
-
-        let date = document.getElementById("initial-date").value.split("-");
-
-        for (let i = 0; i < parcelas.length - 1; i++) {
-            d = new Date(parseInt(date[0]) + (anos * i), parseInt(date[1]) - 1 + (meses * i), parseInt(date[2]) + (dias * i)).toISOString().split("T")[0];
-            document.getElementById("parcela" + (i + 1) + "_vencimento").value = d;
-        }
-    }
-
-    function sempreDiaX() {
-        let parcelas = document.getElementById("installments").children;
-
-        let date = document.getElementById("initial-date").value.split("-");
-
-        for (let i = 0; i < parcelas.length - 1; i++) {
-
-            d = new Date(date[0], date[1] - 1 + i, date[2]).toISOString().split("T")[0];
-            document.getElementById("parcela" + (i + 1) + "_vencimento").value = d;
-        }
-    }
-
-    function aCadaXDias(dias) {
-        let parcelas = document.getElementById("installments").children;
-
-        let date = document.getElementById("initial-date").value.split("-");
-
-        for (let i = 0; i < parcelas.length - 1; i++) {
-            d = new Date(date[0], date[1] - 1, parseInt(date[2]) + (dias * i)).toISOString().split("T")[0];
-            document.getElementById("parcela" + (i + 1) + "_vencimento").value = d;
-        }
-    }
-
-    $(function() {
-        $('.money').maskMoney({
-            prefix: 'R$ '
-        }).trigger('mask.maskMoney');
-    })
-
-    document.getElementById("valor_em_centavos").addEventListener("keyup", generateInstallments);
-    document.getElementById("qtd_parcela").addEventListener("keyup", generateInstallments);
-
-    const installments = document.getElementById("installments");
-    // installments.style.width = "min-content";
-    const qtd = document.getElementById("qtd_parcela");
-
-    function sumInstallments() {
-
-        let sum = 0;
-
-        $('.money').maskMoney({
-            prefix: 'R$ '
-        }).trigger('mask.maskMoney');
-
-        for (let i = 1; i < installments.children.length; i++) {
-
-            let maskedMoney = document.getElementById("parcela" + i + "_valor").value;
-
-            let unmaskedCents = maskedMoney.replaceAll(/\.|,|R\$ /g, "");
-
-            sum += parseInt(unmaskedCents);
-        }
-
-        const valorTotal = document.getElementById("valor_em_centavos").value.replaceAll(/\.|,|R\$ /g, "");
-        let diferenca = valorTotal - sum;
-        let str = "";
-        if (diferenca > 0) {
-            str = "&nbsp; &nbsp; (R$ " + new Intl.NumberFormat("pt-BR").format(diferenca / 100) + " faltando)";
-        } else if (diferenca < 0) {
-            str = "&nbsp; &nbsp; (R$ " + new Intl.NumberFormat("pt-BR").format(Math.abs(diferenca) / 100) + " sobrando)";
-
-        }
-
-        document.getElementById("centavos-faltando").innerHTML = "Soma das parcelas: R$ " + new Intl.NumberFormat("pt-BR").format(sum / 100) + "<span style='color: #f00'>" + str + "</span>";
-
-        $('.money').maskMoney({
-            prefix: 'R$ '
-        }).trigger('mask.maskMoney');
-    }
-
-    function generateInstallments() {
-
-        if (qtd.value > 1) {
-            document.getElementById("auto-dates").style.display = "block";
-        } else {
-            document.getElementById("auto-dates").style.display = "none";
-        }
-
-        if (qtd.value > 999) {
-            alert("O limite de parcelas é 999");
-            qtd.value = 999;
-        }
-
-        const novasParcelas = [];
-
-        const valorTotal = document.getElementById("valor_em_centavos").value.replaceAll(/\.|,|R\$ /g, "");
-        const valorParcela = ((valorTotal / 100) / qtd.value).toFixed(2);
-
-
-        let head = document.createElement("tr");
-        let parcela = document.createElement("th");
-        let vencimento = document.createElement("th");
-        let valor = document.createElement("th");
-
-        parcela.textContent = "#";
-        vencimento.textContent = "Vencimento";
-        valor.textContent = "Valor";
-
-        head.appendChild(parcela);
-        head.appendChild(vencimento);
-        head.appendChild(valor);
-
-        novasParcelas[0] = head;
-
-        for (let i = 1; i <= qtd.value; i++) {
-
-            let installment = document.createElement("tr");
-            let parcela = document.createTextNode(i + "ª");
-            let vencimento = document.createElement("input");
-            let valor = document.createElement("input");
-
-            let td1 = document.createElement("td");
-            let td2 = document.createElement("td");
-            let td3 = document.createElement("td");
-
-            td1.appendChild(parcela);
-            td2.appendChild(vencimento);
-            td3.appendChild(valor);
-
-            installment.appendChild(td1);
-            installment.appendChild(td2);
-            installment.appendChild(td3);
-
-            installment.id = "parcela" + i;
-            vencimento.id = "parcela" + i + "_vencimento";
-            valor.id = "parcela" + i + "_valor";
-
-            vencimento.name = "parcela" + i + "_vencimento";
-            valor.name = "parcela" + i + "_valor";
-
-            vencimento.type = "date";
-            valor.type = "text";
-
-            valor.value = valorParcela;
-            valor.classList.add("money");
-            valor.setAttribute("data-thousands", ".");
-            valor.setAttribute("data-decimal", ",");
-            valor.addEventListener("keyup", sumInstallments);
-
-            vencimento.required = true;
-            valor.required = true;
-
-            novasParcelas[i] = installment;
-        }
-
-        installments.replaceChildren(...novasParcelas);
-
-        sumInstallments();
-    }
-</script>
+<script src="<?= $_ENV['BASE_URL'] ?>/public/js/cadastrarConta.js"></script>
+<?php
+unset($_SESSION['post_data']);
+?>

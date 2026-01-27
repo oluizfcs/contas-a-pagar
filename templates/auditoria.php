@@ -12,7 +12,7 @@ use App\Models\Usuario;
     ?>
 
     <div class="table-section">
-        <table class="non-clickable-table">
+        <table id="audit-table" class="non-clickable-table">
             <tr>
                 <th>Usuário</th>
                 <th>Ação</th>
@@ -61,3 +61,28 @@ use App\Models\Usuario;
         </table>
     </div>
 </div>
+
+<script>
+    [...document.getElementById("audit-table").childNodes[1].childNodes].splice(1).forEach(e => {
+        if (e.tagName != "TR") {
+            return;
+        }
+
+        e.childNodes.forEach(td => {
+            if (td.tagName != "TD" || td.textContent.length <= 50) {
+                return;
+            }
+
+            let savedText = td.textContent;
+            td.textContent = td.textContent.slice(0, 50) + "... ";
+            const a = document.createElement("a");
+            a.textContent = "Ler mais";
+            a.classList.add("clickable-text")
+            td.appendChild(a);
+
+            a.addEventListener("click", function () {
+                td.innerHTML = savedText;
+            });
+        });
+    });
+</script>

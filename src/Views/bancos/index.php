@@ -8,7 +8,7 @@
             <input type="text" name="search" id="search" autocomplete="off" value="<?= $this->search ?? '' ?>">
             <select name="status" onchange='form.submit()'>
                 <?php
-                $options = ['contas a pagar', 'contas pagas', 'contas pagas e não pagas', 'inativadas'];
+                $options = ['contas a pagar', 'contas pagas', 'todos', 'inativadas'];
 
                 foreach ($options as $option) {
                     $selected = $this->status == $option ? 'selected' : '';
@@ -33,17 +33,11 @@
                 <tr>
                     <th>Nome</th>
                     <th>Saldo</th>
-                    <th>Total (R$)</th>
-                    <th>Quantidade</th>
-                    <th>Média (R$)</th>
                 </tr>
                 <?php foreach ($bancos as $banco): ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/bancos/detalhar/<?= $banco['id'] ?>';">
                         <td><?= $banco['nome'] ?></td>
                         <td><?= Money::centavos_para_reais($banco['saldo_em_centavos']) ?></td>
-                        <td><?= Money::centavos_para_reais($banco['total']) ?></td>
-                        <td><?= $banco['quantidade'] ?></td>
-                        <td><?= Money::centavos_para_reais($banco['media']) ?></td>
                     </tr>
                 <?php endforeach; ?>
             </table>

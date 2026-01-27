@@ -15,6 +15,7 @@ $c = 'App\\Controllers\\' . $controller;
 
 if($c::$needLogin && !isset($_SESSION['usuario_id'])) {
     include './404.php';
+    var_dump($_SESSION);
     exit;
 }
 

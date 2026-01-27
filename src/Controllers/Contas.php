@@ -10,11 +10,12 @@ use App\Models\Database;
 use App\Models\Conta;
 use App\Models\Fornecedor;
 use App\Models\Parcela;
+use DateTime;
 
 class Contas
 {
     public static bool $needLogin = true;
-    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
+    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar', 'pagar'];
     private int $id;
     private string $rowType = 'contas';
     private string $status = 'a pagar';
@@ -56,6 +57,13 @@ class Contas
                     ];
                     header('Location: ' . $_ENV['BASE_URL'] . '/contas');
                     exit;
+                    break;
+                case 'pay':
+                    $view = "pagar";
+                    break;
+                case 'cobrar':
+                    $this->cobrar();
+                    break;
             }
         }
 
@@ -64,30 +72,122 @@ class Contas
 
     private function create(): void
     {
+        $banco_id = filter_var($_POST['banco'], FILTER_VALIDATE_INT);
+        $centro_id = filter_var($_POST['centro'], FILTER_VALIDATE_INT);
+        $fornecedor_id = filter_var($_POST['fornecedor'], FILTER_VALIDATE_INT);
+        $valorEmCentavos = Money::reais_para_centavos($_POST['valor_em_reais']);
+        $qtd_parcela = filter_var($_POST['qtd_parcela'], FILTER_VALIDATE_INT);
+        $descricao = $_POST['descricao'];
+        $formaPagamento = $_POST['forma-pagamento'];
+
+        if ($banco_id == -1) { // "Pagar depois"
+            $banco_id = null;
+        } else {
+            Banco::getById($banco_id); // if id does not exists (unlikely), execution stops.
+        }
+
+        if ($fornecedor_id == -1) { // "Nenhum"
+            $fornecedor_id = null;
+        } else {
+            Fornecedor::getById($fornecedor_id); // if id does not exists (unlikely), execution stops.
+        }
+
+        if ($valorEmCentavos == 0) {
+            $_SESSION['message'] = ['O valor da conta não pode ser zero', 'fail'];
+            $_SESSION['post_data'] = $_POST;
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+            exit;
+        }
+
+        if (trim($descricao) == "") {
+            $_SESSION['message'] = ['A descrição não pode estar vazia', 'fail'];
+            $_SESSION['post_data'] = $_POST;
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+            exit;
+        }
+
+        if (strlen(trim($descricao)) >= 500) {
+            $_SESSION['message'] = ['A descrição não pode exceder 500 caracteres', 'fail'];
+            $_SESSION['post_data'] = $_POST;
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+            exit;
+        }
+
+        if (!$qtd_parcela) {
+            $_SESSION['message'] = ['Quantidade de parcelas inválida', 'fail'];
+            $_SESSION['post_data'] = $_POST;
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+            exit;
+        }
+
+        $parcelas = [];
+
+        switch ($formaPagamento) {
+            case 'a vista':
+                if ($_POST['dataParcelaAVista'] == '' || strlen($_POST['dataParcelaAVista']) != 10) {
+                    $_SESSION['message'] = ['É necessário definir uma data de pagamento', 'fail'];
+                    $_SESSION['post_data'] = $_POST;
+                    header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+                    exit;
+                }
+                break;
+            case 'parcelado':
+                for ($i = 1; $i <= $qtd_parcela; $i++) {
+
+                    $valorParcela = Money::reais_para_centavos($_POST["parcela$i" . "_valor"]);
+                    $vencimentoParcela = $_POST["parcela$i" . "_vencimento"];
+
+                    if ($valorParcela == 0) {
+                        $_SESSION['message'] = ['O valor das parcelas não está dividido corretamente', 'fail'];
+                        $_SESSION['post_data'] = $_POST;
+                        header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+                        exit;
+                    }
+
+                    if ($vencimentoParcela == '') {
+                        $_SESSION['message'] = ['É necessário informar a data de vencimento das parcelas', 'fail'];
+                        $_SESSION['post_data'] = $_POST;
+                        header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+                        exit;
+                    }
+
+                    $parcelas[] = ['valor' => $valorParcela, 'vencimento' => $vencimentoParcela];
+                }
+                break;
+            default:
+                $_SESSION['message'] = ['Forma de pagamento não identificada', 'fail'];
+                $_SESSION['post_data'] = $_POST;
+                header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
+                exit;
+        }
+
         $c = new Conta(
             0,
-            $_POST['descricao'],
-            Money::reais_para_centavos($_POST['valor_em_centavos']),
+            $descricao,
+            $valorEmCentavos,
             '',
             null,
-            filter_var($_POST['banco'], FILTER_VALIDATE_INT),
-            filter_var($_POST['centro'], FILTER_VALIDATE_INT),
-            filter_var($_POST['fornecedor'], FILTER_VALIDATE_INT),
+            $centro_id,
+            $fornecedor_id,
             [],
-            true
+            true,
+            0
         );
-        
+
         if ($c->save()) {
             $_SESSION['message'] = ['Conta cadastrada com sucesso!', 'success'];
-    
-            $qtd_parcela = filter_var($_POST['qtd_parcela'], FILTER_VALIDATE_INT);
-    
-            // lazy
-            for($i = 1; $i <= $qtd_parcela; $i++) {
-                $p = new Parcela(0, $i, Money::reais_para_centavos($_POST["parcela$i" . "_valor"]), $_POST["parcela$i" . "_vencimento"], null, $c->lastInsertId, 0);
-                $p->save();
+
+            if (count($parcelas) > 0) {
+                //parcelado
+                for ($i = 0; $i < $qtd_parcela; $i++) {
+                    $p = new Parcela(0, $i + 1, $parcelas[$i]['valor'], $parcelas[$i]['vencimento'], null, $c->lastInsertId, $banco_id, false);
+                    $p->save();
+                }
+            } else {
+                //a vista
+                new Parcela(0, 1, $valorEmCentavos, $_POST['dataParcelaAVista'], null, $c->lastInsertId, $banco_id, false)->save();
             }
-            
+
             header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;
         }
@@ -95,39 +195,102 @@ class Contas
 
     private function update(): void
     {
-        var_dump($_POST); exit;
-        // $b = Conta::getById($_POST['entity_id']);
-        // $b->setNome($_POST['nome']);
+        $c = Conta::getById($_POST['entity_id']);
+        $c->setDescricao($_POST['descricao']);
 
-        // if ($b->save()) {
-        //     $_SESSION['message'] = ['Conta atualizada com sucesso!', 'success'];
-        //     header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $_POST['entity_id']);
-        //     exit;
-        // }
+        if ($c->save()) {
+            $_SESSION['message'] = ['Conta atualizada com sucesso!', 'success'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $_POST['entity_id']);
+            exit;
+        }
     }
 
     private function unable(): void
     {
-        $b = Conta::getById($_POST['conta_id']);
-        $b->setEnabled(0);
+        $c = Conta::getById($_POST['conta_id']);
+        $c->setEnabled(0);
 
-        if ($b->save()) {
-            Logger::log_unable(Conta::$tableName, $b->getId(), $_SESSION['usuario_id']);
+        if ($c->save()) {
+            Logger::log_unable(Conta::$tableName, $c->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Conta inativada com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $c->getId());
             exit;
         }
     }
 
     private function enable(): void
     {
-        $b = Conta::getById($_POST['conta_id']);
-        $b->setEnabled(1);
+        $c = Conta::getById($_POST['conta_id']);
+        $c->setEnabled(1);
 
-        if ($b->save()) {
-            Logger::log_enable(Conta::$tableName, $b->getId(), $_SESSION['usuario_id']);
+        if ($c->save()) {
+            Logger::log_enable(Conta::$tableName, $c->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Conta ativada com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $c->getId());
+            exit;
+        }
+    }
+
+    private function cobrar(): void
+    {
+        $numero_parcela = filter_var($_POST['numero_parcela'], FILTER_VALIDATE_INT);
+        $banco_id = filter_var($_POST['banco'], FILTER_VALIDATE_INT);
+        $conta_id = filter_var($_POST['conta_id'], FILTER_VALIDATE_INT);
+        $data = $_POST['data'];
+
+        $conta = Conta::getById($conta_id);
+
+        $parcelas = $conta->getParcelas();
+        $parcela_id = -1;
+        foreach ($parcelas as $parcela) {
+            if ($parcela->getNumero_parcela() == $numero_parcela) {
+                $parcela_id = $parcela->getId();
+                break;
+            }
+        }
+
+        $banco = Banco::getById($banco_id);
+        if ($parcela_id == -1) {
+            $_SESSION['message'] = ['Parcela não encontrada', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta_id);
+            exit;
+        }
+
+        $parcela = Parcela::getById($parcela_id);
+
+        if (!preg_match('/[0-9]{4}-[0-9]{2}-[0-9]{2}/', $data)) {
+            $_SESSION['message'] = ['Data inválida', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta_id);
+            exit;
+        }
+
+        $dataPagamentoEscolhida = new DateTime($data);
+
+        if ($dataPagamentoEscolhida > new DateTime("now")) {
+            $_SESSION['message'] = ['Não é possível marcar uma parcela como paga em uma data futura', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta_id);
+            exit;
+        }
+
+        $parcela->setPaid(true);
+        $parcela->setBanco_id($banco_id);
+        $parcela->setData_pagamento($data);
+        $banco->setSaldo_em_centavos($banco->getSaldo_em_centavos() - $parcela->getValor_em_centavos());
+
+        if ($parcela->save()) {
+            $banco->save();
+
+            if (!Conta::hasUnpaidInstallments($conta_id)) {
+                $conta->setPaid(true);
+                $conta->save();
+            }
+
+            $_SESSION['message'] = ['Parcela paga com sucesso!', 'success'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta_id);
+            exit;
+        } else {
+            $_SESSION['message'] = ['Erro ao pagar parcela', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta_id);
             exit;
         }
     }
@@ -161,36 +324,39 @@ class Contas
 
             $contas = [];
             $parcelas = [];
-            
-            if($this->rowType == 'contas') {
+
+            if ($this->rowType == 'contas') {
                 $contas = Conta::getAll($this->search, $this->status);
             } else {
-                if($this->status == 'inativadas') {
+                if ($this->status == 'inativadas') {
                     $this->status = "a pagar";
                 }
                 $parcelas = Parcela::getAll($this->status);
             }
         }
 
-        if($view == 'cadastrar' || $view == 'atualizar') {
+        if ($view == 'cadastrar' || $view == 'atualizar') {
             $centros = Database::getOptions(CentroDeCusto::$tableName);
             $fornecedores = Database::getOptions(Fornecedor::$tableName);
-            $bancos = Database::getOptions(Banco::$tableName);
 
-            if(empty($centros)) {
+            if (empty($centros)) {
                 $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há centros de custo cadastrados', 'warning'];
                 header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/cadastrar');
                 exit;
             }
 
-            if(empty($fornecedores)) {
+            if (empty($fornecedores)) {
                 $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há fornecedores cadastrados', 'warning'];
                 header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores/cadastrar');
                 exit;
             }
+        }
 
-            if(empty($bancos)) {
-                $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há bancos cadastrados', 'warning'];
+        if ($view == 'pagar') {
+            $bancos = Database::getOptions(Banco::$tableName);
+
+            if (empty($bancos)) {
+                $_SESSION['message'] = ['Não é possível pagar essa parcela pois não há nenhuma conta bancária disponível', 'warning'];
                 header('Location: ' . $_ENV['BASE_URL'] . '/bancos/cadastrar');
                 exit;
             }

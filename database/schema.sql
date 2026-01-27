@@ -46,12 +46,10 @@ CREATE TABLE conta(
     valor_em_centavos INT UNSIGNED NOT NULL,
     data_criacao DATETIME NOT NULL DEFAULT NOW(),
     data_edicao DATETIME ON UPDATE NOW(),
-    banco_id SMALLINT UNSIGNED NOT NULL,
     centro_de_custo_id SMALLINT UNSIGNED NOT NULL,
-    fornecedor_id MEDIUMINT UNSIGNED NOT NULL,
+    fornecedor_id MEDIUMINT UNSIGNED NULL,
     paid TINYINT NOT NULL DEFAULT 0,
     `enabled` TINYINT NOT NULL DEFAULT 1,
-    FOREIGN KEY (banco_id) REFERENCES banco(id),
     FOREIGN KEY (centro_de_custo_id) REFERENCES centro_de_custo(id),
     FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id)
 ) ENGINE=INNODB;
@@ -62,8 +60,10 @@ CREATE TABLE parcela(
     valor_em_centavos INT UNSIGNED NOT NULL,
     data_vencimento DATE NOT NULL,
     data_pagamento DATE,
+    banco_id SMALLINT UNSIGNED NULL,
     conta_id INT UNSIGNED NOT NULL,
     paid TINYINT NOT NULL DEFAULT 0,
+    FOREIGN KEY (banco_id) REFERENCES banco(id),
     FOREIGN KEY (conta_id) REFERENCES conta(id)
 ) ENGINE=INNODB;
 

@@ -11,6 +11,7 @@ class Conta
 {
     public static string $tableName = 'conta';
     public int $lastInsertId;
+    public string $centro_de_custo;
 
     public function __construct(
         private int $id,
@@ -18,12 +19,14 @@ class Conta
         private int $valor_em_centavos,
         private string $data_criacao,
         private string|null $data_edicao,
-        private int $banco_id,
         private int $centro_de_custo_id,
-        private int $fornecedor_id,
+        private int|null $fornecedor_id,
         private array $parcelas,
-        private bool $enabled
-    ) {}
+        private bool $enabled,
+        private bool $paid
+    ) {
+        $this->descricao = htmlspecialchars($this->descricao, ENT_QUOTES, 'UTF-8', false);
+    }
 
     /**
      * Get the value of id
@@ -125,18 +128,6 @@ class Conta
         return $this;
     }
 
-    public function getBanco_id()
-    {
-        return $this->banco_id;
-    }
-
-    public function setBanco_id($banco_id)
-    {
-        $this->banco_id = $banco_id;
-
-        return $this;
-    }
-
     /**
      * Get the value of centro_de_custo_id
      */
@@ -182,7 +173,10 @@ class Conta
         return $this->parcelas;
     }
 
-    public function setParcelas(): void {}
+    public function setParcelas($parcelas): void
+    {
+        $this->parcelas = $parcelas;
+    }
 
     public function isEnabled(): bool
     {
@@ -192,6 +186,16 @@ class Conta
     public function setEnabled(bool $enabled): void
     {
         $this->enabled = $enabled;
+    }
+
+    public function setPaid(bool $paid): void
+    {
+        $this->paid = $paid;
+    }
+
+    public function isPaid(): bool
+    {
+        return $this->paid;
     }
 
     public function save(): bool
@@ -205,13 +209,12 @@ class Conta
 
             if ($stmt->fetch()[0] == 0) {
                 // criar
-                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (descricao, valor_em_centavos, banco_id, centro_de_custo_id, fornecedor_id) VALUES (:descricao, :valor_em_centavos, :banco_id, :centro_de_custo_id, :fornecedor_id)');
+                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (descricao, valor_em_centavos, centro_de_custo_id, fornecedor_id) VALUES (:descricao, :valor_em_centavos, :centro_de_custo_id, :fornecedor_id)');
                 $stmt->bindParam(':descricao', $this->descricao, PDO::PARAM_STR);
                 $stmt->bindParam(':valor_em_centavos', $this->valor_em_centavos, PDO::PARAM_STR);
-                $stmt->bindParam(':banco_id', $this->banco_id, PDO::PARAM_INT);
                 $stmt->bindParam(':centro_de_custo_id', $this->centro_de_custo_id, PDO::PARAM_INT);
                 $stmt->bindParam(':fornecedor_id', $this->fornecedor_id, PDO::PARAM_INT);
-                
+
                 $stmt->execute();
                 $this->lastInsertId = $conn->lastInsertId();
 
@@ -219,22 +222,21 @@ class Conta
 
                 return true;
             } else {
-                // // atualizar
-                // $bancoAntigo = self::getById($this->id);
+                // atualizar
+                $contaAntiga = self::getById($this->id);
 
-                // $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET descricao = :descricao, saldo_em_centavos = :saldo_em_centavos, enabled = :enabled WHERE id = :id');
-                // $stmt->bindParam(':nome', $this->nome, PDO::PARAM_STR);
-                // $stmt->bindParam(':saldo_em_centavos', $this->saldo_em_centavos, PDO::PARAM_STR);
-                // $stmt->bindParam(':enabled', $this->enabled, PDO::PARAM_BOOL);
-                // $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
+                $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET descricao = :descricao, paid = :paid WHERE id = :id');
+                $stmt->bindParam(':descricao', $this->descricao, PDO::PARAM_STR);
+                $stmt->bindParam(':paid', $this->paid, PDO::PARAM_BOOL);
+                $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
 
-                // $stmt->execute();
+                $stmt->execute();
 
-                // if ($bancoAntigo->getNome() != $this->nome) {
-                //     Logger::log(self::$tableName, 'nome', $bancoAntigo->getNome(), $this->nome, $this->id, $_SESSION['usuario_id']);
-                // }
+                if ($contaAntiga->getDescricao() != $this->descricao) {
+                    Logger::log(self::$tableName, 'descricao', $contaAntiga->getDescricao(), $this->descricao, $this->id, $_SESSION['usuario_id']);
+                }
 
-                return false;
+                return true;
             }
         } catch (PDOException $e) {
             Logger::error('Erro ao cadastrar|atualizar conta', ['PDOException' => $e->getMessage()]);
@@ -254,7 +256,7 @@ class Conta
         }
 
         extract($conta);
-        return new Conta($id, $descricao, $valor_em_centavos, $data_criacao, $data_edicao, $banco_id, $centro_de_custo_id, $fornecedor_id, self::findInstallments($id), $enabled);
+        return new Conta($id, $descricao, $valor_em_centavos, $data_criacao, $data_edicao, $centro_de_custo_id, $fornecedor_id, self::findInstallments($id), $enabled, $paid);
     }
 
     public static function getAll(string $search, string $status): array
@@ -268,7 +270,7 @@ class Conta
         INNER JOIN centro_de_custo c ON centro_de_custo_id = c.id
         WHERE 1 = 1";
 
-        switch($status) {
+        switch ($status) {
             case "a pagar":
                 $sql = $sql . " AND paid = 0 AND conta.enabled = 1";
                 break;
@@ -282,18 +284,26 @@ class Conta
                 $sql = $sql . " AND conta.enabled = 1";
         }
 
-        if(strlen($search) > 0) {
+        if (strlen($search) > 0) {
             $sql = $sql . " AND descricao LIKE :descricao";
         }
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
-            if(strlen($search) > 0) {
+            if (strlen($search) > 0) {
                 $stmt->bindParam(':descricao', $search, PDO::PARAM_STR);
             }
             $stmt->execute();
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $contas = [];
+
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $conta) {
+                $c = Conta::getById($conta['id']);
+                $c->centro_de_custo = $conta['centro'];
+                $contas[] = $c;
+            }
+
+            return $contas;
         } catch (PDOException $e) {
             Logger::error('Falha ao listar contas', ['status' => $status, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
@@ -310,11 +320,38 @@ class Conta
             $stmt = Database::getConnection()->prepare($sql);
             $stmt->bindParam(':conta_id', $id, PDO::PARAM_INT);
             $stmt->execute();
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            $parcelas = [];
+
+            foreach ($results as $row) {
+                extract($row);
+                $parcelas[] = new Parcela($id, $numero_parcela, $valor_em_centavos, $data_vencimento, $data_pagamento, $conta_id, $banco_id, $paid);
+            }
+
+            return $parcelas;
         } catch (PDOException $e) {
             Logger::error('Falha ao encontrar parcelas', ['conta_id' => $id, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
+            exit;
+        }
+    }
+
+    public static function hasUnpaidInstallments(int $id): bool
+    {
+        $sql = "SELECT COUNT(*) FROM parcela WHERE conta_id = :conta_id AND paid = 0";
+
+        try {
+            $stmt = Database::getConnection()->prepare($sql);
+            $stmt->bindParam(':conta_id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->fetch()[0] > 0;
+        } catch (PDOException $e) {
+            Logger::error('Falha ao verificar parcelas', ['conta_id' => $id, 'PDOException' => $e->getMessage()]);
+            $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;
         }
     }

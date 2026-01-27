@@ -19,7 +19,9 @@ class Banco
         private string $data_criacao,
         private string|null $data_edicao,
         private bool $enabled
-    ) {}
+    ) {
+        $this->nome = htmlspecialchars($this->nome, ENT_QUOTES, 'UTF-8', false);
+    }
 
     /**
      * Get the value of id
@@ -185,30 +187,15 @@ class Banco
     public static function getAll(bool $enabled, int $paid, string $search): array
     {
         $sql = "SELECT 
-            banco.id,
+            id,
             nome,
-            saldo_em_centavos,
-            SUM(valor_em_centavos) as total,
-            COUNT(conta.id) as quantidade,
-            SUM(valor_em_centavos) / COUNT(conta.id) as media
+            saldo_em_centavos
         FROM banco
-        LEFT JOIN conta ON banco.id = banco_id
-        WHERE banco.enabled = :enabled
-        AND (conta.enabled = 1 OR conta.enabled IS NULL)";
-
-        if (($paid == 0) && $enabled) {
-            $sql = $sql . ' AND conta.paid = 0';
-        }
-
-        if (($paid == 1) && $enabled) {
-            $sql = $sql . ' AND conta.paid = 1';
-        }
+        WHERE enabled = :enabled";
 
         if (strlen($search) > 0) {
             $sql = $sql . ' AND nome LIKE :search';
         }
-
-        $sql = $sql . ' GROUP BY banco.id';
 
         try {
             $stmt = Database::getConnection()->prepare($sql);

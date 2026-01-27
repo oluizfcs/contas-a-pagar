@@ -130,7 +130,7 @@ class Bancos
             $enabled = $this->status != 'inativadas';
             $paid = $this->status == 'contas pagas';
 
-            if($this->status == 'contas pagas e não pagas') {
+            if($this->status == 'todos') {
                 $paid = 2;
             }
 

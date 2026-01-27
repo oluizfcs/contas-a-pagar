@@ -8,7 +8,7 @@
             <input type="text" name="search" id="search" autocomplete="off" value="<?= $this->search ?? '' ?>">
             <select name="status" onchange="form.submit()">
                 <?php
-                $options = ['contas a pagar', 'contas pagas', 'contas pagas e não pagas', 'inativados'];
+                $options = ['contas a pagar', 'contas pagas', 'todos', 'inativados'];
                 foreach ($options as $option) {
                     $selected = $this->status == $option ? 'selected' : '';
                     echo "<option value='$option' $selected>" . ucfirst($option) . '</option>';

@@ -19,12 +19,14 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
 <span class="description"><?= $conta->getDescricao() ?></span>
 <br><br>
 <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas">Voltar</a>
-<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas/atualizar/<?= $conta->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
+<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas/atualizar/<?= $conta->getId() ?>"><i
+        class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="conta_id" value="<?= $conta->getId() ?>">
     <?php if ($conta->isEnabled()): ?>
-        <button class="btn btn-secondary" name="type" value="unable" onclick="return confirm('Realmente deseja inativar esta conta bancária?')">
+        <button class="btn btn-secondary" name="type" value="unable"
+            onclick="return confirm('Realmente deseja inativar esta conta bancária?')">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </button>
         <a class="btn btn-disabled">
@@ -34,7 +36,8 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
         <a class="btn btn-disabled">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </a>
-        <button class="btn btn-secondary" name="type" value="enable" onclick="return confirm('Realmente deseja ativar esta conta bancária?')">
+        <button class="btn btn-secondary" name="type" value="enable"
+            onclick="return confirm('Realmente deseja ativar esta conta bancária?')">
             <i class="fa-solid fa-box-open"></i> Ativar</a>
         </button>
     <?php endif; ?>
@@ -42,7 +45,7 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
 
 <div class="section">
     <h2><i class="fa-solid fa-money-bill"></i> Parcelas</h2>
-    <table class="non-clickable-table">
+    <table id="tableParcelas" class="non-clickable-table">
         <tr>
             <th>#</th>
             <th>Vencimento</th>
@@ -51,10 +54,11 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
         </tr>
         <?php foreach ($conta->getParcelas() as $parcela): ?>
             <tr>
-                <td><?= $parcela['numero_parcela'] ?>ª</td>
-                <td><?= new DateTime($parcela['data_vencimento'])->format('d/m/Y') ?></td>
-                <td><?= $parcela['data_pagamento'] != null ? new DateTime($parcela['data_pagamento'])->format('d/m/Y') : '-' ?></td>
-                <td><?= Money::centavos_para_reais($parcela['valor_em_centavos']) ?></td>
+                <td><?= $parcela->getNumero_parcela() ?>ª</td>
+                <td><?= new DateTime($parcela->getData_vencimento())->format('d/m/Y') ?></td>
+                <td><?= $parcela->getData_pagamento() != null ? new DateTime($parcela->getData_pagamento())->format('d/m/Y') : "<form method='POST'> <input type='hidden' name='numero_parcela' value='" . $parcela->getNumero_parcela() . "'> <button type='submit' name='type' value='pay'>marcar como pago</button> </form>"; ?>
+                </td>
+                <td><?= Money::centavos_para_reais($parcela->getValor_em_centavos()) ?></td>
             </tr>
         <?php endforeach; ?>
     </table>
