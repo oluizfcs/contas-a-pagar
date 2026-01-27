@@ -96,7 +96,7 @@ class Usuarios
 
         if ($usuario->save()) {
             $_SESSION['message'] = ['Senha alterada com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar' . $_POST['entity_id']);
+            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar/' . $_POST['entity_id']);
             exit;
         }
     }
@@ -162,10 +162,12 @@ class Usuarios
             exit;
         }
 
-        if ($view == 'alterar-senha' && (
-            $_SESSION['usuario_id'] != $usuario->getId() &&
-            $_SESSION['usuario_id'] != 1
-        )) {
+        if (
+            $view == 'alterar-senha' && (
+                $_SESSION['usuario_id'] != $usuario->getId() &&
+                $_SESSION['usuario_id'] != 1
+            )
+        ) {
             include '404.php';
             exit;
         }
