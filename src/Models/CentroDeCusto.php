@@ -213,4 +213,30 @@ class CentroDeCusto
         extract($centroDeCusto);
         return new CentroDeCusto($id, $nome, $data_criacao, $data_edicao, $enabled);
     }
+
+    public static function getTotalsByPeriod(string $start, string $end): array
+    {
+        $sql = "SELECT 
+                    cc.nome, 
+                    SUM(p.valor_em_centavos) as total 
+                FROM centro_de_custo cc
+                JOIN conta c ON cc.id = c.centro_de_custo_id
+                JOIN parcela p ON c.id = p.conta_id
+                WHERE p.data_vencimento BETWEEN :start AND :end
+                AND cc.enabled = 1
+                GROUP BY cc.id
+                ORDER BY total DESC";
+
+        try {
+            $stmt = Database::getConnection()->prepare($sql);
+            $stmt->bindParam(':start', $start);
+            $stmt->bindParam(':end', $end);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            Logger::error('Falha ao buscar totais por centro de custo', ['start' => $start, 'end' => $end, 'PDOException' => $e->getMessage()]);
+            return [];
+        }
+    }
 }

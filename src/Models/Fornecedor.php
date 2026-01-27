@@ -204,20 +204,20 @@ class Fornecedor
             $sql = $sql . ' AND conta.paid = 1';
         }
 
-        if(strlen($search) > 0) {
+        if (strlen($search) > 0) {
             $sql = $sql . ' AND nome LIKE :search OR telefone LIKE :search';
         }
-        
+
         $sql = $sql . ' GROUP BY fornecedor.id';
-        
+
         try {
             $stmt = Database::getConnection()->prepare($sql);
             $stmt->bindValue(':enabled', $enabled ? 1 : 0);
-            
-            if(strlen($search) > 0) {
+
+            if (strlen($search) > 0) {
                 $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
             }
-            
+
             $stmt->execute();
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -240,5 +240,33 @@ class Fornecedor
 
         extract($fornecedor);
         return new Fornecedor($id, $nome, $telefone, $data_criacao, $data_edicao, $enabled);
+    }
+
+    public static function getTopByPeriod(string $start, string $end, int $limit = 10): array
+    {
+        $sql = "SELECT 
+                    f.nome, 
+                    SUM(p.valor_em_centavos) as total 
+                FROM fornecedor f
+                JOIN conta c ON f.id = c.fornecedor_id
+                JOIN parcela p ON c.id = p.conta_id
+                WHERE p.data_vencimento BETWEEN :start AND :end
+                AND f.enabled = 1
+                GROUP BY f.id
+                ORDER BY total DESC
+                LIMIT :limit";
+
+        try {
+            $stmt = Database::getConnection()->prepare($sql);
+            $stmt->bindParam(':start', $start);
+            $stmt->bindParam(':end', $end);
+            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            Logger::error('Falha ao buscar top fornecedores', ['start' => $start, 'end' => $end, 'PDOException' => $e->getMessage()]);
+            return [];
+        }
     }
 }

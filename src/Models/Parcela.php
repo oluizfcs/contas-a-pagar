@@ -286,4 +286,29 @@ class Parcela
         extract($parcela);
         return new Parcela($id, $numero_parcela, $valor_em_centavos, $data_vencimento, $data_pagamento, $conta_id, $banco_id, $paid);
     }
+
+    public static function getDailyTotal(string $start, string $end): array
+    {
+        $sql = "SELECT 
+                    data_vencimento as date, 
+                    SUM(parcela.valor_em_centavos) as total 
+                FROM parcela
+                INNER JOIN conta ON conta_id = conta.id 
+                WHERE data_vencimento BETWEEN :start AND :end
+                AND conta.enabled = 1
+                GROUP BY data_vencimento 
+                ORDER BY data_vencimento";
+
+        try {
+            $stmt = Database::getConnection()->prepare($sql);
+            $stmt->bindParam(':start', $start);
+            $stmt->bindParam(':end', $end);
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            Logger::error('Falha ao buscar totais diários', ['start' => $start, 'end' => $end, 'PDOException' => $e->getMessage()]);
+            return [];
+        }
+    }
 }
