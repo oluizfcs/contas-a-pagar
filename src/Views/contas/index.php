@@ -79,7 +79,7 @@
                     ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $conta->getId() ?>';">
                         <td><?= $conta->centro_de_custo ?></td>
-                        <td><?= $conta->fornecedor ?></td>
+                        <td><?= $conta->fornecedor ?? '-' ?></td>
                         <?php if ($nextInstallment == null): ?>
                             <td>-</td>
                         <?php else: ?>

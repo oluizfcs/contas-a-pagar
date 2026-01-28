@@ -39,7 +39,7 @@
                 <?php foreach ($fornecedores as $fornecedor): ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/fornecedores/detalhar/<?= $fornecedor['id'] ?>';">
                         <td><?= $fornecedor['nome'] ?></td>
-                        <td><?= $fornecedor['telefone'] ?></td>
+                        <td><?= $fornecedor['telefone'] ?? '-' ?></td>
                         <td><?= Money::centavos_para_reais($fornecedor['total']) ?></td>
                         <td><?= $fornecedor['quantidade'] ?></td>
                         <td><?= Money::centavos_para_reais($fornecedor['media']) ?></td>

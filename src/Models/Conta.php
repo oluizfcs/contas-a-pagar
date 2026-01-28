@@ -12,7 +12,7 @@ class Conta
     public static string $tableName = 'conta';
     public int $lastInsertId;
     public string $centro_de_custo;
-    public string $fornecedor;
+    public string|null $fornecedor;
 
     public function __construct(
         private int $id,
@@ -270,7 +270,7 @@ class Conta
             f.nome fornecedor
         FROM conta
         INNER JOIN centro_de_custo c ON centro_de_custo_id = c.id
-        INNER JOIN fornecedor f ON fornecedor_id = f.id
+        LEFT JOIN fornecedor f ON fornecedor_id = f.id
         WHERE 1 = 1";
 
         switch ($status) {
@@ -327,7 +327,7 @@ class Conta
             SELECT conta.id, descricao, valor_em_centavos, c.nome centro, f.nome fornecedor
             FROM conta
             INNER JOIN centro_de_custo c ON centro_de_custo_id = c.id
-            INNER JOIN fornecedor f ON fornecedor_id = f.id
+            LEFT JOIN fornecedor f ON fornecedor_id = f.id
             WHERE $foreignKey" . "_id = :id
             AND paid = 0
             AND conta.enabled = 1;

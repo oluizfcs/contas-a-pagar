@@ -66,7 +66,7 @@ use App\Controllers\Services\Money;
                     }
                     ?>
                     <tr onclick="window.open('<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $conta->getId() ?>', '_blank');">
-                        <td><?= $conta->fornecedor ?></td>
+                        <td><?= $conta->fornecedor ?? '-' ?></td>
                         <?php if ($nextInstallment == null): ?>
                             <td>-</td>
                         <?php else: ?>
