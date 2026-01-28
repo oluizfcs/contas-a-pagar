@@ -186,6 +186,11 @@ class Contas
                 new Parcela(0, 1, $valorEmCentavos, $_POST['dataParcelaAVista'], null, $c->lastInsertId, $banco_id, false)->save();
             }
 
+            if($formaPagamento == 'a vista' && $banco_id != null) {
+                $this->cobrar(1, $banco_id, $c->lastInsertId, $_POST['dataParcelaAVista'], true);
+                exit;
+            }
+
             header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;
         }
@@ -229,12 +234,23 @@ class Contas
         }
     }
 
-    private function cobrar(): void
+    private function cobrar($numero_parcela = '', $banco_id = -1, $conta_id = -1, $data = '', $aVista = false): void
     {
-        $numero_parcela = filter_var($_POST['numero_parcela'], FILTER_VALIDATE_INT);
-        $banco_id = filter_var($_POST['banco'], FILTER_VALIDATE_INT);
-        $conta_id = filter_var($_POST['conta_id'], FILTER_VALIDATE_INT);
-        $data = $_POST['data'];
+        if($numero_parcela == '') {
+            $numero_parcela = filter_var($_POST['numero_parcela'], FILTER_VALIDATE_INT);
+        }
+        
+        if($banco_id == -1) {
+            $banco_id = filter_var($_POST['banco'], FILTER_VALIDATE_INT);
+        }
+        
+        if($conta_id == -1) {
+            $conta_id = filter_var($_POST['conta_id'], FILTER_VALIDATE_INT);
+        }
+        
+        if($data == '') {
+            $data = $_POST['data'];
+        }
 
         $conta = Conta::getById($conta_id);
 
@@ -283,7 +299,11 @@ class Contas
                 $conta->save();
             }
 
-            $_SESSION['message'] = ['Parcela paga com sucesso!', 'success'];
+            if($aVista) {
+                $_SESSION['message'] = ['Conta cadastrada e paga com sucesso!', 'success'];
+            } else {
+                $_SESSION['message'] = ['Parcela paga com sucesso!', 'success'];
+            }
             header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta_id);
             exit;
         } else {
@@ -336,6 +356,7 @@ class Contas
         if ($view == 'cadastrar' || $view == 'atualizar') {
             $centros = Database::getOptions(CentroDeCusto::$tableName);
             $fornecedores = Database::getOptions(Fornecedor::$tableName);
+            $bancos = Database::getOptions(Banco::$tableName);
 
             if (empty($centros)) {
                 $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há centros de custo cadastrados', 'warning'];

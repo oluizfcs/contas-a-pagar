@@ -13,8 +13,10 @@ function checkIfShouldShowBankAccounts() {
 
     if (paymentDay <= today) {
         document.getElementById("input-banco").classList.remove("hide");
+        document.getElementById("labelDataParcelaAVista").textContent = "Data de pagamento:";
     } else {
         document.getElementById("input-banco").classList.add("hide");
+        document.getElementById("labelDataParcelaAVista").textContent = "Data de vencimento:";
     }
 }
 

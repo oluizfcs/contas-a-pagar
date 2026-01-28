@@ -47,7 +47,7 @@
                     <input type="number" id="qtd_parcela" name="qtd_parcela" min="1" max="999" step="1" value="<?= isset($_SESSION['post_data']['qtd_parcela']) ? $_SESSION['post_data']['qtd_parcela'] : '1' ?>" onchange="generateInstallments()">
                 </div>
                 <div id="input-parcela-a-vista">
-                    <label for="dataParcelaAVista">Data de pagamento:</label>
+                    <label id="labelDataParcelaAVista" for="dataParcelaAVista">Data de pagamento:</label>
                     <input type="date" name="dataParcelaAVista" id="dataParcelaAVista" onchange="checkIfShouldShowBankAccounts()">
                     <br>
                 </div>
