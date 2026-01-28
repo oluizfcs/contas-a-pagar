@@ -106,9 +106,25 @@ class CentroDeCusto
         return $this->enabled;
     }
 
-    public function setEnabled(bool $enabled): void
+    public function setEnabled(bool $enabled): bool
     {
+        $query = 'SELECT COUNT(*) 
+        FROM centro_de_custo
+        INNER JOIN conta
+        ON centro_de_custo_id = centro_de_custo.id
+        WHERE conta.paid = 0
+        AND centro_de_custo.id = :centro_de_custo_id';
+
+        $stmt = Database::getConnection()->prepare($query);
+        $stmt->bindParam(":centro_de_custo_id", $this->id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        if ($stmt->fetch()[0] != 0) {
+            return false;
+        }
+
         $this->enabled = $enabled;
+        return true;
     }
 
     public function save(): bool

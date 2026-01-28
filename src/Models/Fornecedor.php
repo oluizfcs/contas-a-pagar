@@ -14,7 +14,7 @@ class Fornecedor
     public function __construct(
         private int $id,
         private string $nome,
-        private string $telefone,
+        private string|null $telefone,
         private string $data_criacao,
         private string|null $data_edicao,
         private bool $enabled
@@ -25,7 +25,7 @@ class Fornecedor
     /**
      * Get the value of id
      */
-    public function getId()
+    public function getId(): int
     {
         return $this->id;
     }
@@ -45,7 +45,7 @@ class Fornecedor
     /**
      * Get the value of nome
      */
-    public function getNome()
+    public function getNome(): string
     {
         return $this->nome;
     }
@@ -65,7 +65,7 @@ class Fornecedor
     /**
      * Get the value of telefone
      */
-    public function getTelefone()
+    public function getTelefone(): string|null
     {
         return $this->telefone;
     }
@@ -85,7 +85,7 @@ class Fornecedor
     /**
      * Get the value of data_criacao
      */
-    public function getData_criacao()
+    public function getData_criacao(): string
     {
         return $this->data_criacao;
     }
@@ -127,9 +127,25 @@ class Fornecedor
         return $this->enabled;
     }
 
-    public function setEnabled(bool $enabled): void
+    public function setEnabled(bool $enabled): bool
     {
+        $query = 'SELECT COUNT(*) 
+        FROM fornecedor
+        INNER JOIN conta
+        ON fornecedor_id = fornecedor.id
+        WHERE conta.paid = 0
+        AND fornecedor.id = :fornecedor_id';
+
+        $stmt = Database::getConnection()->prepare($query);
+        $stmt->bindParam(":fornecedor_id", $this->id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        if ($stmt->fetch()[0] != 0) {
+            return false;
+        }
+
         $this->enabled = $enabled;
+        return true;
     }
 
     public function save(): bool

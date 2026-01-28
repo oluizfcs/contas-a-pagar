@@ -72,7 +72,7 @@ class CentrosDeCusto
         $cc->setNome($_POST['nome']);
 
         if ($cc->save()) {
-            $_SESSION['message'] = ['Centro de custo atualizado com sucesso!', 'success'];;
+            $_SESSION['message'] = ['Centro de custo atualizado com sucesso!', 'success'];
             header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/detalhar/' . $_POST['entity_id']);
             exit;
         }
@@ -81,7 +81,11 @@ class CentrosDeCusto
     private function unable(): void
     {
         $cc = CentroDeCusto::getById($_POST['centro_de_custo_id']);
-        $cc->setEnabled(0);
+        if (!$cc->setEnabled(0)) {
+            $_SESSION['message'] = ['Não foi possível inativar o centro de custo pois ele possui contas a pagar.', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/detalhar/' . $cc->getId());
+            exit;
+        }
 
         if ($cc->save()) {
             Logger::log_unable(CentroDeCusto::$tableName, $cc->getId(), $_SESSION['usuario_id']);
@@ -129,12 +133,12 @@ class CentrosDeCusto
 
             $this->search = $_SESSION['centrosDeCusto_filters']['search'] ?? $this->search;
             $this->status = $_SESSION['centrosDeCusto_filters']['status'] ?? $this->status;
-    
+
 
             $enabled = $this->status != 'inativados';
             $paid = $this->status == 'contas pagas';
 
-            if($this->status == 'todos') {
+            if ($this->status == 'todos') {
                 $paid = 2;
             }
 

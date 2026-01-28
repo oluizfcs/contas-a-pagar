@@ -57,7 +57,12 @@ class Fornecedores
 
     private function create(): void
     {
-        $f = new Fornecedor(0, $_POST['nome'], $_POST['telefone'], '', null, 0);
+        $telefone = $_POST['telefone'];
+        if (trim($telefone) == '') {
+            $telefone = null;
+        }
+
+        $f = new Fornecedor(0, $_POST['nome'], $telefone, '', null, 0);
 
         if ($f->save()) {
             $_SESSION['message'] = ['Fornecedor cadastrado com sucesso!', 'success'];
@@ -70,7 +75,11 @@ class Fornecedores
     {
         $f = Fornecedor::getById($_POST['entity_id']);
         $f->setNome($_POST['nome']);
-        $f->setTelefone($_POST['telefone']);
+        $telefone = $_POST['telefone'];
+        if (trim($telefone) == '') {
+            $telefone = null;
+        }
+        $f->setTelefone($telefone);
 
         if ($f->save()) {
             $_SESSION['message'] = ['Fornecedor atualizado com sucesso!', 'success'];
@@ -82,7 +91,11 @@ class Fornecedores
     private function unable(): void
     {
         $f = Fornecedor::getById($_POST['fornecedor_id']);
-        $f->setEnabled(0);
+        if (!$f->setEnabled(0)) {
+            $_SESSION['message'] = ['Não foi possível inativar o fornecedor pois ele possui contas a pagar.', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores/detalhar/' . $f->getId());
+            exit;
+        }
 
         if ($f->save()) {
             Logger::log_unable(Fornecedor::$tableName, $f->getId(), $_SESSION['usuario_id']);
@@ -126,9 +139,9 @@ class Fornecedores
             $this->status = $_SESSION['fornecedores_filters']['status'] ?? $this->status;
 
             $enabled = $this->status != 'inativados';
-            $paid = $this->status ==  'contas pagas';
+            $paid = $this->status == 'contas pagas';
 
-            if($this->status == 'todos') {
+            if ($this->status == 'todos') {
                 $paid = 2;
             }
 

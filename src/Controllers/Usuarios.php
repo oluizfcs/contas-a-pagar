@@ -109,7 +109,7 @@ class Usuarios
         if ($u->save()) {
             Logger::log_unable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Usuário inativado com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar' . $u->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar/' . $u->getId());
             exit;
         }
     }
@@ -122,7 +122,7 @@ class Usuarios
         if ($u->save()) {
             Logger::log_enable(Usuario::$tableName, $u->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Usuario ativado com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar' . $u->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/usuarios/detalhar/' . $u->getId());
             exit;
         }
     }
