@@ -6,16 +6,16 @@ $url = explode('/', rtrim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT), '/'), 
 
 $controller = str_replace(' ', '', ucwords(str_replace('-', ' ', strtolower(array_shift($url)))));
 
-if(!in_array($controller, $controllers)) {
+if (!in_array($controller, $controllers)) {
     include './404.php';
     exit;
 }
 
 $c = 'App\\Controllers\\' . $controller;
 
-if($c::$needLogin && !isset($_SESSION['usuario_id'])) {
-    include './404.php';
-    var_dump($_SESSION);
+if ($c::$needLogin && !isset($_SESSION['usuario_id'])) {
+    $_SESSION['message'] = ['É necessário fazer login novamente pois sua sessão expirou.', 'fail'];
+    header('Location: ' . $_ENV['BASE_URL'] . '/login');
     exit;
 }
 
