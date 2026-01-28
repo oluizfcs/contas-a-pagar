@@ -390,4 +390,24 @@ class Conta
             exit;
         }
     }
+
+    public function getNextInstallmentInfo(): array
+    {
+        $result = [
+            'installment' => null,
+            'paidInstallmentCount' => 0
+        ];
+
+        foreach ($this->getParcelas() as $parcela) {
+            if (!$parcela->isPaid() && $result['installment'] == null) {
+                $result['installment'] = $parcela;
+            }
+
+            if ($parcela->isPaid()) {
+                $result['paidInstallmentCount'] += 1;
+            }
+        }
+
+        return $result;
+    }
 }

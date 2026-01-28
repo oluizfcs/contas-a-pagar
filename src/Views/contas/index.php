@@ -51,8 +51,8 @@
 
     <?php if (count($contas) > 0): ?>
         <div class="table-section">
-            <table class="sortable" id="contas-table">
-                <tr>
+            <table id="contas-table">
+                <tr style="cursor: default">
                     <th>Centro de Custo</th>
                     <th>Fornecedor</th>
                     <th>Próximo vencimento</th>
@@ -61,21 +61,11 @@
                 </tr>
                 <?php foreach ($contas as $conta): ?>
                     <?php
+                    $info = $conta->getNextInstallmentInfo();
 
-                    $nextInstallment = null;
-                    $paidInstallments = 0;
-                    $nextInstallmentPrice = null;
-
-                    foreach ($conta->getParcelas() as $parcela) {
-                        if (!$parcela->isPaid() && $nextInstallment == null) {
-                            $nextInstallment = new DateTime($parcela->getData_vencimento())->format('d/m/Y');
-                            $nextInstallmentPrice = Money::centavos_para_reais($parcela->getValor_em_centavos());
-                        }
-
-                        if ($parcela->isPaid()) {
-                            $paidInstallments += 1;
-                        }
-                    }
+                    $nextInstallment = new DateTime($info['installment']->getData_vencimento())->format('d/m/Y');
+                    $paidInstallments = $info['paidInstallmentCount'];
+                    $nextInstallmentPrice = Money::centavos_para_reais($info['installment']->getValor_em_centavos());
                     ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $conta->getId() ?>';">
                         <td><?= $conta->centro_de_custo ?></td>
@@ -83,7 +73,8 @@
                         <?php if ($nextInstallment == null): ?>
                             <td>-</td>
                         <?php else: ?>
-                            <td><?= "$nextInstallment<br><span style='color: #777; font-size: smaller;'>(R$ $nextInstallmentPrice)</span>" ?>
+                            <td class="nextInstallment">
+                                <?= "$nextInstallment<br><span style='color: #777; font-size: smaller;'>(R$ $nextInstallmentPrice)</span>" ?>
                             </td>
                         <?php endif; ?>
                         <td><?= $paidInstallments . '/' . count($conta->getParcelas()) ?></td>
@@ -94,6 +85,7 @@
         </div>
     <?php endif; ?>
 
+    <!-- intentionally unreachable -->
     <?php if (count($parcelas) > 0): ?>
         <div class="table-section">
             <table class="sortable">
@@ -115,3 +107,38 @@
         </div>
     <?php endif; ?>
 </div>
+
+<style>
+    .red {
+        background-color: hsla(0, 100%, 85%, 0.8);
+    }
+
+    .yellow {
+        background-color: hsla(60, 100%, 85%, 0.8);
+    }
+</style>
+
+<?php if ($this->status == 'a pagar'): ?>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            document.querySelectorAll(".nextInstallment").forEach(td => {
+                let date = td.textContent.trimStart().slice(0, 10);
+                date = new Date(date.split("/").reverse().join("-") + 'T03:00');
+                
+                const today = new Date();
+
+                const diffInDays = (today - date) / (1000 * 60 * 60 * 24);
+
+                if (diffInDays >= 0) {
+                    console.log("due payment");
+                    td.parentElement.classList.add("red");
+                } else if(diffInDays >= -5) {
+                    console.log("close");
+                    td.parentElement.classList.add("yellow");
+                } else {
+                    console.log("safe");
+                }
+            }); 
+        });
+    </script>
+<?php endif;

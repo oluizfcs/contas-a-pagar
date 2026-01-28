@@ -345,6 +345,28 @@ class Contas
 
             if ($this->rowType == 'contas') {
                 $contas = Conta::getAll($this->search, $this->status);
+
+                usort($contas, function($a, $b) {
+                    $infoA = $a->getNextInstallmentInfo();
+                    $infoB = $b->getNextInstallmentInfo();
+                    
+                    $dateA = $infoA['installment'] ? $infoA['installment']->getData_vencimento() : null;
+                    $dateB = $infoB['installment'] ? $infoB['installment']->getData_vencimento() : null;
+
+                    if ($dateA === $dateB) {
+                        return 0;
+                    }
+
+                    // Null dates (no pending installments) go to the end
+                    if ($dateA === null) {
+                        return 1;
+                    }
+                    if ($dateB === null) {
+                        return -1;
+                    }
+
+                    return ($dateA < $dateB) ? -1 : 1;
+                });
             } else {
                 if ($this->status == 'inativadas') {
                     $this->status = "a pagar";
