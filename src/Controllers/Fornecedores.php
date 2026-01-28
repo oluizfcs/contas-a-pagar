@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Services\Logger;
 use App\Models\Database;
 use App\Models\Fornecedor;
+use App\Models\Conta;
 
 class Fornecedores
 {
@@ -130,6 +131,7 @@ class Fornecedores
             $fornecedor = Fornecedor::getById($this->id);
 
             if ($view == 'detalhar') {
+                $contas = Conta::getByForeignKey(Fornecedor::$tableName, $this->id);
                 $logs = Database::getLog(Fornecedor::$tableName, $this->id);
             }
         }

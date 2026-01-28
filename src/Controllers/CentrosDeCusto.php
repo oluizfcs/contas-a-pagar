@@ -5,6 +5,7 @@ namespace App\Controllers;
 use App\Controllers\Services\Logger;
 use App\Models\Database;
 use App\Models\CentroDeCusto;
+use App\Models\Conta;
 
 class CentrosDeCusto
 {
@@ -120,6 +121,7 @@ class CentrosDeCusto
             $centro_de_custo = CentroDeCusto::getById($this->id);
 
             if ($view == 'detalhar') {
+                $contas = Conta::getByForeignKey(CentroDeCusto::$tableName, $this->id);
                 $logs = Database::getLog(CentroDeCusto::$tableName, $this->id);
             }
         }

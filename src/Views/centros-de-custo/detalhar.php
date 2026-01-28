@@ -6,6 +6,9 @@ if ($centro_de_custo->getData_edicao() != null) {
 } else {
     $data_edicao = 'nunca';
 }
+
+use App\Controllers\Services\Money;
+
 ?>
 
 <h1>Centro de custo: <?= $centro_de_custo->getNome() ?></h1>
@@ -33,9 +36,52 @@ if ($centro_de_custo->getData_edicao() != null) {
 </form>
 
 
-<div class="section">
-    <h2><i class="fa-solid fa-chart-simple"></i> Estatísticas</h2>
-    <img src="/public/images/graph.jpg" alt="example graph" width="525" height="412.5">
-</div>
+<?php if (count($contas) > 0): ?>
+    <div class="section">
+        <h2><i class="fa-solid fa-receipt"></i> Contas a pagar</h2>
+        <div class="table-section">
+            <table class="sortable" id="contas-table">
+                <tr>
+                    <th>Fornecedor</th>
+                    <th>Próximo vencimento</th>
+                    <th>Parcelas pagas</th>
+                    <th>Valor Total (R$)</th>
+                </tr>
+                <?php foreach ($contas as $conta): ?>
+                    <?php
+
+                    $nextInstallment = null;
+                    $paidInstallments = 0;
+                    $nextInstallmentPrice = null;
+
+                    foreach ($conta->getParcelas() as $parcela) {
+                        if (!$parcela->isPaid() && $nextInstallment == null) {
+                            $nextInstallment = new DateTime($parcela->getData_vencimento())->format('d/m/Y');
+                            $nextInstallmentPrice = Money::centavos_para_reais($parcela->getValor_em_centavos());
+                        }
+
+                        if ($parcela->isPaid()) {
+                            $paidInstallments += 1;
+                        }
+                    }
+                    ?>
+                    <tr onclick="window.open('<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $conta->getId() ?>', '_blank');">
+                        <td><?= $conta->fornecedor ?></td>
+                        <?php if ($nextInstallment == null): ?>
+                            <td>-</td>
+                        <?php else: ?>
+                            <td><?= "$nextInstallment<br><span style='color: #777; font-size: smaller;'>(R$ $nextInstallmentPrice)</span>" ?>
+                        </td>
+                        <?php endif; ?>
+                        <td>
+                            <?= $paidInstallments . '/' . count($conta->getParcelas()) ?>
+                        </td>
+                        <td><?= Money::centavos_para_reais($conta->getValor_em_centavos()) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    </div>
+<?php endif; ?>
 
 <?php include 'templates/auditoria.php'; ?>

@@ -54,20 +54,22 @@
             <table class="sortable" id="contas-table">
                 <tr>
                     <th>Centro de Custo</th>
-                    <th>Valor Total (R$)</th>
+                    <th>Fornecedor</th>
                     <th>Próximo vencimento</th>
                     <th>Parcelas pagas</th>
-                    <th>Descrição</th>
+                    <th>Valor Total (R$)</th>
                 </tr>
                 <?php foreach ($contas as $conta): ?>
                     <?php
 
                     $nextInstallment = null;
                     $paidInstallments = 0;
+                    $nextInstallmentPrice = null;
 
                     foreach ($conta->getParcelas() as $parcela) {
                         if (!$parcela->isPaid() && $nextInstallment == null) {
                             $nextInstallment = new DateTime($parcela->getData_vencimento())->format('d/m/Y');
+                            $nextInstallmentPrice = Money::centavos_para_reais($parcela->getValor_em_centavos());
                         }
 
                         if ($parcela->isPaid()) {
@@ -77,12 +79,15 @@
                     ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $conta->getId() ?>';">
                         <td><?= $conta->centro_de_custo ?></td>
+                        <td><?= $conta->fornecedor ?></td>
+                        <?php if ($nextInstallment == null): ?>
+                            <td>-</td>
+                        <?php else: ?>
+                            <td><?= "$nextInstallment<br><span style='color: #777; font-size: smaller;'>(R$ $nextInstallmentPrice)</span>" ?>
+                            </td>
+                        <?php endif; ?>
+                        <td><?= $paidInstallments . '/' . count($conta->getParcelas()) ?></td>
                         <td><?= Money::centavos_para_reais($conta->getValor_em_centavos()) ?></td>
-                        <td><?= $nextInstallment ?? '-' ?></td>
-                        <td>
-                            <?= $paidInstallments . '/' . count($conta->getParcelas()) ?>
-                        </td>
-                        <td><?= $conta->getDescricao() ?></td>
                     </tr>
                 <?php endforeach; ?>
             </table>
@@ -93,7 +98,7 @@
         <div class="table-section">
             <table class="sortable">
                 <tr>
-                    <th>Centro de Custo</th>
+                    <th>Centro de custo</th>
                     <th>Valor (R$)</th>
                     <th>Vencimento</th>
                     <th>Parcela</th>
@@ -110,33 +115,3 @@
         </div>
     <?php endif; ?>
 </div>
-
-<script>
-    const contasTable = document.getElementById("contas-table");
-
-    if (contasTable) {
-        [...contasTable.childNodes[1].childNodes].splice(1).forEach(e => {
-            if (e.tagName != "TR") {
-                return;
-            }
-
-            e.childNodes.forEach(td => {
-                if (td.tagName != "TD" || td.textContent.trim().length <= 50) {
-                    return;
-                }
-
-                let savedText = td.textContent;
-                td.textContent = td.textContent.slice(0, 50) + "... ";
-                const a = document.createElement("a");
-                a.textContent = "Ler mais";
-                a.classList.add("clickable-text")
-                td.appendChild(a);
-
-                a.addEventListener("click", function (e) {
-                    e.stopPropagation();
-                    td.innerHTML = savedText;
-                });
-            });
-        });
-    }
-</script>

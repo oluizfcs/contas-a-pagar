@@ -12,6 +12,7 @@ class Conta
     public static string $tableName = 'conta';
     public int $lastInsertId;
     public string $centro_de_custo;
+    public string $fornecedor;
 
     public function __construct(
         private int $id,
@@ -265,9 +266,11 @@ class Conta
             conta.id,
             descricao,
             valor_em_centavos,
-            c.nome centro
+            c.nome centro,
+            f.nome fornecedor
         FROM conta
         INNER JOIN centro_de_custo c ON centro_de_custo_id = c.id
+        INNER JOIN fornecedor f ON fornecedor_id = f.id
         WHERE 1 = 1";
 
         switch ($status) {
@@ -300,6 +303,7 @@ class Conta
             foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $conta) {
                 $c = Conta::getById($conta['id']);
                 $c->centro_de_custo = $conta['centro'];
+                $c->fornecedor = $conta['fornecedor'];
                 $contas[] = $c;
             }
 
@@ -310,6 +314,37 @@ class Conta
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
         }
+    }
+
+    public static function getByForeignKey(string $foreignKey, int $id): array
+    {
+        $allowedKeys = ['centro_de_custo', 'fornecedor'];
+        if (!in_array($foreignKey, $allowedKeys)) {
+            return [];
+        }
+
+        $stmt = Database::getConnection()->prepare("
+            SELECT conta.id, descricao, valor_em_centavos, c.nome centro, f.nome fornecedor
+            FROM conta
+            INNER JOIN centro_de_custo c ON centro_de_custo_id = c.id
+            INNER JOIN fornecedor f ON fornecedor_id = f.id
+            WHERE $foreignKey" . "_id = :id
+            AND paid = 0
+            AND conta.enabled = 1;
+        ");
+        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        $results = [];
+        foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
+            extract($row);
+            $conta = new Conta($id, $descricao, $valor_em_centavos, '', '', 0, 0, self::findInstallments($id), 1, 0);
+            $conta->centro_de_custo = $centro;
+            $conta->fornecedor = $fornecedor;
+            $results[] = $conta;
+        }
+
+        return $results;
     }
 
     public static function findInstallments(int $id): array
