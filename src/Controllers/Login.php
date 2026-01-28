@@ -10,6 +10,7 @@ use Exception;
 class Login
 {
     public static bool $needLogin = false;
+    public static bool $onlyAdmin = false;
 
     function __construct(string $p1 = '')
     {

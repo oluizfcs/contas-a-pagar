@@ -15,6 +15,7 @@ use DateTime;
 class Contas
 {
     public static bool $needLogin = true;
+    public static bool $onlyAdmin = false;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar', 'pagar'];
     private int $id;
     private string $rowType = 'contas';

@@ -1,4 +1,4 @@
-<h1>Centros de Custo</h1>
+<h1>Centros de custo</h1>
 <a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/centros-de-custo/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <div class="section">
     <div class="section search-section">

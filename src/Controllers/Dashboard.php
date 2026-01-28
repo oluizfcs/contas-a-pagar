@@ -10,6 +10,7 @@ use App\Models\CentroDeCusto;
 class Dashboard
 {
     public static bool $needLogin = true;
+    public static bool $onlyAdmin = false;
 
     function __construct()
     {

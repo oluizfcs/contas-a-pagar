@@ -10,7 +10,7 @@ if ($view == 'atualizar') {
 
 <div class="form-section">
     <div class="section">
-        <h1><?= ucfirst($view) ?> Centro de Custo</h1>
+        <h1><?= ucfirst($view) ?> centro de custo</h1>
         <form action="" method="post">
 
             <?php if ($view == 'atualizar'): ?>

@@ -10,6 +10,7 @@ use App\Models\Banco;
 class Bancos
 {
     public static bool $needLogin = true;
+    public static bool $onlyAdmin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';

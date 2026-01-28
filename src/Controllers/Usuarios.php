@@ -11,6 +11,7 @@ use Exception;
 class Usuarios
 {
     public static bool $needLogin = true;
+    public static bool $onlyAdmin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'alterar-senha'];
     private int $id;
     private string $mostrar = 'todos';

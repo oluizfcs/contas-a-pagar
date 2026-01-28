@@ -9,6 +9,7 @@ use App\Models\CentroDeCusto;
 class CentrosDeCusto
 {
     public static bool $needLogin = true;
+    public static bool $onlyAdmin = false;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';

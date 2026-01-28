@@ -29,10 +29,15 @@
                 'dashboard' => ['icon' => 'fas fa-tachometer-alt', 'label' => 'Dashboard'],
                 'contas' => ['icon' => 'fa-solid fa-receipt', 'label' => 'Contas'],
                 'fornecedores' => ['icon' => 'fa-solid fa-dolly', 'label' => 'Fornecedores'],
-                'centros-de-custo' => ['icon' => 'fa-solid fa-list', 'label' => 'Centros'],
-                'bancos' => ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bancos'],
-                'usuarios' => ['icon' => 'fa-solid fa-users', 'label' => 'Usuários']
+                'centros-de-custo' => ['icon' => 'fa-solid fa-list', 'label' => 'Centros']
             ];
+            
+            if ($_SESSION['usuario_id'] == 1) {
+                $menuItems['bancos'] = ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bancos'];
+                $menuItems['usuarios'] = ['icon' => 'fa-solid fa-users', 'label' => 'Usuários'];
+                $menuItems['relatorios'] = ['icon' => 'fa-solid fa-file', 'label' => 'Relatórios'];
+                // $menuItems['admin'] = ['icon' => 'fa-solid fa-cog', 'label' => 'Administração'];
+            }
 
             foreach ($menuItems as $item => $info) {
                 $selected = $controller == $item ? "style='background-color: hsl(214, 77%, 30%)'" : '';

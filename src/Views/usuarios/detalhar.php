@@ -11,8 +11,13 @@ if ($usuario->getData_edicao() != null) {
 <h1>Usuario: <?= $usuario->getNome() ?></h1>
 CPF: <?= $usuario->getMaskedCpf() ?> <br>
 <br>
-<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/usuarios">Voltar</a> <?php if ($_SESSION['usuario_id'] == $usuario->getId() || $_SESSION['usuario_id'] == 1): ?>
-<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/usuarios/alterar-senha/<?= $usuario->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Alterar Senha</a> <?php endif; ?>
+<?php if($_SESSION['usuario_id'] == 1): ?>
+    <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/usuarios">Voltar</a>
+<?php endif; ?>
+
+<?php if ($_SESSION['usuario_id'] == $usuario->getId() || $_SESSION['usuario_id'] == 1): ?>
+    <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/usuarios/alterar-senha/<?= $usuario->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Alterar Senha</a>
+<?php endif; ?>
 
 <?php if ($_SESSION['usuario_id'] == 1 && $usuario->getId() != 1): ?>
     <form method="POST" action="">
