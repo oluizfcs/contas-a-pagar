@@ -22,14 +22,14 @@ CPF: <?= $usuario->getMaskedCpf() ?> <br>
                 <i class="fa-solid fa-box-archive"></i> Inativar
             </button>
             <a class="btn btn-disabled">
-                <i class="fa-solid fa-box-open"></i> Ativar</a>
+                <i class="fa-solid fa-box-open"></i> Ativar
             </a>
         <?php else: ?>
             <a class="btn btn-disabled">
                 <i class="fa-solid fa-box-archive"></i> Inativar
             </a>
             <button class="btn btn-secondary" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este usuario?')">
-                <i class="fa-solid fa-box-open"></i> Ativar</a>
+                <i class="fa-solid fa-box-open"></i> Ativar
             </button>
         <?php endif; ?>
     </form>

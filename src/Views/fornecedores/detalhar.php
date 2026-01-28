@@ -9,7 +9,7 @@ if ($fornecedor->getData_edicao() != null) {
 ?>
 
 <h1>Fornecedor: <?= $fornecedor->getNome() ?></h1>
-Telefone: <?= $fornecedor->getTelefone() ?> <br>
+Telefone: <?= $fornecedor->getTelefone() ?? '<span style="color: #999;">N/A</span>' ?> <br>
 <br>
 <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/fornecedores">Voltar</a>
 <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/fornecedores/atualizar/<?= $fornecedor->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
@@ -21,14 +21,14 @@ Telefone: <?= $fornecedor->getTelefone() ?> <br>
             <i class="fa-solid fa-box-archive"></i> Inativar
         </button>
         <a class="btn btn-disabled">
-            <i class="fa-solid fa-box-open"></i> Ativar</a>
+            <i class="fa-solid fa-box-open"></i> Ativar
         </a>
     <?php else: ?>
         <a class="btn btn-disabled">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </a>
         <button class="btn btn-secondary" name="type" value="enable" onclick="return confirm('Realmente deseja ativar este fornecedor?')">
-            <i class="fa-solid fa-box-open"></i> Ativar</a>
+            <i class="fa-solid fa-box-open"></i> Ativar
         </button>
     <?php endif; ?>
 </form>

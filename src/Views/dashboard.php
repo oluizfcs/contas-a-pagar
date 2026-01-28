@@ -23,6 +23,13 @@
     </form>
 </div>
 
+<?php if (count($chartData['daily']) <= 0): ?>
+    <br>
+    <p>Nenhuma conta encontrada
+        para o período selecionado.</p>
+    <?php exit; ?>
+<?php endif; ?>
+
 <div class="dashboard-grid">
     <div class="card full-width">
         <h3>R$ em contas a pagar por dia</h3>
