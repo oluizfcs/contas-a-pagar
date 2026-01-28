@@ -183,6 +183,11 @@ select {
 
 .description {
     background-color: #ddd;
+    color: #333;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: justify;
+    max-width: 750px;
 }
 
 #toggle-sidebar {

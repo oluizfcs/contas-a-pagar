@@ -100,10 +100,7 @@ class Contas
         }
 
         if (trim($descricao) == "") {
-            $_SESSION['message'] = ['A descrição não pode estar vazia', 'fail'];
-            $_SESSION['post_data'] = $_POST;
-            header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
-            exit;
+            $descricao = "Nenhuma observação foi informada.";
         }
 
         if (strlen(trim($descricao)) >= 500) {
@@ -314,7 +311,7 @@ class Contas
 
             $filters = $_SESSION['contas_filters'] ?? [
                 'search' => '',
-                'rowType' => 'parcelas',
+                'rowType' => 'contas',
                 'status' => 'a pagar'
             ];
 

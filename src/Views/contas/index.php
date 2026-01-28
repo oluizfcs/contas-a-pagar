@@ -9,8 +9,8 @@
             <i class="search-icon fa-solid fa-magnifying-glass"></i>
             <input type="text" name="search" id="search" autocomplete="off" value="<?= $this->search ?? '' ?>">
 
-            <select name="rowType" onchange="form.submit()">
-                <?php
+            <!-- <select name="rowType" onchange="form.submit()">
+                <!php
                 $options = ['contas', 'parcelas'];
 
                 foreach ($options as $option) {
@@ -18,7 +18,8 @@
                     echo "<option value='$option' $selected>" . ucfirst($option) . '</option>';
                 }
                 ?>
-            </select>
+            </select> -->
+            <input type="hidden" name="rowType" value="contas">
 
             <select name="status" onchange="form.submit()">
                 <?php

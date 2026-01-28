@@ -21,7 +21,7 @@
                 <br><br>
                 <label for="descricao">Descrição/Observações:</label>
                 <div class="input-wrapper">
-                    <textarea id="descricao" name="descricao" required maxlength="500" autocomplete="off"><?= isset($_SESSION['post_data']['descricao']) ? $_SESSION['post_data']['descricao'] : '' ?></textarea>
+                    <textarea id="descricao" name="descricao" maxlength="500" autocomplete="off"><?= isset($_SESSION['post_data']['descricao']) ? $_SESSION['post_data']['descricao'] : '' ?></textarea>
                 </div>
                 <br>
                 <div class="input-wrapper">
