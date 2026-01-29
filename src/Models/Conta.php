@@ -224,19 +224,13 @@ class Conta
                 return true;
             } else {
                 // atualizar
-                $contaAntiga = self::getById($this->id);
-
-                $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET descricao = :descricao, paid = :paid WHERE id = :id');
-                $stmt->bindParam(':descricao', $this->descricao, PDO::PARAM_STR);
+                $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET enabled = :enabled, paid = :paid WHERE id = :id');
+                $stmt->bindParam(':enabled', $this->enabled, PDO::PARAM_BOOL);
                 $stmt->bindParam(':paid', $this->paid, PDO::PARAM_BOOL);
                 $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
 
                 $stmt->execute();
-
-                if ($contaAntiga->getDescricao() != $this->descricao) {
-                    Logger::log(self::$tableName, 'descricao', $contaAntiga->getDescricao(), $this->descricao, $this->id, $_SESSION['usuario_id']);
-                }
-
+                
                 return true;
             }
         } catch (PDOException $e) {
@@ -385,6 +379,24 @@ class Conta
             return $stmt->fetch()[0] > 0;
         } catch (PDOException $e) {
             Logger::error('Falha ao verificar parcelas', ['conta_id' => $id, 'PDOException' => $e->getMessage()]);
+            $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
+            exit;
+        }
+    }
+
+    public static function hasPaidInstallments(int $id): bool
+    {
+        $sql = "SELECT COUNT(*) FROM parcela WHERE conta_id = :conta_id AND paid = 1";
+
+        try {
+            $stmt = Database::getConnection()->prepare($sql);
+            $stmt->bindParam(':conta_id', $id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            return $stmt->fetch()[0] > 0;
+        } catch (PDOException $e) {
+            Logger::error('Falha ao verificar parcelas pagas', ['conta_id' => $id, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/contas');
             exit;

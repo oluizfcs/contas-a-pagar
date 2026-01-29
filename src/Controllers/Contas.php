@@ -16,7 +16,7 @@ class Contas
 {
     public static bool $needLogin = true;
     public static bool $onlyAdmin = false;
-    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar', 'pagar'];
+    private array $views = ['index', 'cadastrar', 'detalhar', 'pagar'];
     private int $id;
     private string $rowType = 'contas';
     private string $status = 'a pagar';
@@ -39,9 +39,6 @@ class Contas
             switch ($_POST['type']) {
                 case 'create':
                     $this->create();
-                    break;
-                case 'update':
-                    $this->update();
                     break;
                 case 'unable':
                     $this->unable();
@@ -196,21 +193,15 @@ class Contas
         }
     }
 
-    private function update(): void
-    {
-        $c = Conta::getById($_POST['entity_id']);
-        $c->setDescricao($_POST['descricao']);
-
-        if ($c->save()) {
-            $_SESSION['message'] = ['Conta atualizada com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $_POST['entity_id']);
-            exit;
-        }
-    }
-
     private function unable(): void
     {
-        $c = Conta::getById($_POST['conta_id']);
+        if (Conta::hasPaidInstallments($this->id)) {
+            $_SESSION['message'] = ['Não é possível inativar uma conta que já possui parcelas pagas.', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $this->id);
+            exit;
+        }
+
+        $c = Conta::getById($this->id);
         $c->setEnabled(0);
 
         if ($c->save()) {
@@ -375,7 +366,7 @@ class Contas
             }
         }
 
-        if ($view == 'cadastrar' || $view == 'atualizar') {
+        if ($view == 'cadastrar') {
             $centros = Database::getOptions(CentroDeCusto::$tableName);
             $fornecedores = Database::getOptions(Fornecedor::$tableName);
             $bancos = Database::getOptions(Banco::$tableName);

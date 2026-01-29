@@ -130,13 +130,9 @@
                 const diffInDays = (today - date) / (1000 * 60 * 60 * 24);
 
                 if (diffInDays >= 0) {
-                    console.log("due payment");
                     td.parentElement.classList.add("red");
                 } else if(diffInDays >= -5) {
-                    console.log("close");
                     td.parentElement.classList.add("yellow");
-                } else {
-                    console.log("safe");
                 }
             }); 
         });

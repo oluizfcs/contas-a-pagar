@@ -3,6 +3,7 @@
 use App\Controllers\Services\Money;
 use App\Models\Fornecedor;
 use App\Models\CentroDeCusto;
+use App\Models\Conta;
 
 $data_criacao = DateTime::createFromFormat("Y-m-d H:i:s", $conta->getData_criacao());
 if ($conta->getData_edicao() != null) {
@@ -27,9 +28,8 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
 </div>
 <br><br>
 <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas">Voltar</a>
-<a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/contas/atualizar/<?= $conta->getId() ?>"><i
-        class="fa-solid fa-pen-to-square"></i> Atualizar</a>
 
+<?php if (!Conta::hasPaidInstallments($conta->getId())): ?>
 <form method="POST" action="">
     <input type="hidden" name="conta_id" value="<?= $conta->getId() ?>">
     <?php if ($conta->isEnabled()): ?>
@@ -50,6 +50,7 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
         </button>
     <?php endif; ?>
 </form>
+<?php endif; ?>
 
 <div class="section">
     <h2><i class="fa-solid fa-money-bill"></i> Parcelas</h2>

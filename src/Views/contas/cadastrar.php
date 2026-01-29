@@ -99,6 +99,11 @@
 </div>
 
 <script src="<?= $_ENV['BASE_URL'] ?>/public/js/cadastrarConta.js"></script>
+<script>
+    $(document).ready(function() {
+        paymentMethod(document.querySelector('input[name="forma-pagamento"]:checked').value);
+    });
+</script>
 <?php
 unset($_SESSION['post_data']);
 ?>
