@@ -3,7 +3,7 @@
         <h1>Marcar parcela como paga</h1>
         <form action="" method="post">
             <input type="hidden" name="numero_parcela" value="<?= $_POST['numero_parcela'] ?>">
-            <input type="hidden" name="conta_id" value="<?= $_SERVER['QUERY_STRING'][-1] ?>">
+            <input type="hidden" name="conta_id" value="<?= explode('/', $_SERVER['QUERY_STRING'])[2] ?>">
             <div class="input-wrapper">
                 <label for="bancos">Conta bancária <span style="font-weight: 200; font-size: 13px;">(onde será
                         descontado)<span></label>
