@@ -174,10 +174,7 @@ class Contas
 
             if (count($parcelas) > 0) {
                 //parcelado
-                for ($i = 0; $i < $qtd_parcela; $i++) {
-                    $p = new Parcela(0, $i + 1, $parcelas[$i]['valor'], $parcelas[$i]['vencimento'], null, $c->lastInsertId, $banco_id, false);
-                    $p->save();
-                }
+                Parcela::bulkInsert($parcelas, $c->lastInsertId);
             } else {
                 //a vista
                 new Parcela(0, 1, $valorEmCentavos, $_POST['dataParcelaAVista'], null, $c->lastInsertId, $banco_id, false)->save();

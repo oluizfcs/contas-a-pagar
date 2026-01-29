@@ -10,6 +10,8 @@ use App\Controllers\Services\Logger;
 class Parcela
 {
     public static string $tableName = 'parcela';
+    public string $centro_de_custo;
+    public string|null $fornecedor;
 
     public function __construct(
         private int $id,
@@ -198,7 +200,7 @@ class Parcela
 
                 $stmt->execute();
 
-                Logger::log_create($conn, self::$tableName);
+                // Logger::log_create($conn, self::$tableName);
 
                 return true;
             } else {
@@ -308,6 +310,73 @@ class Parcela
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             Logger::error('Falha ao buscar totais diários', ['start' => $start, 'end' => $end, 'PDOException' => $e->getMessage()]);
+            return [];
+        }
+    }
+
+    public static function bulkInsert(array $parcelas, int $conta_id): void
+    {
+        $sql = "INSERT INTO parcela(numero_parcela, valor_em_centavos, data_vencimento, conta_id) VALUES ";
+
+        for ($i = 0; $i < count($parcelas); $i++) {
+            $sql = $sql . "(:numero_parcela$i, :valor$i, :vencimento$i, :conta_id)";
+
+            if($i != count($parcelas) -1) {
+                $sql = $sql . ", ";
+            }
+        }
+
+        try {
+            $stmt = Database::getConnection()->prepare($sql);
+            
+            for ($i = 0; $i < count($parcelas); $i++) {
+                $stmt->bindValue(":numero_parcela$i", $i+1);
+                $stmt->bindValue(":valor$i", $parcelas[$i]['valor'], PDO::PARAM_INT);
+                $stmt->bindValue(":vencimento$i", $parcelas[$i]['vencimento'], PDO::PARAM_STR);
+                $stmt->bindValue(':conta_id', $conta_id, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+        } catch (PDOException $e) {
+            Logger::error('Falha ao inserir parcelas', ['PDOException' => $e->getMessage()]);
+            $_SESSION['message'] = ['Erro ao cadastrar parcelas, entre em contato com o desenvolvedor do sistema.', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/contas');
+            exit;
+        }
+    }
+    
+    public static function getByBank(int $banco_id): array
+    {
+        try {
+            $stmt = Database::getConnection()->prepare("
+            SELECT 
+                p.id, 
+                p.numero_parcela, 
+                p.valor_em_centavos, 
+                p.data_pagamento, 
+                p.conta_id,
+                centro.nome as centro,
+                f.nome as fornecedor
+            FROM parcela p
+            INNER JOIN conta c ON p.conta_id = c.id
+            INNER JOIN centro_de_custo centro ON c.centro_de_custo_id = centro.id
+            LEFT JOIN fornecedor f ON c.fornecedor_id = f.id
+            WHERE banco_id = :id");
+            $stmt->bindParam(':id', $banco_id, PDO::PARAM_INT);
+            $stmt->execute();
+
+            $parcelas = [];
+            foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $parcela) {
+                extract($parcela);
+                $p = new Parcela($id, $numero_parcela, $valor_em_centavos, '', $data_pagamento, $conta_id, null, 1);
+                $p->centro_de_custo = $centro;
+                $p->fornecedor = $fornecedor;
+                $parcelas[] = $p;
+            }
+
+            return $parcelas;
+        } catch (PDOException $e) {
+            Logger::error('Falha ao buscar parcelas por banco', ['id' => $id, 'PDOException' => $e->getMessage()]);
             return [];
         }
     }

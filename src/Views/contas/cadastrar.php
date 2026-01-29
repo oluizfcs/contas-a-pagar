@@ -44,7 +44,7 @@
                 </div>
                 <div id="quantidade-parcelas" class="hide">
                     <label for="qtd_parcela">Quantidade de parcelas:</label>
-                    <input type="number" id="qtd_parcela" name="qtd_parcela" min="1" max="999" step="1" value="<?= isset($_SESSION['post_data']['qtd_parcela']) ? $_SESSION['post_data']['qtd_parcela'] : '1' ?>" onchange="generateInstallments()">
+                    <input type="number" id="qtd_parcela" name="qtd_parcela" min="1" max="300" step="1" value="<?= isset($_SESSION['post_data']['qtd_parcela']) ? $_SESSION['post_data']['qtd_parcela'] : '1' ?>" onchange="generateInstallments()">
                 </div>
                 <div id="input-parcela-a-vista">
                     <label id="labelDataParcelaAVista" for="dataParcelaAVista">Data de pagamento:</label>

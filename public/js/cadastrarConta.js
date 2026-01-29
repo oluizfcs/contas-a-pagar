@@ -138,9 +138,9 @@ function generateInstallments() {
         document.getElementById("auto-dates").style.display = "none";
     }
 
-    if (qtd.value > 999) {
-        alert("O limite de parcelas é 999");
-        qtd.value = 999;
+    if (qtd.value > 300) {
+        alert("O limite de parcelas é 300");
+        qtd.value = 300;
     }
 
     const novasParcelas = [];

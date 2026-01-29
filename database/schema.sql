@@ -34,7 +34,7 @@ CREATE TABLE centro_de_custo(
 CREATE TABLE fornecedor(
     id MEDIUMINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(55) NOT NULL,
-    telefone VARCHAR(45),
+    telefone VARCHAR(45) NULL,
     data_criacao DATETIME NOT NULL DEFAULT NOW(),
     data_edicao DATETIME ON UPDATE NOW(),
     `enabled` TINYINT NOT NULL DEFAULT 1

@@ -6,6 +6,7 @@ use App\Controllers\Services\Logger;
 use App\Controllers\Services\Money;
 use App\Models\Database;
 use App\Models\Banco;
+use App\Models\Parcela;
 
 class Bancos
 {
@@ -120,6 +121,7 @@ class Bancos
 
             if ($view == 'detalhar') {
                 $logs = Database::getLog(Banco::$tableName, $this->id);
+                $parcelas = Parcela::getByBank($this->id);
             }
         }
 

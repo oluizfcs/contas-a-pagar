@@ -9,6 +9,10 @@ if ($banco->getData_edicao() != null) {
 
 $formatter = new NumberFormatter('PT_BR', NumberFormatter::SPELLOUT);
 $extenso = $formatter->format($banco->getSaldo_em_centavos() / 100);
+
+use App\Controllers\Services\Money;
+use App\Models\Conta;
+
 ?>
 
 <h1>Conta bancária: <?= $banco->getNome() ?></h1>
@@ -37,12 +41,31 @@ $extenso = $formatter->format($banco->getSaldo_em_centavos() / 100);
 </form>
 
 <div class="section">
-    <h2><i class="fa-solid fa-up-down"></i> Extrato</h2>
-</div>
-
-<div class="section">
-    <h2><i class="fa-solid fa-chart-simple"></i> Estatísticas</h2>
-    <img src="/public/images/graph.jpg" alt="example graph" width="525" height="412.5">
+    <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Extrato</h2>
+        <?php if (count($parcelas) > 0): ?>
+        <div class="table-section">
+            <table class="sortable">
+                <tr>
+                    <th>Centro de custo</th>
+                    <th>Fornecedor</th>
+                    <th>Valor (R$)</th>
+                    <th>Pago em</th>
+                    <th>Parcela</th>
+                </tr>
+                <?php foreach ($parcelas as $parcela): ?>
+                    <tr onclick="window.open('<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $parcela->getConta_id() ?>', '_blank')">
+                        <td><?= $parcela->centro_de_custo ?></td>
+                        <td><?= $parcela->fornecedor ?></td>
+                        <td><?= Money::centavos_para_reais($parcela->getValor_em_centavos()) ?></td>
+                        <td><?= new DateTime($parcela->getData_pagamento())->format('d/m/Y') ?></td>
+                        <td><?= $parcela->getNumero_parcela() . '/' . count(Conta::getById($parcela->getConta_id())->getParcelas()) ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    <?php else: ?>
+        <p>Nenhum registro encontrado.</p>
+    <?php endif; ?>
 </div>
 
 <?php include 'templates/auditoria.php'; ?>

@@ -52,6 +52,8 @@ A side project to understand more about web development.
     - Set `date.timezone = "America/Sao_Paulo"`
     - Uncomment `;extension=pdo_mysql`
     - Uncomment `;extension=intl`
+    - `session.gc_maxlifetime = 3600`
+    - `post_max_size = 20M`
 #### Composer
 ```
 $ composer install
