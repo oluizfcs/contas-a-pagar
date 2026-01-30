@@ -230,7 +230,7 @@ class CentroDeCusto
         return new CentroDeCusto($id, $nome, $data_criacao, $data_edicao, $enabled);
     }
 
-    public static function getTotalsByPeriod(string $start, string $end): array
+    public static function getTotalsByPeriod(string $start, string $end, string $status = 'todas'): array
     {
         $sql = "SELECT 
                     cc.nome, 
@@ -239,8 +239,15 @@ class CentroDeCusto
                 JOIN conta c ON cc.id = c.centro_de_custo_id
                 JOIN parcela p ON c.id = p.conta_id
                 WHERE p.data_vencimento BETWEEN :start AND :end
-                AND cc.enabled = 1
-                GROUP BY cc.id
+                AND cc.enabled = 1";
+
+        if ($status === 'a_pagar') {
+            $sql .= " AND p.paid = 0";
+        } elseif ($status === 'pagas') {
+            $sql .= " AND p.paid = 1";
+        }
+
+        $sql .= " GROUP BY cc.id
                 ORDER BY total DESC";
 
         try {
@@ -251,7 +258,7 @@ class CentroDeCusto
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao buscar totais por centro de custo', ['start' => $start, 'end' => $end, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao buscar totais por centro de custo', ['start' => $start, 'end' => $end, 'status' => $status, 'PDOException' => $e->getMessage()]);
             return [];
         }
     }

@@ -258,7 +258,7 @@ class Fornecedor
         return new Fornecedor($id, $nome, $telefone, $data_criacao, $data_edicao, $enabled);
     }
 
-    public static function getTopByPeriod(string $start, string $end, int $limit = 10): array
+    public static function getTopByPeriod(string $start, string $end, int $limit = 10, string $status = 'todas'): array
     {
         $sql = "SELECT 
                     f.nome, 
@@ -267,8 +267,15 @@ class Fornecedor
                 JOIN conta c ON f.id = c.fornecedor_id
                 JOIN parcela p ON c.id = p.conta_id
                 WHERE p.data_vencimento BETWEEN :start AND :end
-                AND f.enabled = 1
-                GROUP BY f.id
+                AND f.enabled = 1";
+
+        if ($status === 'a_pagar') {
+            $sql .= " AND p.paid = 0";
+        } elseif ($status === 'pagas') {
+            $sql .= " AND p.paid = 1";
+        }
+
+        $sql .= " GROUP BY f.id
                 ORDER BY total DESC
                 LIMIT :limit";
 
@@ -281,7 +288,7 @@ class Fornecedor
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao buscar top fornecedores', ['start' => $start, 'end' => $end, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao buscar top fornecedores', ['start' => $start, 'end' => $end, 'status' => $status, 'PDOException' => $e->getMessage()]);
             return [];
         }
     }

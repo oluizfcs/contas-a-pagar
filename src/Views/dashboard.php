@@ -1,7 +1,7 @@
 <h1>Dashboard</h1>
 
 <div class="section">
-    <form method="GET" action="" class="mb-4" style="display: flex; gap: 1rem; align-items: flex-end;">
+    <form method="POST" action="" class="mb-4" style="display: flex; gap: 1rem; align-items: flex-end;">
         <div>
             <label for="start_date">Data inicial: </label>
             <input type="date" id="start_date" name="start_date" value="<?= htmlspecialchars($startDate) ?>"
@@ -12,8 +12,16 @@
             <input type="date" id="end_date" name="end_date" value="<?= htmlspecialchars($endDate) ?>"
                 class="form-control" style="margin-bottom: 0;">
         </div>
+        <div>
+            <label for="status">Status: </label>
+            <select name="status" id="status" class="form-control" style="margin-bottom: 0;">
+                <option value="todas" <?= $status === 'todas' ? 'selected' : '' ?>>Todas</option>
+                <option value="pagas" <?= $status === 'pagas' ? 'selected' : '' ?>>Pagas</option>
+                <option value="a_pagar" <?= $status === 'a_pagar' ? 'selected' : '' ?>>A pagar</option>
+            </select>
+        </div>
         <div style="display: flex; align-items: center; margin-bottom: 0rem;">
-            <input type="checkbox" id="show_zeros" name="show_zeros" <?= isset($_GET['show_zeros']) ? 'checked' : '' ?>
+            <input type="checkbox" id="show_zeros" name="show_zeros" <?= $showZeros ? 'checked' : '' ?>
                 style="margin-right: 0.5rem; margin-bottom: 0;">
             <label for="show_zeros" style="margin-bottom: 0;">Mostrar dias sem contas</label>
         </div>

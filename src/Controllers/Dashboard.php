@@ -19,17 +19,28 @@ class Dashboard
 
     private function loadView(): void
     {
-        $startDate = $_GET['start_date'] ?? date('Y-m-01');
-        $endDate = $_GET['end_date'] ?? date('Y-m-t');
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            $_SESSION['dashboard_filters'] = [
+                'start_date' => $_POST['start_date'],
+                'end_date' => $_POST['end_date'],
+                'status' => $_POST['status'] ?? 'todas',
+                'show_zeros' => isset($_POST['show_zeros']),
+            ];
+        }
+
+        $filters = $_SESSION['dashboard_filters'] ?? [];
+
+        $startDate = $filters['start_date'] ?? date('Y-m-01');
+        $endDate = $filters['end_date'] ?? date('Y-m-t');
+        $status = $filters['status'] ?? 'todas';
+        $showZeros = $filters['show_zeros'] ?? false;
 
         if ($startDate == "" || $endDate == "") {
             $startDate = date('Y-m-01');
             $endDate = date('Y-m-t');
         }
 
-        $showZeros = isset($_GET['show_zeros']);
-
-        $dailyTotals = Parcela::getDailyTotal($startDate, $endDate);
+        $dailyTotals = Parcela::getDailyTotal($startDate, $endDate, $status);
 
         if ($showZeros) {
             $dailyTotalsMap = [];
@@ -51,8 +62,8 @@ class Dashboard
             }
         }
 
-        $topSuppliers = Fornecedor::getTopByPeriod($startDate, $endDate);
-        $costCenterTotals = CentroDeCusto::getTotalsByPeriod($startDate, $endDate);
+        $topSuppliers = Fornecedor::getTopByPeriod($startDate, $endDate, 10, $status);
+        $costCenterTotals = CentroDeCusto::getTotalsByPeriod($startDate, $endDate, $status);
 
         $chartData = [
             'daily' => $dailyTotals,

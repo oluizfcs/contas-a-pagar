@@ -289,7 +289,7 @@ class Parcela
         return new Parcela($id, $numero_parcela, $valor_em_centavos, $data_vencimento, $data_pagamento, $conta_id, $banco_id, $paid);
     }
 
-    public static function getDailyTotal(string $start, string $end): array
+    public static function getDailyTotal(string $start, string $end, string $status = 'todas'): array
     {
         $sql = "SELECT 
                     data_vencimento as date, 
@@ -297,8 +297,15 @@ class Parcela
                 FROM parcela
                 INNER JOIN conta ON conta_id = conta.id 
                 WHERE data_vencimento BETWEEN :start AND :end
-                AND conta.enabled = 1
-                GROUP BY data_vencimento 
+                AND conta.enabled = 1";
+
+        if ($status === 'a_pagar') {
+            $sql .= " AND parcela.paid = 0";
+        } elseif ($status === 'pagas') {
+            $sql .= " AND parcela.paid = 1";
+        }
+
+        $sql .= " GROUP BY data_vencimento 
                 ORDER BY data_vencimento";
 
         try {
@@ -309,7 +316,7 @@ class Parcela
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao buscar totais diários', ['start' => $start, 'end' => $end, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao buscar totais diários', ['start' => $start, 'end' => $end, 'status' => $status, 'PDOException' => $e->getMessage()]);
             return [];
         }
     }
