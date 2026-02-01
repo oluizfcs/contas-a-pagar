@@ -293,6 +293,7 @@ class Contas
                 $_SESSION['message'] = ['Parcela paga com sucesso!', 'success'];
             }
             header('Location: ' . $_ENV['BASE_URL'] . '/contas/detalhar/' . $conta_id);
+            Logger::log(Conta::$tableName, 'Parcela ' . $parcela->getNumero_parcela(), '-', '-', $conta_id, $_SESSION['usuario_id']);
             exit;
         } else {
             $_SESSION['message'] = ['Erro ao pagar parcela', 'fail'];

@@ -11,6 +11,7 @@ use PDOException;
 class Banco
 {
     public static string $tableName = 'banco';
+    public int $lastInsertId;
 
     public function __construct(
         private int $id,
@@ -154,6 +155,7 @@ class Banco
                 $stmt->bindParam(':saldo_em_centavos', $this->saldo_em_centavos, PDO::PARAM_STR);
 
                 $stmt->execute();
+                $this->lastInsertId = $conn->lastInsertId();
 
                 Logger::log_create($conn, self::$tableName);
 

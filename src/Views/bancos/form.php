@@ -31,12 +31,12 @@ if ($view == 'atualizar') {
             </div>
 
             <?php if ($view != 'atualizar'): ?>
-                <label for="saldo_em_centavos">Saldo de abertura:</label>
+                <label for="saldo-abertura">Saldo de abertura:</label>
                 <div class="input-wrapper">
                     <input
                         type="text"
                         class="money"
-                        name="saldo_em_centavos"
+                        name="saldo-abertura"
                         maxlength="22"
                         autocomplete="off">
                 </div>

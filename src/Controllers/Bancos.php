@@ -7,12 +7,13 @@ use App\Controllers\Services\Money;
 use App\Models\Database;
 use App\Models\Banco;
 use App\Models\Parcela;
+use App\Models\Deposito;
 
 class Bancos
 {
     public static bool $needLogin = true;
     public static bool $onlyAdmin = true;
-    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
+    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar', 'depositar'];
     private int $id;
     private string $search = '';
     private string $status = 'contas a pagar';
@@ -44,6 +45,9 @@ class Bancos
                 case 'enable':
                     $this->enable();
                     break;
+                case 'depositar':
+                    $this->depositar();
+                    break;
                 case 'search':
                     $_SESSION['bancos_filters'] = [
                         'search' => $_POST['search'],
@@ -60,11 +64,13 @@ class Bancos
 
     private function create(): void
     {
-        $_POST['saldo_em_centavos'] = Money::reais_para_centavos($_POST['saldo_em_centavos']);
+        $saldoDeAbertura = Money::reais_para_centavos($_POST['saldo-abertura']);
 
-        $b = new Banco(0, $_POST['nome'], $_POST['saldo_em_centavos'], '', null, 0);
+        $b = new Banco(0, $_POST['nome'], $saldoDeAbertura, '', null, 0);
 
         if ($b->save()) {
+            $d = new Deposito(0, $_SESSION['usuario_id'], $b->lastInsertId, $saldoDeAbertura, 'Saldo de abertura', '');
+            $d->save();
             $_SESSION['message'] = ['Banco cadastrado com sucesso!', 'success'];
             header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
             exit;
@@ -109,6 +115,39 @@ class Bancos
         }
     }
 
+
+
+    private function depositar(): void
+    {
+        $valor = Money::reais_para_centavos($_POST['valor']);
+
+        if($valor > Deposito::$LIMITE_DEPOSITO) {
+            $_SESSION['message'] = ['O limite para depósitos é de R$ ' . Money::centavos_para_reais(Deposito::$LIMITE_DEPOSITO), 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/depositar/' . $_POST['banco_id']);
+            exit;
+        }
+
+        $banco_id = $_POST['banco_id'];
+        $descricao = $_POST['descricao'];
+        if (strlen($descricao) > 255) {
+            $_SESSION['message'] = ['Descrição muito longa!', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar/' . $banco_id);
+            exit;
+        }
+        $banco = Banco::getById($banco_id);
+
+        $banco->setSaldo_em_centavos($banco->getSaldo_em_centavos() + $valor);
+        $banco->save();
+
+        $d = new Deposito(0, $_SESSION['usuario_id'], $banco_id, $valor, $descricao, '');
+
+        if ($d->save()) {
+            $_SESSION['message'] = ['Depósito realizado com sucesso!', 'success'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar/' . $banco_id);
+            exit;
+        }
+    }
+
     private function loadView(string $view): void
     {
         if (!in_array($view, $this->views)) {
@@ -122,6 +161,7 @@ class Bancos
             if ($view == 'detalhar') {
                 $logs = Database::getLog(Banco::$tableName, $this->id);
                 $parcelas = Parcela::getByBank($this->id);
+                $depositos = Deposito::getByBank($this->id);
             }
         }
 

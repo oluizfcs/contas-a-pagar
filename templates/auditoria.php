@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\Usuario;
+use App\Models\Banco;
 ?>
 <div class="section">
     <h2><i class="fa-solid fa-scroll"></i> Auditoria</h2>
@@ -21,7 +22,25 @@ use App\Models\Usuario;
                 <th>Novo</th>
                 <th>Data e Hora</th>
             </tr>
-            <?php foreach ($logs as $log) {
+            <?php 
+            $query = explode('/', $_SERVER['QUERY_STRING']);
+            if ($query[0] == 'url=contas' && $query[1] == 'detalhar') {
+                $numeroParcelaBanco = [];
+                foreach($logs as $log) {
+                    if(str_contains($log['campo'], 'Parcela ')) {
+                        $numero = (int) explode(' ', $log['campo'])[1];
+                        $parcela = null;
+                        foreach($conta->getParcelas() as $p) {
+                            if($p->getNumero_parcela() == (int) $numero) {
+                                $parcela = $p;
+                            }
+                        }
+                        $numeroParcelaBanco[$numero] = Banco::getById($parcela->getBanco_id())->getNome();
+                    }
+                }
+            }
+
+            foreach ($logs as $log) {
                 $usuario = Usuario::getById($log['usuario_id'])->getNome();
                 $data = DateTime::createFromFormat('Y-m-d H:i:s', $log['data_log'])->format('d/m/Y \à\s H:i');
 
@@ -31,7 +50,7 @@ use App\Models\Usuario;
                 $antigo = $log['valor_antigo'];
                 $novo = $log['valor_novo'];
 
-                if (in_array($log['campo'], ['create', 'unable', 'enable'])) {
+                if (in_array($log['campo'], ['create', 'unable', 'enable', 'pay'])) {
                     $campo = '-';
                     $antigo = '-';
                     $novo = '-';
@@ -46,6 +65,10 @@ use App\Models\Usuario;
                         case 'enable':
                             $acao = 'ativar';
                     }
+                }
+
+                if (str_contains($log['campo'], 'Parcela ')) {
+                    $acao = 'marcar como pago <br> <span style="font-size: smaller; color: #555">Banco: ' . $numeroParcelaBanco[explode(' ', $log['campo'])[1]] . '</span>';
                 }
 
                 echo "<tr>";

@@ -67,6 +67,17 @@ CREATE TABLE parcela(
     FOREIGN KEY (conta_id) REFERENCES conta(id)
 ) ENGINE=INNODB;
 
+CREATE TABLE deposito(
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    usuario_id SMALLINT UNSIGNED NOT NULL,
+    banco_id SMALLINT UNSIGNED NOT NULL,
+    valor_em_centavos INT UNSIGNED NOT NULL,
+    descricao VARCHAR(255),
+    data_deposito DATETIME NOT NULL DEFAULT NOW(),
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+    FOREIGN KEY (banco_id) REFERENCES banco(id)
+) ENGINE=INNODB;
+
 /*///////////////////////////////// LOGS /////////////////////////////////////// */
 
 CREATE TABLE log_usuario(
@@ -129,14 +140,26 @@ CREATE TABLE log_conta(
     FOREIGN KEY (conta_id) REFERENCES conta(id)
 ) ENGINE=INNODB;
 
-CREATE TABLE log_parcela(
+-- CREATE TABLE log_parcela(
+--     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     campo VARCHAR(500) NOT NULL,
+--     valor_antigo VARCHAR(500),
+--     valor_novo VARCHAR(500),
+--     data_log DATETIME DEFAULT NOW(),
+--     usuario_id SMALLINT UNSIGNED NOT NULL,
+--     parcela_id INT UNSIGNED NOT NULL,
+--     FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+--     FOREIGN KEY (parcela_id) REFERENCES parcela(id)
+-- ) ENGINE=INNODB;
+
+CREATE TABLE log_deposito(
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
-    campo VARCHAR(500) NOT NULL,
-    valor_antigo VARCHAR(500),
-    valor_novo VARCHAR(500),
+    campo VARCHAR(255) NOT NULL,
+    valor_antigo VARCHAR(255),
+    valor_novo VARCHAR(255),
     data_log DATETIME DEFAULT NOW(),
     usuario_id SMALLINT UNSIGNED NOT NULL,
-    parcela_id INT UNSIGNED NOT NULL,
+    deposito_id INT UNSIGNED NOT NULL,
     FOREIGN KEY (usuario_id) REFERENCES usuario(id),
-    FOREIGN KEY (parcela_id) REFERENCES parcela(id)
+    FOREIGN KEY (deposito_id) REFERENCES deposito(id)
 ) ENGINE=INNODB;

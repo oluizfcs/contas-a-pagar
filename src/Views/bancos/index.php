@@ -32,7 +32,7 @@
             <table class="sortable">
                 <tr>
                     <th>Nome</th>
-                    <th>Saldo</th>
+                    <th>Saldo (R$)</th>
                 </tr>
                 <?php foreach ($bancos as $banco): ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/bancos/detalhar/<?= $banco['id'] ?>';">

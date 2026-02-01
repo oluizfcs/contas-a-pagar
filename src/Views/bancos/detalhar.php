@@ -20,6 +20,7 @@ use App\Models\Conta;
 <br>
 <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/bancos">Voltar</a>
 <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/bancos/atualizar/<?= $banco->getId() ?>"><i class="fa-solid fa-pen-to-square"></i> Atualizar</a>
+<a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/bancos/depositar/<?= $banco->getId() ?>"><i class="fa-solid fa-arrow-down"></i> Depositar</a>
 
 <form method="POST" action="">
     <input type="hidden" name="banco_id" value="<?= $banco->getId() ?>">
@@ -41,7 +42,31 @@ use App\Models\Conta;
 </form>
 
 <div class="section">
-    <h2><i class="fa-solid fa-arrow-right-arrow-left"></i> Extrato</h2>
+    <h2><i class="fa-solid fa-arrow-down"></i> Depósitos</h2>
+        <?php if (count($depositos) > 0): ?>
+        <div class="table-section">
+            <table class="sortable">
+                <tr>
+                    <th>Valor (R$)</th>
+                    <th>Depositado em</th>
+                    <th>Descrição</th>
+                </tr>
+                <?php foreach ($depositos as $deposito): ?>
+                    <tr style="cursor: default">
+                        <td><?= Money::centavos_para_reais($deposito->getValorEmCentavos()) ?></td>
+                        <td><?= new DateTime($deposito->getDataDeposito())->format('d/m/Y') ?></td>
+                        <td><?= $deposito->getDescricao() ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        </div>
+    <?php else: ?>
+        <p>Nenhum registro encontrado.</p>
+    <?php endif; ?>
+</div>
+
+<div class="section">
+    <h2><i class="fa-solid fa-hand-holding-dollar"></i> Parcelas pagas</h2>
         <?php if (count($parcelas) > 0): ?>
         <div class="table-section">
             <table class="sortable">
@@ -49,7 +74,7 @@ use App\Models\Conta;
                     <th>Centro de custo</th>
                     <th>Fornecedor</th>
                     <th>Valor (R$)</th>
-                    <th>Pago em</th>
+                    <th>Data de pagamento informada</th>
                     <th>Parcela</th>
                 </tr>
                 <?php foreach ($parcelas as $parcela): ?>
