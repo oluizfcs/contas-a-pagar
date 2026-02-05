@@ -1,4 +1,4 @@
-/vendor/
-.env
-/Logs/
-/public/images/
+/app/vendor/
+/app/config/.env
+/app/Logs/
+/app/src/public/images/
