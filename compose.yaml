@@ -2,6 +2,8 @@ services:
   server:
     build:
       context: ./app
+      target: development
+      # target: production
     env_file:
       - ./app/config/.env
     ports:

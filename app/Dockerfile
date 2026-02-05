@@ -13,29 +13,33 @@ RUN --mount=type=bind,source=composer.json,target=composer.json \
     --mount=type=cache,target=/tmp/cache \
     composer install --no-dev --no-interaction
 
-FROM php:8.5-apache as final
+FROM php:8.5-apache as base
 
-RUN a2enmod rewrite
-RUN docker-php-ext-install pdo_mysql
+RUN a2enmod rewrite && \
+    echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libonig-dev \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
-    && docker-php-ext-install mbstring
+    && docker-php-ext-install mbstring \
+    && docker-php-ext-install pdo_mysql
 RUN docker-php-ext-enable intl mbstring
-
-# Use the default production configuration for PHP runtime arguments, see
-# https://github.com/docker-library/docs/tree/master/php#configuration
-RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
-COPY ./config/custom-php.ini /usr/local/etc/php/conf.d
-
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 COPY --from=deps app/vendor/ /var/www/html/vendor
 COPY . /var/www/html
 
 RUN rm -rf /var/www/html/config
 
+COPY ./config/custom-php.ini /usr/local/etc/php/conf.d
+
+FROM base as production
+RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
+USER www-data
+
+FROM base as development
+RUN pecl install xdebug && \
+docker-php-ext-enable xdebug
+RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 USER www-data
