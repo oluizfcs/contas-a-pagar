@@ -1,4 +1,5 @@
 use contas_a_pagar;
+SET NAMES 'utf8mb4';
 
 INSERT INTO usuario(cpf, nome, senha) 
 VALUES

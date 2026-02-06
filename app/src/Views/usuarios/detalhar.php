@@ -40,4 +40,4 @@ CPF: <?= $usuario->getMaskedCpf() ?> <br>
     </form>
 <?php endif; ?>
 
-<?php include 'src/templates/auditoria.php'; ?>
+<?php include '../src/templates/auditoria.php'; ?>

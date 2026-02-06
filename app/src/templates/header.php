@@ -5,14 +5,14 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <title>Contas a pagar</title>
-    <link rel="shortcut icon" href="<?= $_ENV['BASE_URL'] ?>/src/public/images/favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/src/public/css/reset.css">
-    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/src/public/css/style.css">
-    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/src/public/css/bsbuttons.css">
+    <link rel="shortcut icon" href="<?= $_ENV['BASE_URL'] ?>/images/favicon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/reset.css">
+    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/style.css">
+    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/bsbuttons.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
-    <script src="<?= $_ENV['BASE_URL'] ?>/src/public/js/jquery.maskMoney.js" type="text/javascript"></script>
+    <script src="<?= $_ENV['BASE_URL'] ?>/js/jquery.maskMoney.js" type="text/javascript"></script>
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
 </head>
@@ -51,4 +51,4 @@
             </div>
         </div>
         <div id="content">
-            <?php include 'src/templates/message.php'; ?>
+            <?php include '../src/templates/message.php'; ?>

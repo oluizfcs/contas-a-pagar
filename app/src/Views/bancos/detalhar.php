@@ -93,4 +93,4 @@ use App\Models\Conta;
     <?php endif; ?>
 </div>
 
-<?php include 'src/templates/auditoria.php'; ?>
+<?php include '../src/templates/auditoria.php'; ?>

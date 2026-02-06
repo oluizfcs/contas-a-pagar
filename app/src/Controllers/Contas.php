@@ -392,8 +392,8 @@ class Contas
             }
         }
 
-        include 'src/templates/header.php';
-        include "src/Views/contas/$view.php";
-        include 'src/templates/footer.php';
+        include '../src/templates/header.php';
+        include "../src/Views/contas/$view.php";
+        include '../src/templates/footer.php';
     }
 }

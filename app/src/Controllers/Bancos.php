@@ -180,12 +180,12 @@ class Bancos
             $bancos = Banco::getAll($enabled, $paid, $this->search);
         }
 
-        include 'src/templates/header.php';
+        include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
-            include "src/Views/bancos/form.php";
+            include "../src/Views/bancos/form.php";
         } else {
-            include "src/Views/bancos/$view.php";
+            include "../src/Views/bancos/$view.php";
         }
-        include 'src/templates/footer.php';
+        include '../src/templates/footer.php';
     }
 }

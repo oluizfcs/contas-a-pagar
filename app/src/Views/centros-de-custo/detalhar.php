@@ -84,4 +84,4 @@ use App\Controllers\Services\Money;
     </div>
 <?php endif; ?>
 
-<?php include 'src/templates/auditoria.php'; ?>
+<?php include '../src/templates/auditoria.php'; ?>

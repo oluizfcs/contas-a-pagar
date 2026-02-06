@@ -151,12 +151,12 @@ class Fornecedores
             $fornecedores = Fornecedor::getAll($enabled, $paid, $this->search);
         }
 
-        include 'src/templates/header.php';
+        include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
-            include "src/Views/fornecedores/form.php";
+            include "../src/Views/fornecedores/form.php";
         } else {
-            include "src/Views/fornecedores/$view.php";
+            include "../src/Views/fornecedores/$view.php";
         }
-        include 'src/templates/footer.php';
+        include '../src/templates/footer.php';
     }
 }

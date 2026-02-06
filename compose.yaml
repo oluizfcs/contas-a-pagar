@@ -12,7 +12,10 @@ services:
       watch:
         - action: sync
           path: ./app/
-          target: /var/www/html/
+          target: /var/www/
+        - action: sync
+          path: ./app/public
+          target: /var/www/html
 
   db:
     image: mysql:8.4.8

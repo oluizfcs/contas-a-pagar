@@ -173,8 +173,8 @@ class Usuarios
             exit;
         }
 
-        include 'src/templates/header.php';
-        include "src/Views/usuarios/$view.php";
-        include 'src/templates/footer.php';
+        include '../src/templates/header.php';
+        include "../src/Views/usuarios/$view.php";
+        include '../src/templates/footer.php';
     }
 }

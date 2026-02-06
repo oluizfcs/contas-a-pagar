@@ -148,12 +148,12 @@ class CentrosDeCusto
             $centrosDeCusto = CentroDeCusto::getAll($enabled, $paid, $this->search);
         }
 
-        include 'src/templates/header.php';
+        include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
-            include "src/Views/centros-de-custo/form.php";
+            include "../src/Views/centros-de-custo/form.php";
         } else {
-            include "src/Views/centros-de-custo/$view.php";
+            include "../src/Views/centros-de-custo/$view.php";
         }
-        include 'src/templates/footer.php';
+        include '../src/templates/footer.php';
     }
 }

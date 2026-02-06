@@ -87,4 +87,4 @@ Telefone: <?= $fornecedor->getTelefone() ?? '<span style="color: #999;">N/A</spa
     </div>
 <?php endif; ?>
 
-<?php include 'src/templates/auditoria.php'; ?>
+<?php include '../src/templates/auditoria.php'; ?>

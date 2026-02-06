@@ -93,7 +93,7 @@
     }
 </style>
 
-<script src="src/public/js/chart.js"></script>
+<script src="js/chart.js"></script>
 <script>
     const startDate = document.getElementById('start_date')
     const endDate = document.getElementById('end_date')

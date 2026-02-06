@@ -63,6 +63,6 @@ class Login
 
     private function loadView(): void
     {
-        include 'src/Views/login.php';
+        include '../src/Views/login.php';
     }
 }

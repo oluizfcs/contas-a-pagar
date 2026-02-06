@@ -71,8 +71,8 @@ class Dashboard
             'costCenters' => $costCenterTotals
         ];
 
-        include 'src/templates/header.php';
-        include 'src/Views/dashboard.php';
-        include 'src/templates/footer.php';
+        include '../src/templates/header.php';
+        include '../src/Views/dashboard.php';
+        include '../src/templates/footer.php';
     }
 }

@@ -73,4 +73,4 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
     </table>
 </div>
 
-<?php include 'src/templates/auditoria.php'; ?>
+<?php include '../src/templates/auditoria.php'; ?>

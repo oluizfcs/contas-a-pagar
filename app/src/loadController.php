@@ -7,7 +7,7 @@ $url = explode('/', rtrim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT), '/'), 
 $controller = str_replace(' ', '', ucwords(str_replace('-', ' ', strtolower(array_shift($url)))));
 
 if (!in_array($controller, $controllers)) {
-    include './src/404.php';
+    include '../src/404.php';
     exit;
 }
 
