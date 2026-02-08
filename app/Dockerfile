@@ -32,6 +32,7 @@ COPY ./src /var/www/src
 
 COPY ./config/custom-php.ini /usr/local/etc/php/conf.d
 COPY ./public /var/www/html
+RUN mkdir /var/www/Logs
 
 FROM base as production
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
@@ -41,4 +42,4 @@ FROM base as development
 RUN pecl install xdebug && \
 docker-php-ext-enable xdebug
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
-USER root
+USER www-data
