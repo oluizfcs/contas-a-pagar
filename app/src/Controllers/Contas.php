@@ -365,7 +365,7 @@ class Contas
         }
 
         if ($view == 'cadastrar') {
-            $centros = Database::getOptions(CentroDeCusto::$tableName);
+            $centros = CentroDeCusto::getOptionsWithHierarchy();
             $fornecedores = Database::getOptions(Fornecedor::$tableName);
             $bancos = Database::getOptions(Banco::$tableName);
 

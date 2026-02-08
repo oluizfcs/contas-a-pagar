@@ -14,7 +14,7 @@ class Fornecedores
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';
-    private string $status = 'contas a pagar';
+    private string $status = 'todos';
 
     function __construct(string $view = 'index', string $param = '')
     {

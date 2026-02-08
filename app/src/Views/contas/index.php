@@ -63,9 +63,13 @@
                     <?php
                     $info = $conta->getNextInstallmentInfo();
 
-                    $nextInstallment = new DateTime($info['installment']->getData_vencimento())->format('d/m/Y');
+                    if ($info['installment'] != null) {
+                        $nextInstallment = new DateTime($info['installment']->getData_vencimento())->format('d/m/Y');
+                        $nextInstallmentPrice = Money::centavos_para_reais($info['installment']->getValor_em_centavos());
+                    } else {
+                        $nextInstallment = null;
+                    }
                     $paidInstallments = $info['paidInstallmentCount'];
-                    $nextInstallmentPrice = Money::centavos_para_reais($info['installment']->getValor_em_centavos());
                     ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $conta->getId() ?>';">
                         <td><?= $conta->centro_de_custo ?></td>
@@ -124,17 +128,17 @@
             document.querySelectorAll(".nextInstallment").forEach(td => {
                 let date = td.textContent.trimStart().slice(0, 10);
                 date = new Date(date.split("/").reverse().join("-") + 'T03:00');
-                
+
                 const today = new Date();
 
                 const diffInDays = (today - date) / (1000 * 60 * 60 * 24);
 
                 if (diffInDays >= 0) {
                     td.parentElement.classList.add("red");
-                } else if(diffInDays >= -5) {
+                } else if (diffInDays >= -5) {
                     td.parentElement.classList.add("yellow");
                 }
-            }); 
+            });
         });
     </script>
 <?php endif;

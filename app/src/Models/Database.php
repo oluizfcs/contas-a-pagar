@@ -24,6 +24,7 @@ class Database
             } catch (PDOException $e) {
                 Logger::error('Erro de banco de dados', ['PDOException' => $e->getMessage()]);
                 $_SESSION['message'] = ['Houve um erro sério, favor contatar o desenvolvedor do sistema', 'fail'];
+                header('Location: ' . $_ENV['BASE_URL'] . '/login');
                 exit;
             }
         }
@@ -94,11 +95,17 @@ class Database
 
     public static function getByColumn(string $table, string $column, string $value): array|false
     {
-        $stmt = self::getConnection()->query("SELECT * FROM $table WHERE $column = $value");
-        if (!$stmt) {
-            return false;
+        try {
+            $stmt = self::getConnection()->query("SELECT * FROM $table WHERE $column = $value");
+            if (!$stmt) {
+                return false;
+            }
+            return $stmt->fetch(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            $_SESSION['message'] = ['Erro inesperado, favor contatar o desenvolvedor do sistema', 'fail'];
+            Logger::error("Falha ao recuperar por coluna", ["table" => $table, "column" => $column, 'value' => $value]);
+            exit;
         }
-        return $stmt->fetch(PDO::FETCH_ASSOC);
     }
 
     public static function getLog(string $table, int $id): array
@@ -111,12 +118,11 @@ class Database
 
         $sql = "SELECT * FROM log_$table WHERE $entity" . "_id = :id ORDER BY data_log DESC";
 
-        try{
+        try {
             $stmt = self::getConnection()->prepare($sql);
             $stmt->bindValue(':id', $id, PDO::PARAM_INT);
             $stmt->execute();
-            
-        } catch(PDOException $e) {
+        } catch (PDOException $e) {
             $_SESSION['message'] = ['Erro inesperado, favor contatar o desenvolvedor do sistema', 'fail'];
             Logger::error("Falha ao recuperar logs", ["table" => $table]);
             exit;
