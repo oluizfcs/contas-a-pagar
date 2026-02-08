@@ -15,7 +15,16 @@
                 <label for="centros">Centro de custo:</label>
                 <select id="centros" name="centro" class="select2" style="width: 100%;">
                     <?php foreach ($centros as $centro): ?>
-                        <option value="<?= $centro['id'] ?>" <?= ($_SESSION['post_data']['centro'] ?? null) == $centro['id'] ? 'selected' : '' ?>><?= $centro['nome'] ?></option>
+                        <?php if (isset($centro['is_group']) && $centro['is_group']): ?>
+                            <optgroup label="<?= $centro['nome'] ?>">
+                                <option value="<?= $centro['id'] ?>" <?= ($_SESSION['post_data']['centro'] ?? null) == $centro['id'] ? 'selected' : '' ?>><?= $centro['nome'] ?> (Categoria)</option>
+                                <?php foreach ($centro['children'] as $child): ?>
+                                    <option value="<?= $child['id'] ?>" <?= ($_SESSION['post_data']['centro'] ?? null) == $child['id'] ? 'selected' : '' ?>><?= $child['nome'] ?></option>
+                                <?php endforeach; ?>
+                            </optgroup>
+                        <?php else: ?>
+                            <option value="<?= $centro['id'] ?>" <?= ($_SESSION['post_data']['centro'] ?? null) == $centro['id'] ? 'selected' : '' ?>><?= $centro['nome'] ?></option>
+                        <?php endif; ?>
                     <?php endforeach; ?>
                 </select>
                 <br><br>
@@ -98,7 +107,7 @@
     </div>
 </div>
 
-<script src="<?= $_ENV['BASE_URL'] ?>/src/public/js/cadastrarConta.js"></script>
+<script src="<?= $_ENV['BASE_URL'] ?>/js/cadastrarConta.js"></script>
 <script>
     $(document).ready(function() {
         paymentMethod(document.querySelector('input[name="forma-pagamento"]:checked').value);
@@ -107,3 +116,9 @@
 <?php
 unset($_SESSION['post_data']);
 ?>
+
+<style>
+    .select2-results__group {
+        color: grey;
+    }
+</style>

@@ -16,7 +16,8 @@ class CentroDeCusto
         private string $nome,
         private string $data_criacao,
         private string|null $data_edicao,
-        private bool $enabled
+        private bool $enabled,
+        private int|null $categoria_id = null
     ) {
         $this->nome = htmlspecialchars($this->nome, ENT_QUOTES, 'UTF-8', false);
     }
@@ -41,9 +42,18 @@ class CentroDeCusto
         return $this;
     }
 
-    /**
-     * Get the value of nome
-     */
+    public function getCategoria_id()
+    {
+        return $this->categoria_id;
+    }
+
+    public function setCategoriaId($categoria_id)
+    {
+        $this->categoria_id = $categoria_id;
+
+        return $this;
+    }
+
     public function getNome()
     {
         return $this->nome;
@@ -138,8 +148,9 @@ class CentroDeCusto
 
             if ($stmt->fetch()[0] == 0) {
                 // criar
-                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (nome) VALUES (:nome)');
+                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (nome, categoria_id) VALUES (:nome, :categoria_id)');
                 $stmt->bindParam(':nome', $this->nome, PDO::PARAM_STR);
+                $stmt->bindParam(':categoria_id', $this->categoria_id, PDO::PARAM_INT);
 
                 $stmt->execute();
 
@@ -150,8 +161,9 @@ class CentroDeCusto
                 // atualizar
                 $bancoAntigo = self::getById($this->id);
 
-                $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET nome = :nome, enabled = :enabled WHERE id = :id');
+                $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET nome = :nome, categoria_id = :categoria_id, enabled = :enabled WHERE id = :id');
                 $stmt->bindParam(':nome', $this->nome, PDO::PARAM_STR);
+                $stmt->bindParam(':categoria_id', $this->categoria_id, PDO::PARAM_INT);
                 $stmt->bindParam(':enabled', $this->enabled, PDO::PARAM_BOOL);
                 $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
 
@@ -175,22 +187,25 @@ class CentroDeCusto
     {
         $sql = "SELECT 
             centro_de_custo.id,
+            centro_de_custo.categoria_id,
             nome,
-            SUM(valor_em_centavos) as total,
-            COUNT(conta.id) as quantidade,
-            SUM(valor_em_centavos) / COUNT(conta.id) as media
+            COALESCE(SUM(
+                CASE 
+                    WHEN (conta.enabled = 1 OR conta.enabled IS NULL) " . ($paid !== 2 ? "AND conta.paid = :paid" : "") . " 
+                    THEN valor_em_centavos 
+                    ELSE 0 
+                END
+            ), 0) as total,
+            COUNT(
+                CASE 
+                    WHEN (conta.enabled = 1 OR conta.enabled IS NULL) " . ($paid !== 2 ? "AND conta.paid = :paid" : "") . " 
+                    THEN conta.id 
+                    ELSE NULL 
+                END
+            ) as quantidade
         FROM centro_de_custo
         LEFT JOIN conta ON centro_de_custo.id = centro_de_custo_id
-        WHERE centro_de_custo.enabled = :enabled
-        AND (conta.enabled = 1 OR conta.enabled IS NULL)";
-
-        if (($paid == 0) && $enabled) {
-            $sql = $sql . ' AND conta.paid = 0';
-        }
-
-        if (($paid == 1) && $enabled) {
-            $sql = $sql . ' AND conta.paid = 1';
-        }
+        WHERE centro_de_custo.enabled = :enabled";
 
         if (strlen($search) > 0) {
             $sql = $sql . ' AND nome LIKE :search';
@@ -202,13 +217,64 @@ class CentroDeCusto
             $stmt = Database::getConnection()->prepare($sql);
             $stmt->bindValue(':enabled', $enabled ? 1 : 0);
 
+            if ($paid !== 2) {
+                $stmt->bindValue(':paid', $paid, PDO::PARAM_INT);
+            }
+
             if (strlen($search) > 0) {
                 $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
             }
 
             $stmt->execute();
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
-            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+            $map = [];
+            foreach ($rows as $i => $row) {
+                $rows[$i]['children'] = [];
+                $rows[$i]['media'] = $row['quantidade'] > 0 ? $row['total'] / $row['quantidade'] : 0;
+                $map[$row['id']] = &$rows[$i];
+            }
+
+            $roots = [];
+            foreach ($rows as $i => &$row) {
+                if ($row['categoria_id'] && isset($map[$row['categoria_id']])) {
+                    $map[$row['categoria_id']]['children'][] = &$rows[$i];
+                } else {
+                    $roots[] = &$rows[$i];
+                }
+            }
+
+            $prune = function (array &$nodes) use (&$prune, $paid) {
+                foreach ($nodes as $key => &$node) {
+                    if (!empty($node['children'])) {
+                        $prune($node['children']);
+                    }
+
+                    if ($paid !== 2) {
+                        if ($node['quantidade'] == 0 && empty($node['children'])) {
+                            unset($nodes[$key]);
+                        }
+                    }
+                }
+            };
+            
+            if (!$enabled) {
+                return $rows;
+            }
+            if ($paid !== 2) {
+                $prune($roots);
+            }
+
+            foreach ($roots as &$root) {
+                foreach ($root['children'] as $child) {
+                    $root['total'] += $child['total'];
+                    $root['quantidade'] += $child['quantidade'];
+                }
+                $root['media'] = $root['quantidade'] > 0 ? $root['total'] / $root['quantidade'] : 0;
+            }
+
+            return $roots;
         } catch (PDOException $e) {
             Logger::error('Falha ao listar centros de custo', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
@@ -227,7 +293,7 @@ class CentroDeCusto
         }
 
         extract($centroDeCusto);
-        return new CentroDeCusto($id, $nome, $data_criacao, $data_edicao, $enabled);
+        return new CentroDeCusto($id, $nome, $data_criacao, $data_edicao, $enabled, $categoria_id);
     }
 
     public static function getTotalsByPeriod(string $start, string $end, string $status = 'todas'): array
@@ -261,5 +327,65 @@ class CentroDeCusto
             Logger::error('Falha ao buscar totais por centro de custo', ['start' => $start, 'end' => $end, 'status' => $status, 'PDOException' => $e->getMessage()]);
             return [];
         }
+    }
+    public function getSubCentros(): array
+    {
+        $conn = Database::getConnection();
+        $sql = "SELECT 
+                    cc.id, 
+                    cc.nome, 
+                    cc.categoria_id, 
+                    COALESCE(SUM(c.valor_em_centavos), 0) as total
+                FROM centro_de_custo cc
+                LEFT JOIN conta c ON cc.id = c.centro_de_custo_id AND c.paid = 0 AND c.enabled = 1
+                WHERE cc.categoria_id = :id AND cc.enabled = 1
+                GROUP BY cc.id";
+
+        $stmt = $conn->prepare($sql);
+        $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
+        $stmt->execute();
+
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public static function getOptionsWithHierarchy(): array
+    {
+        $conn = Database::getConnection();
+        $stmt = $conn->query("SELECT id, nome, categoria_id FROM " . self::$tableName . " WHERE enabled = 1 ORDER BY nome");
+        $allCenters = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+        $options = [];
+        $keyMap = [];
+
+        foreach ($allCenters as $center) {
+            $keyMap[$center['id']] = $center;
+        }
+
+        foreach ($allCenters as $center) {
+            if (empty($center['categoria_id'])) {
+                $options[] = [
+                    'id' => $center['id'],
+                    'nome' => $center['nome'],
+                    'is_group' => true,
+                    'children' => []
+                ];
+            }
+        }
+
+        foreach ($allCenters as $center) {
+            if (!empty($center['categoria_id'])) {
+                foreach ($options as &$opt) {
+                    if ($opt['id'] == $center['categoria_id']) {
+                        $opt['children'][] = [
+                            'id' => $center['id'],
+                            'nome' => $center['nome']
+                        ];
+                        break;
+                    }
+                }
+            }
+        }
+
+        return $options;
     }
 }

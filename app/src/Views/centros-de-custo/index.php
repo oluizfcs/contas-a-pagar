@@ -38,13 +38,56 @@
                 </tr>
                 <?php foreach ($centrosDeCusto as $centro): ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/centros-de-custo/detalhar/<?= $centro['id'] ?>';">
-                        <td><?= $centro['nome'] ?></td>
+                        <td style="position: relative;">
+                            <?php if (count($centro['children']) > 0): ?>
+                                <i class="fa-solid fa-chevron-right toggle-btn" style="cursor: pointer; position: absolute; left: 7px; top: 50%; transform: translateY(-50%);" onclick="event.stopPropagation(); toggleChildren(this, 'child-of-<?= $centro['id'] ?>')"></i>
+                            <?php endif; ?>
+                            <?= $centro['nome'] ?>
+                        </td>
                         <td><?= Money::centavos_para_reais($centro['total']) ?></td>
                         <td><?= $centro['quantidade'] ?></td>
-                        <td><?= Money::centavos_para_reais($centro['media']) ?></td>
+                        <td><?= Money::centavos_para_reais((int)$centro['media']) ?></td>
                     </tr>
+                    
+                    <?php if (count($centro['children']) > 0): ?>
+                        <?php foreach ($centro['children'] as $child): ?>
+                            <tr class="child-of-<?= $centro['id'] ?>" style="display: none; background-color: #f9f9f9;" onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/centros-de-custo/detalhar/<?= $child['id'] ?>';">
+                                <td style="position: relative;">
+                                    <i class="fa-solid fa-turn-up fa-rotate-90" style="font-size: 0.6em; color: #888; position: absolute; left: 10px; top: 50%;"></i>
+                                    <?= $child['nome'] ?>
+                                </td>
+                                <td><?= Money::centavos_para_reais($child['total']) ?></td>
+                                <td><?= $child['quantidade'] ?></td>
+                                <td><?= Money::centavos_para_reais((int) $child['media']) ?></td>
+                            </tr>
+                        <?php endforeach; ?>
+                    <?php endif; ?>
                 <?php endforeach; ?>
             </table>
         </div>
     <?php endif; ?>
 </div>
+
+<script>
+function toggleChildren(btn, className) {
+    const rows = document.getElementsByClassName(className);
+    let isHidden = true;
+    
+    for(let row of rows) {
+        if (row.style.display === 'none') {
+            row.style.display = 'table-row';
+            isHidden = false;
+        } else {
+            row.style.display = 'none';
+        }
+    }
+    
+    if (isHidden) {
+         btn.classList.remove('fa-chevron-down');
+         btn.classList.add('fa-chevron-right');
+    } else {
+         btn.classList.remove('fa-chevron-right');
+         btn.classList.add('fa-chevron-down');
+    }
+}
+</script>

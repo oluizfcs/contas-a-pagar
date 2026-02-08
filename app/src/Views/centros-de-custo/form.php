@@ -30,6 +30,24 @@ if ($view == 'atualizar') {
                     autocomplete="off">
             </div>
 
+            <?php if ($view == 'atualizar'): ?>
+                <label for="categoria_id">Centro de custo Superior (Opcional):</label>
+                <select name="categoria_id" class="select2" style="width: 100%">
+                    <option value="">-- Nenhuma --</option>
+                    <?php foreach ($categorias as $cat): ?>
+                        <?php
+                        $selected = ($view == 'atualizar' && $centro_de_custo->getCategoria_id() == $cat['id']) ? 'selected' : '';
+
+                        if ($view == 'cadastrar' && isset($_GET['categoria_id']) && $_GET['categoria_id'] == $cat['id']) {
+                            $selected = 'selected';
+                        }
+                        ?>
+                        <option value="<?= $cat['id'] ?>" <?= $selected ?>><?= $cat['nome'] ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <br><br>
+            <?php endif; ?>
+
             <button class="btn btn-primary" type="submit" name="type" value="<?= $type ?>"><?= ucfirst($view) ?></button>
             <a class="btn btn-secondary" href="<?= $href ?>">Cancelar</a>
         </form>

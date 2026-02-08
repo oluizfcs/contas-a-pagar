@@ -28,7 +28,9 @@ CREATE TABLE centro_de_custo(
     nome VARCHAR(45) NOT NULL,
     data_criacao DATETIME NOT NULL DEFAULT NOW(),
     data_edicao DATETIME ON UPDATE NOW(),
-    `enabled` TINYINT NOT NULL DEFAULT 1
+    `enabled` TINYINT NOT NULL DEFAULT 1,
+    categoria_id SMALLINT UNSIGNED NULL,
+    FOREIGN KEY (categoria_id) REFERENCES centro_de_custo(id)
 ) ENGINE=INNODB;
 
 CREATE TABLE fornecedor(

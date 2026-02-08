@@ -14,7 +14,7 @@ class CentrosDeCusto
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';
-    private string $status = 'contas a pagar';
+    private string $status = 'todos';
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -59,12 +59,25 @@ class CentrosDeCusto
 
     private function create(): void
     {
-        $cc = new CentroDeCusto(0, $_POST['nome'], '', null, 0);
+        $categoria_id = filter_var($_POST['categoria_id'], FILTER_VALIDATE_INT);
+        if (!$categoria_id) $categoria_id = null;
+
+        $cc = new CentroDeCusto(0, $_POST['nome'], '', null, 0, $categoria_id);
 
         if ($cc->save()) {
+            if (isset($_POST['ajax']) && $_POST['ajax'] == 'true') {
+                echo json_encode(['success' => true, 'id' => $cc->getId(), 'nome' => $cc->getNome()]);
+                exit;
+            }
+
             $_SESSION['message'] = ['Centro de custo cadastrado com sucesso!', 'success'];
             header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo');
             exit;
+        } else {
+             if (isset($_POST['ajax']) && $_POST['ajax'] == 'true') {
+                echo json_encode(['success' => false, 'message' => 'Erro ao salvar']);
+                exit;
+            }
         }
     }
 
@@ -72,6 +85,10 @@ class CentrosDeCusto
     {
         $cc = CentroDeCusto::getById($_POST['entity_id']);
         $cc->setNome($_POST['nome']);
+        
+        $categoria_id = filter_var($_POST['categoria_id'], FILTER_VALIDATE_INT);
+        if (!$categoria_id) $categoria_id = null;
+        $cc->setCategoriaId($categoria_id);
 
         if ($cc->save()) {
             $_SESSION['message'] = ['Centro de custo atualizado com sucesso!', 'success'];
@@ -123,6 +140,7 @@ class CentrosDeCusto
             if ($view == 'detalhar') {
                 $contas = Conta::getByForeignKey(CentroDeCusto::$tableName, $this->id);
                 $logs = Database::getLog(CentroDeCusto::$tableName, $this->id);
+                $subCentros = $centro_de_custo->getSubCentros();
             }
         }
 
@@ -150,6 +168,33 @@ class CentrosDeCusto
 
         include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
+            $categorias = CentroDeCusto::getOptionsWithHierarchy();
+            // Filter out children from being parents if we want to enforce 1 level deep, 
+            // but for now let's just show options. 
+            // Actually getOptionsWithHierarchy returns tree structure. For the parent select, 
+            // we probably only want top level items or items that can be parents.
+            // For now let's just pass all and in the view we can filter or just show top levels.
+            // A better approach for "Parent Category" select is to only show items that are NOT children themselves (if max depth is 1).
+            // Let's assume max depth 1 as per "category > sub-center" implication.
+            // So we should filter $categorias to only include those with empty categoria_id.
+            // But getOptionsWithHierarchy already structures them.
+            // Let's just pass them and handle in view or here.
+            
+            // Re-fetching just top level enabled for simplicity in the Parent Select
+            // Using a raw query or a new method would be cleaner, but I can filter the result of getOptionsWithHierarchy if needed, 
+            // or just use Database::getOptions but exclude the current ID (cyclic) and ensure no parent.
+            
+            // Let's use a simple query here for "potential parents" which are just top level centers.
+            // And exclude self if updating.
+             
+            $conn = Database::getConnection();
+            $sql = "SELECT id, nome FROM centro_de_custo WHERE enabled = 1 AND categoria_id IS NULL";
+            if ($view == 'atualizar') {
+                 $sql .= " AND id != " . $this->id;
+            }
+            $stmt = $conn->query($sql);
+            $categorias = $stmt->fetchAll(\PDO::FETCH_ASSOC);
+
             include "../src/Views/centros-de-custo/form.php";
         } else {
             include "../src/Views/centros-de-custo/$view.php";
