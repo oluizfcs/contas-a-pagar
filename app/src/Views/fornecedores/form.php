@@ -11,7 +11,7 @@ if ($view == 'atualizar') {
 
 <div class="form-section">
     <div class="section">
-        <h1><?= ucfirst($view) ?> Fornecedor</h1>
+        <h1><?= ucfirst($view) ?> fornecedor</h1>
         <form action="" method="post">
             <?php if ($view == 'atualizar'): ?>
                 <input type="hidden" name="entity_id" value="<?= $fornecedor->getId() ?>">

@@ -8,12 +8,15 @@ if ($centro_de_custo->getData_edicao() != null) {
 }
 
 use App\Controllers\Services\Money;
+use App\Models\CentroDeCusto;
 
 ?>
-<?php if($centro_de_custo->getCategoria_id() != null): ?>
-<h1>Sub-centro de custo: <?= $centro_de_custo->getNome() ?></h1>
+<?php if ($centro_de_custo->getCategoriaId() != null): ?>
+    <h1>Sub-centro de custo: <?= $centro_de_custo->getNome() ?></h1>
+    Centro de custo superior: <?= CentroDeCusto::getById($centro_de_custo->getCategoriaId())->getNome() ?>
+    <br>
 <?php else: ?>
-<h1>Centro de custo: <?= $centro_de_custo->getNome() ?></h1>
+    <h1>Centro de custo: <?= $centro_de_custo->getNome() ?></h1>
 <?php endif; ?>
 <br>
 <a class="btn btn-secondary" href="<?= $_ENV['BASE_URL'] ?>/centros-de-custo">Voltar</a>
@@ -21,7 +24,7 @@ use App\Controllers\Services\Money;
 
 <form method="POST" action="">
     <input type="hidden" name="centro_de_custo_id" value="<?= $centro_de_custo->getId() ?>">
-    <?php if($centro_de_custo->isEnabled()): ?>
+    <?php if ($centro_de_custo->isEnabled()): ?>
         <button class="btn btn-secondary" name="type" value="unable" onclick="return confirm('Realmente deseja inativar este centro de custo?')">
             <i class="fa-solid fa-box-archive"></i> Inativar
         </button>
@@ -74,7 +77,7 @@ use App\Controllers\Services\Money;
                             <td>-</td>
                         <?php else: ?>
                             <td><?= "$nextInstallment<br><span style='color: #777; font-size: smaller;'>(R$ $nextInstallmentPrice)</span>" ?>
-                        </td>
+                            </td>
                         <?php endif; ?>
                         <td>
                             <?= $paidInstallments . '/' . count($conta->getParcelas()) ?>
@@ -113,7 +116,7 @@ use App\Controllers\Services\Money;
             </button>
         </div>
     </div>
-<?php elseif(is_null($centro_de_custo->getCategoria_id())): ?>
+<?php elseif (is_null($centro_de_custo->getCategoriaId())): ?>
     <div class="section">
         <h2><i class="fa-solid fa-receipt"></i> Sub centros de custo</h2>
         <br>
@@ -134,7 +137,7 @@ use App\Controllers\Services\Money;
             <input type="hidden" name="type" value="create">
             <input type="hidden" name="ajax" value="true">
             <input type="hidden" name="categoria_id" value="<?= $centro_de_custo->getId() ?>">
-            
+
             <label for="new_nome">Nome:</label>
             <div class="input-wrapper">
                 <input type="text" id="new_nome" name="nome" required maxlength="45" autocomplete="off">
@@ -146,43 +149,43 @@ use App\Controllers\Services\Money;
 </div>
 
 <script>
-function openModal() {
-    document.getElementById("newSubCenterModal").style.display = "block";
-    document.getElementById("new_nome").focus();
-}
-
-function closeModal() {
-    document.getElementById("newSubCenterModal").style.display = "none";
-}
-
-document.getElementById('newSubCenterForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const formData = new FormData(this);
-    
-    fetch('<?= $_ENV['BASE_URL'] ?>/centros-de-custo', {
-        method: 'POST',
-        body: formData
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.success) {
-            location.reload(); 
-        } else {
-            alert('Erro: ' + (data.message || 'Desconhecido'));
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('Erro ao processar requisição.');
-    });
-});
-
-window.onclick = function(event) {
-    if (event.target == document.getElementById("newSubCenterModal")) {
-        closeModal();
+    function openModal() {
+        document.getElementById("newSubCenterModal").style.display = "block";
+        document.getElementById("new_nome").focus();
     }
-}
+
+    function closeModal() {
+        document.getElementById("newSubCenterModal").style.display = "none";
+    }
+
+    document.getElementById('newSubCenterForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = new FormData(this);
+
+        fetch('<?= $_ENV['BASE_URL'] ?>/centros-de-custo', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Erro: ' + (data.message || 'Desconhecido'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('Erro ao processar requisição.');
+            });
+    });
+
+    window.onclick = function(event) {
+        if (event.target == document.getElementById("newSubCenterModal")) {
+            closeModal();
+        }
+    }
 </script>
 
 <?php include '../src/templates/auditoria.php'; ?>

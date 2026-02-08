@@ -17,7 +17,7 @@ class CentroDeCusto
         private string $data_criacao,
         private string|null $data_edicao,
         private bool $enabled,
-        private int|null $categoria_id = null
+        private int|null $categoriaId = null
     ) {
         $this->nome = htmlspecialchars($this->nome, ENT_QUOTES, 'UTF-8', false);
     }
@@ -42,14 +42,14 @@ class CentroDeCusto
         return $this;
     }
 
-    public function getCategoria_id()
+    public function getCategoriaId()
     {
-        return $this->categoria_id;
+        return $this->categoriaId;
     }
 
-    public function setCategoriaId($categoria_id)
+    public function setCategoriaId($categoriaId)
     {
-        $this->categoria_id = $categoria_id;
+        $this->categoriaId = $categoriaId;
 
         return $this;
     }
@@ -150,27 +150,38 @@ class CentroDeCusto
                 // criar
                 $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (nome, categoria_id) VALUES (:nome, :categoria_id)');
                 $stmt->bindParam(':nome', $this->nome, PDO::PARAM_STR);
-                $stmt->bindParam(':categoria_id', $this->categoria_id, PDO::PARAM_INT);
+                $stmt->bindParam(':categoria_id', $this->categoriaId, PDO::PARAM_INT);
 
                 $stmt->execute();
 
                 Logger::log_create($conn, self::$tableName);
+                Logger::log(self::$tableName, 'sub-centros', '-', $this->nome, $this->categoriaId, $_SESSION['usuario_id']);
 
                 return true;
             } else {
                 // atualizar
-                $bancoAntigo = self::getById($this->id);
+                $centroAntigo = self::getById($this->id);
 
                 $stmt = $conn->prepare('UPDATE ' . self::$tableName . ' SET nome = :nome, categoria_id = :categoria_id, enabled = :enabled WHERE id = :id');
                 $stmt->bindParam(':nome', $this->nome, PDO::PARAM_STR);
-                $stmt->bindParam(':categoria_id', $this->categoria_id, PDO::PARAM_INT);
+                $stmt->bindParam(':categoria_id', $this->categoriaId, PDO::PARAM_INT);
                 $stmt->bindParam(':enabled', $this->enabled, PDO::PARAM_BOOL);
                 $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
 
                 $stmt->execute();
 
-                if ($bancoAntigo->getNome() != $this->nome) {
-                    Logger::log(self::$tableName, 'nome', $bancoAntigo->getNome(), $this->nome, $this->id, $_SESSION['usuario_id']);
+                if ($centroAntigo->getNome() != $this->nome) {
+                    Logger::log(self::$tableName, 'nome', $centroAntigo->getNome(), $this->nome, $this->id, $_SESSION['usuario_id']);
+                }
+
+                if ($centroAntigo->getCategoriaId() != $this->getCategoriaId()) {
+                    Logger::log(self::$tableName, 'centro de custo superior', self::getById($centroAntigo->getCategoriaId())->getNome(), self::getById($this->categoriaId)->getNome(), $this->id, $_SESSION['usuario_id']);
+                    Logger::log(self::$tableName, 'sub-centros', $this->nome . ': foi transferido', '-', $centroAntigo->getCategoriaId(), $_SESSION['usuario_id']);
+                    Logger::log(self::$tableName, 'sub-centros', '-', $this->nome . ': foi transferido', $this->categoriaId, $_SESSION['usuario_id']);
+                }
+
+                if ($centroAntigo->isEnabled() != $this->enabled) {
+                    Logger::log(self::$tableName, 'sub-centro: ' . $this->nome, $centroAntigo->isEnabled() ? 'ativado' : 'inativado', $this->enabled ? 'ativado': 'inativado', $centroAntigo->getCategoriaId(), $_SESSION['usuario_id']);
                 }
 
                 return true;

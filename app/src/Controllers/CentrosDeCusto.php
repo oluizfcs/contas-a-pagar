@@ -168,33 +168,7 @@ class CentrosDeCusto
 
         include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
-            $categorias = CentroDeCusto::getOptionsWithHierarchy();
-            // Filter out children from being parents if we want to enforce 1 level deep, 
-            // but for now let's just show options. 
-            // Actually getOptionsWithHierarchy returns tree structure. For the parent select, 
-            // we probably only want top level items or items that can be parents.
-            // For now let's just pass all and in the view we can filter or just show top levels.
-            // A better approach for "Parent Category" select is to only show items that are NOT children themselves (if max depth is 1).
-            // Let's assume max depth 1 as per "category > sub-center" implication.
-            // So we should filter $categorias to only include those with empty categoria_id.
-            // But getOptionsWithHierarchy already structures them.
-            // Let's just pass them and handle in view or here.
-            
-            // Re-fetching just top level enabled for simplicity in the Parent Select
-            // Using a raw query or a new method would be cleaner, but I can filter the result of getOptionsWithHierarchy if needed, 
-            // or just use Database::getOptions but exclude the current ID (cyclic) and ensure no parent.
-            
-            // Let's use a simple query here for "potential parents" which are just top level centers.
-            // And exclude self if updating.
-             
-            $conn = Database::getConnection();
-            $sql = "SELECT id, nome FROM centro_de_custo WHERE enabled = 1 AND categoria_id IS NULL";
-            if ($view == 'atualizar') {
-                 $sql .= " AND id != " . $this->id;
-            }
-            $stmt = $conn->query($sql);
-            $categorias = $stmt->fetchAll(\PDO::FETCH_ASSOC);
-
+            $categorias = CentroDeCusto::getAll(true, 2, '');
             include "../src/Views/centros-de-custo/form.php";
         } else {
             include "../src/Views/centros-de-custo/$view.php";
