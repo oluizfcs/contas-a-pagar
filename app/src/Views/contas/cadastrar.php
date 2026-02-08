@@ -12,6 +12,13 @@
                     <?php endforeach; ?>
                 </select>
                 <br><br>
+                <label for="natureza">Natureza:</label>
+                <select id="natureza" name="natureza" class="select2" style="width: 100%;">
+                    <?php foreach ($naturezas as $natureza): ?>
+                        <option value="<?= $natureza['id'] ?>" <?= ($_SESSION['post_data']['natureza'] ?? null) == $natureza['id'] ? 'selected' : '' ?>><?= $natureza['nome'] ?></option>
+                    <?php endforeach; ?>
+                </select>
+                <br><br>
                 <label for="centros">Centro de custo:</label>
                 <select id="centros" name="centro" class="select2" style="width: 100%;">
                     <?php foreach ($centros as $centro): ?>

@@ -4,6 +4,7 @@ use App\Controllers\Services\Money;
 use App\Models\Fornecedor;
 use App\Models\CentroDeCusto;
 use App\Models\Conta;
+use App\Models\Natureza;
 
 $data_criacao = DateTime::createFromFormat("Y-m-d H:i:s", $conta->getData_criacao());
 if ($conta->getData_edicao() != null) {
@@ -18,6 +19,7 @@ $extenso = $formatter->format($conta->getValor_em_centavos() / 100);
 ?>
 <h1>Detalhes da Conta</h1>
 <p title="<?= $extenso ?>">Valor total: R$ <?= Money::centavos_para_reais($conta->getValor_em_centavos()) ?></p>
+<p>Natureza: <?= Natureza::getById($conta->getNaturezaId())->getNome() ?></p>
 <p>Centro de custo: <?= CentroDeCusto::getById($conta->getCentro_de_custo_id())->getNome() ?></p>
 <p>Fornecedor:
     <?= $conta->getFornecedor_id() != null ? Fornecedor::getById($conta->getFornecedor_id())->getNome() : '<span style="color: #999;">N/A</span>' ?>

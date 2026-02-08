@@ -21,6 +21,7 @@ class Conta
         private string $data_criacao,
         private string|null $data_edicao,
         private int $centro_de_custo_id,
+        private int $naturezaId,
         private int|null $fornecedor_id,
         private array $parcelas,
         private bool $enabled,
@@ -149,6 +150,17 @@ class Conta
         return $this;
     }
 
+    public function getNaturezaId(): int
+    {
+        return $this->naturezaId;
+    }
+
+    public function setNaturezaId(int $naturezaId): self
+    {
+        $this->naturezaId = $naturezaId;
+        return $this;
+    }
+
     /**
      * Get the value of fornecedor_id
      */
@@ -210,9 +222,10 @@ class Conta
 
             if ($stmt->fetch()[0] == 0) {
                 // criar
-                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (descricao, valor_em_centavos, centro_de_custo_id, fornecedor_id) VALUES (:descricao, :valor_em_centavos, :centro_de_custo_id, :fornecedor_id)');
+                $stmt = $conn->prepare('INSERT INTO ' . self::$tableName . ' (descricao, valor_em_centavos, natureza_id, centro_de_custo_id, fornecedor_id) VALUES (:descricao, :valor_em_centavos, :natureza_id, :centro_de_custo_id, :fornecedor_id)');
                 $stmt->bindParam(':descricao', $this->descricao, PDO::PARAM_STR);
                 $stmt->bindParam(':valor_em_centavos', $this->valor_em_centavos, PDO::PARAM_STR);
+                $stmt->bindParam(':natureza_id', $this->naturezaId, PDO::PARAM_INT);
                 $stmt->bindParam(':centro_de_custo_id', $this->centro_de_custo_id, PDO::PARAM_INT);
                 $stmt->bindParam(':fornecedor_id', $this->fornecedor_id, PDO::PARAM_INT);
 
@@ -251,7 +264,7 @@ class Conta
         }
 
         extract($conta);
-        return new Conta($id, $descricao, $valor_em_centavos, $data_criacao, $data_edicao, $centro_de_custo_id, $fornecedor_id, self::findInstallments($id), $enabled, $paid);
+        return new Conta($id, $descricao, $valor_em_centavos, $data_criacao, $data_edicao, $centro_de_custo_id, $natureza_id, $fornecedor_id, self::findInstallments($id), $enabled, $paid);
     }
 
     public static function getAll(string $search, string $status): array
@@ -312,7 +325,7 @@ class Conta
 
     public static function getByForeignKey(string $foreignKey, int $id): array
     {
-        $allowedKeys = ['centro_de_custo', 'fornecedor'];
+        $allowedKeys = ['centro_de_custo', 'fornecedor', 'natureza'];
         if (!in_array($foreignKey, $allowedKeys)) {
             return [];
         }
@@ -332,7 +345,7 @@ class Conta
         $results = [];
         foreach ($stmt->fetchAll(PDO::FETCH_ASSOC) as $row) {
             extract($row);
-            $conta = new Conta($id, $descricao, $valor_em_centavos, '', '', 0, 0, self::findInstallments($id), 1, 0);
+            $conta = new Conta($id, $descricao, $valor_em_centavos, '', '', 0, 0, 0, self::findInstallments($id), 1, 0);
             $conta->centro_de_custo = $centro;
             $conta->fornecedor = $fornecedor;
             $results[] = $conta;

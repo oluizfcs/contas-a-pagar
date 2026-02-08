@@ -9,6 +9,7 @@ use App\Models\CentroDeCusto;
 use App\Models\Database;
 use App\Models\Conta;
 use App\Models\Fornecedor;
+use App\Models\Natureza;
 use App\Models\Parcela;
 use DateTime;
 
@@ -70,24 +71,25 @@ class Contas
 
     private function create(): void
     {
-        $banco_id = filter_var($_POST['banco'], FILTER_VALIDATE_INT);
-        $centro_id = filter_var($_POST['centro'], FILTER_VALIDATE_INT);
-        $fornecedor_id = filter_var($_POST['fornecedor'], FILTER_VALIDATE_INT);
+        $bancoId = filter_var($_POST['banco'], FILTER_VALIDATE_INT);
+        $centroId = filter_var($_POST['centro'], FILTER_VALIDATE_INT);
+        $naturezaId = filter_var($_POST['natureza'], FILTER_VALIDATE_INT);
+        $fornecedorId = filter_var($_POST['fornecedor'], FILTER_VALIDATE_INT);
         $valorEmCentavos = Money::reais_para_centavos($_POST['valor_em_reais']);
-        $qtd_parcela = filter_var($_POST['qtd_parcela'], FILTER_VALIDATE_INT);
+        $qtdParcelas = filter_var($_POST['qtd_parcela'], FILTER_VALIDATE_INT);
         $descricao = $_POST['descricao'];
         $formaPagamento = $_POST['forma-pagamento'];
 
-        if ($banco_id == -1) { // "Pagar depois"
-            $banco_id = null;
+        if ($bancoId == -1) { // "Pagar depois"
+            $bancoId = null;
         } else {
-            Banco::getById($banco_id); // if id does not exists (unlikely), execution stops.
+            Banco::getById($bancoId); // if id does not exists (unlikely), execution stops.
         }
 
-        if ($fornecedor_id == -1) { // "Nenhum"
-            $fornecedor_id = null;
+        if ($fornecedorId == -1) { // "Nenhum"
+            $fornecedorId = null;
         } else {
-            Fornecedor::getById($fornecedor_id); // if id does not exists (unlikely), execution stops.
+            Fornecedor::getById($fornecedorId); // if id does not exists (unlikely), execution stops.
         }
 
         if ($valorEmCentavos == 0) {
@@ -108,7 +110,7 @@ class Contas
             exit;
         }
 
-        if (!$qtd_parcela) {
+        if (!$qtdParcelas) {
             $_SESSION['message'] = ['Quantidade de parcelas inválida', 'fail'];
             $_SESSION['post_data'] = $_POST;
             header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
@@ -127,7 +129,7 @@ class Contas
                 }
                 break;
             case 'parcelado':
-                for ($i = 1; $i <= $qtd_parcela; $i++) {
+                for ($i = 1; $i <= $qtdParcelas; $i++) {
 
                     $valorParcela = Money::reais_para_centavos($_POST["parcela$i" . "_valor"]);
                     $vencimentoParcela = $_POST["parcela$i" . "_vencimento"];
@@ -162,8 +164,9 @@ class Contas
             $valorEmCentavos,
             '',
             null,
-            $centro_id,
-            $fornecedor_id,
+            $centroId,
+            $naturezaId,
+            $fornecedorId,
             [],
             true,
             0
@@ -177,11 +180,11 @@ class Contas
                 Parcela::bulkInsert($parcelas, $c->lastInsertId);
             } else {
                 //a vista
-                new Parcela(0, 1, $valorEmCentavos, $_POST['dataParcelaAVista'], null, $c->lastInsertId, $banco_id, false)->save();
+                new Parcela(0, 1, $valorEmCentavos, $_POST['dataParcelaAVista'], null, $c->lastInsertId, $bancoId, false)->save();
             }
 
-            if($formaPagamento == 'a vista' && $banco_id != null) {
-                $this->cobrar(1, $banco_id, $c->lastInsertId, $_POST['dataParcelaAVista'], true);
+            if($formaPagamento == 'a vista' && $bancoId != null) {
+                $this->cobrar(1, $bancoId, $c->lastInsertId, $_POST['dataParcelaAVista'], true);
                 exit;
             }
 
@@ -365,19 +368,26 @@ class Contas
         }
 
         if ($view == 'cadastrar') {
-            $centros = CentroDeCusto::getOptionsWithHierarchy();
             $fornecedores = Database::getOptions(Fornecedor::$tableName);
+            $naturezas = Database::getOptions(Natureza::$tableName);
+            $centros = CentroDeCusto::getOptionsWithHierarchy();
             $bancos = Database::getOptions(Banco::$tableName);
-
-            if (empty($centros)) {
-                $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há centros de custo cadastrados', 'warning'];
-                header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/cadastrar');
-                exit;
-            }
-
+            
             if (empty($fornecedores)) {
                 $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há fornecedores cadastrados', 'warning'];
                 header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores/cadastrar');
+                exit;
+            }
+
+            if (empty($naturezas)) {
+                $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há naturezas cadastradas', 'warning'];
+                header('Location: ' . $_ENV['BASE_URL'] . '/naturezas/cadastrar');
+                exit;
+            }
+            
+            if (empty($centros)) {
+                $_SESSION['message'] = ['Não é possível cadastrar uma conta pois não há centros de custo cadastrados', 'warning'];
+                header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo/cadastrar');
                 exit;
             }
         }

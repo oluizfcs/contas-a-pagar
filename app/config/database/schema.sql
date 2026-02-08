@@ -23,6 +23,14 @@ CREATE TABLE banco(
     `enabled` TINYINT NOT NULL DEFAULT 1
 ) ENGINE=INNODB;
 
+CREATE TABLE natureza(
+    id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(45) NOT NULL,
+    data_criacao DATETIME NOT NULL DEFAULT NOW(),
+    data_edicao DATETIME ON UPDATE NOW(),
+    `enabled` TINYINT NOT NULL DEFAULT 1
+) ENGINE=INNODB;
+
 CREATE TABLE centro_de_custo(
     id SMALLINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     nome VARCHAR(45) NOT NULL,
@@ -49,10 +57,12 @@ CREATE TABLE conta(
     data_criacao DATETIME NOT NULL DEFAULT NOW(),
     data_edicao DATETIME ON UPDATE NOW(),
     centro_de_custo_id SMALLINT UNSIGNED NOT NULL,
+    natureza_id SMALLINT UNSIGNED NOT NULL,
     fornecedor_id MEDIUMINT UNSIGNED NULL,
     paid TINYINT NOT NULL DEFAULT 0,
     `enabled` TINYINT NOT NULL DEFAULT 1,
     FOREIGN KEY (centro_de_custo_id) REFERENCES centro_de_custo(id),
+    FOREIGN KEY (natureza_id) REFERENCES natureza(id),
     FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id)
 ) ENGINE=INNODB;
 
@@ -116,6 +126,18 @@ CREATE TABLE log_fornecedor(
     fornecedor_id MEDIUMINT UNSIGNED NOT NULL,
     FOREIGN KEY (usuario_id) REFERENCES usuario(id),
     FOREIGN KEY (fornecedor_id) REFERENCES fornecedor(id)
+) ENGINE=INNODB;
+
+CREATE TABLE log_natureza(
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    campo VARCHAR(45) NOT NULL,
+    valor_antigo VARCHAR(45),
+    valor_novo VARCHAR(45),
+    data_log DATETIME DEFAULT NOW(),
+    usuario_id SMALLINT UNSIGNED NOT NULL,
+    natureza_id SMALLINT UNSIGNED NOT NULL,
+    FOREIGN KEY (usuario_id) REFERENCES usuario(id),
+    FOREIGN KEY (natureza_id) REFERENCES natureza(id)
 ) ENGINE=INNODB;
 
 CREATE TABLE log_centro_de_custo(

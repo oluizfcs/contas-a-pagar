@@ -22,27 +22,30 @@
     <div id="main-layout">
         <div id="sidebar">
             <?php
-            $controller = explode('/', $_SERVER['QUERY_STRING'])[0];
-            $controller = str_replace('url=', '', $controller);
+            (function () {
+                $controller = explode('/', $_SERVER['QUERY_STRING'])[0];
+                $controller = str_replace('url=', '', $controller);
 
-            $menuItems = [
-                'dashboard' => ['icon' => 'fas fa-tachometer-alt', 'label' => 'Dashboard'],
-                'contas' => ['icon' => 'fa-solid fa-receipt', 'label' => 'Contas'],
-                'fornecedores' => ['icon' => 'fa-solid fa-dolly', 'label' => 'Fornecedores'],
-                'centros-de-custo' => ['icon' => 'fa-solid fa-list', 'label' => 'Centros']
-            ];
-            
-            if ($_SESSION['usuario_id'] == 1) {
-                $menuItems['bancos'] = ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bancos'];
-                $menuItems['usuarios'] = ['icon' => 'fa-solid fa-users', 'label' => 'Usuários'];
-                $menuItems['relatorios'] = ['icon' => 'fa-solid fa-file', 'label' => 'Relatórios'];
-                // $menuItems['admin'] = ['icon' => 'fa-solid fa-cog', 'label' => 'Administração'];
-            }
+                $menuItems = [
+                    'dashboard' => ['icon' => 'fas fa-tachometer-alt', 'label' => 'Dashboard'],
+                    'contas' => ['icon' => 'fa-solid fa-receipt', 'label' => 'Contas'],
+                    'fornecedores' => ['icon' => 'fa-solid fa-dolly', 'label' => 'Fornecedores'],
+                    'centros-de-custo' => ['icon' => 'fa-solid fa-list', 'label' => 'Centros'],
+                    'naturezas' => ['icon' => 'fa-solid fa-tree', 'label' => 'Naturezas']
+                ];
 
-            foreach ($menuItems as $item => $info) {
-                $selected = $controller == $item ? "style='background-color: hsl(214, 77%, 30%)'" : '';
-                echo "<a href='" . $_ENV['BASE_URL'] . "/$item' $selected><i class='{$info['icon']}'></i><span class='link-text'>{$info['label']}</span></a>";
-            }
+                if ($_SESSION['usuario_id'] == 1) {
+                    $menuItems['bancos'] = ['icon' => 'fa-solid fa-building-columns', 'label' => 'Bancos'];
+                    $menuItems['usuarios'] = ['icon' => 'fa-solid fa-users', 'label' => 'Usuários'];
+                    $menuItems['relatorios'] = ['icon' => 'fa-solid fa-file', 'label' => 'Relatórios'];
+                    // $menuItems['admin'] = ['icon' => 'fa-solid fa-cog', 'label' => 'Administração'];
+                }
+
+                foreach ($menuItems as $item => $info) {
+                    $selected = $controller == $item ? "style='background-color: hsl(214, 77%, 30%)'" : '';
+                    echo "<a href='" . $_ENV['BASE_URL'] . "/$item' $selected><i class='{$info['icon']}'></i><span class='link-text'>{$info['label']}</span></a>";
+                }
+            })();
             ?>
 
             <div id="sidebar-actions">
