@@ -52,9 +52,14 @@
                         <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/centros-de-custo/detalhar/<?= $centro['id'] ?>';">
                             <td style="position: relative;">
                                 <?php if (count($centro['children']) > 0): ?>
-                                    <div class="toggle-div">
-                                        <i class="fa-solid fa-chevron-right toggle-btn" style="cursor: pointer; position: absolute; left: 7px; top: 50%; transform: translateY(-50%);" onclick="event.stopPropagation(); toggleChildren(this, 'child-of-<?= $centro['id'] ?>')"></i>
-                                    </div>
+                                    <i class="fa-solid fa-chevron-right toggle-btn"
+                                        style="
+                                            cursor: pointer;
+                                            position: absolute;
+                                            left: 1px; top: 50%;
+                                            width: 26px;
+                                            transform: translateY(-50%);"
+                                        onclick="event.stopPropagation(); toggleChildren(this, 'child-of-<?= $centro['id'] ?>')"></i>
                                 <?php endif; ?>
                                 <?= $centro['nome'] ?>
                             </td>
@@ -82,10 +87,6 @@
         </div>
     <?php endif; ?>
 </div>
-
-<style>
-    .toggle-div {}
-</style>
 
 <script>
     function toggleChildren(btn, className) {
