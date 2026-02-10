@@ -29,13 +29,24 @@
     <?php if (count($naturezas) > 0): ?>
         <div class="table-section">
             <table class="sortable">
-                <tr>
-                    <th>Nome</th>
-                    <th>Total (R$)</th>
-                    <th>Quantidade</th>
-                    <th>Média (R$)</th>
-                </tr>
-                <?php foreach ($naturezas as $natureza): ?>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Nome</th>
+                        <?php
+                            $txt = $this->status;
+                            if ($this->status == 'todas' || $this->status == 'inativadas') {
+                                $txt = 'todas as contas';
+                            }
+                        ?>
+                        <th colspan="3"><?= ucfirst($txt) ?></th>
+                    </tr>
+                    <tr>
+                        <th>Total (R$)</th>
+                        <th>Quantidade</th>
+                        <th>Média (R$)</th>
+                    </tr>
+                </thead>
+                    <?php foreach ($naturezas as $natureza): ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/naturezas/detalhar/<?= $natureza['id'] ?>';">
                         <td><?= $natureza['nome'] ?></td>
                         <td><?= Money::centavos_para_reais($natureza['total']) ?></td>

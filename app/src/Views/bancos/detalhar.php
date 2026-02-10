@@ -80,7 +80,7 @@ use App\Models\Conta;
                 <?php foreach ($parcelas as $parcela): ?>
                     <tr onclick="window.open('<?= $_ENV['BASE_URL'] ?>/contas/detalhar/<?= $parcela->getConta_id() ?>', '_blank')">
                         <td><?= $parcela->centro_de_custo ?></td>
-                        <td><?= $parcela->fornecedor ?></td>
+                        <td><?= $parcela->fornecedor ?? '-' ?></td>
                         <td><?= Money::centavos_para_reais($parcela->getValor_em_centavos()) ?></td>
                         <td><?= new DateTime($parcela->getData_pagamento())->format('d/m/Y') ?></td>
                         <td><?= $parcela->getNumero_parcela() . '/' . count(Conta::getById($parcela->getConta_id())->getParcelas()) ?></td>

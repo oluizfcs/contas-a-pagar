@@ -22,8 +22,7 @@ class Parcela
         private int $conta_id,
         private int|null $banco_id,
         private bool $paid
-    ) {
-    }
+    ) {}
 
     /**
      * Get the value of id
@@ -227,8 +226,12 @@ class Parcela
         }
     }
 
-    public static function getAll(string $status): array
-    {
+    public static function getAll(
+        string $status,
+        string $naturezaId = 'all',
+        string $centroId = 'all',
+        string $fornecedorId = 'all'
+    ): array {
         $sql = "SELECT 
             p.id,
             p.conta_id,
@@ -236,11 +239,9 @@ class Parcela
             p.valor_em_centavos,
             p.data_vencimento,
             p.data_pagamento,
-            (
-                SELECT centro_de_custo.nome
-                FROM centro_de_custo
-                WHERE centro_de_custo.id = c.centro_de_custo_id
-            ) AS centro,
+            n.nome natureza,
+            cc.nome centro,
+            f.nome fornecedor,
             (
                 SELECT COUNT(*)
                 FROM parcela p2
@@ -248,6 +249,9 @@ class Parcela
             ) AS total_parcelas
         FROM parcela p
         INNER JOIN conta AS c ON p.conta_id = c.id
+        INNER JOIN natureza n ON c.natureza_id = n.id
+        INNER JOIN centro_de_custo cc ON c.centro_de_custo_id = cc.id
+        LEFT JOIN fornecedor f ON c.fornecedor_id = f.id
         WHERE 1 = 1";
 
         switch ($status) {
@@ -258,18 +262,52 @@ class Parcela
                 $sql = $sql . ' AND p.paid = 1';
                 break;
             default: // also "todas"
-            // do nothing
+                // do nothing
+        }
+
+        if ($naturezaId != 'all') {
+            $sql = $sql . " AND n.id = :natureza_id";
+        }
+
+        if ($centroId != 'all') {
+            $sql = $sql . " AND cc.id = :centro_id";
+        }
+
+        if ($fornecedorId != 'all') {
+            $sql = $sql . " AND f.id = :fornecedor_id";
         }
 
         $sql = $sql . ' ORDER BY data_vencimento';
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
+
+            if ($naturezaId != 'all') {
+                $stmt->bindParam(':natureza_id', $naturezaId, PDO::PARAM_INT);
+            }
+
+            if ($centroId != 'all') {
+                $stmt->bindParam(':centro_id', $centroId, PDO::PARAM_INT);
+            }
+
+            if ($fornecedorId != 'all') {
+                $stmt->bindParam(':fornecedor_id', $fornecedorId, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao listar contas', ['status' => $status, 'PDOException' => $e->getMessage()]);
+            Logger::error(
+                'Falha ao listar contas', 
+                [
+                    'status' => $status,
+                    'natureza' => $naturezaId,
+                    'centro' => $centroId,
+                    'fornecedor' => $fornecedorId,
+                    'PDOException' => $e->getMessage()
+                ]
+            );
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
@@ -328,16 +366,16 @@ class Parcela
         for ($i = 0; $i < count($parcelas); $i++) {
             $sql = $sql . "(:numero_parcela$i, :valor$i, :vencimento$i, :conta_id)";
 
-            if($i != count($parcelas) -1) {
+            if ($i != count($parcelas) - 1) {
                 $sql = $sql . ", ";
             }
         }
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
-            
+
             for ($i = 0; $i < count($parcelas); $i++) {
-                $stmt->bindValue(":numero_parcela$i", $i+1);
+                $stmt->bindValue(":numero_parcela$i", $i + 1);
                 $stmt->bindValue(":valor$i", $parcelas[$i]['valor'], PDO::PARAM_INT);
                 $stmt->bindValue(":vencimento$i", $parcelas[$i]['vencimento'], PDO::PARAM_STR);
                 $stmt->bindValue(':conta_id', $conta_id, PDO::PARAM_INT);
@@ -351,7 +389,7 @@ class Parcela
             exit;
         }
     }
-    
+
     public static function getByBank(int $banco_id): array
     {
         try {

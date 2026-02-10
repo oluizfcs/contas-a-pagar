@@ -29,17 +29,21 @@
 
     <?php if (count($bancos) > 0): ?>
         <div class="table-section">
-            <table class="sortable">
-                <tr>
-                    <th>Nome</th>
-                    <th>Saldo (R$)</th>
-                </tr>
-                <?php foreach ($bancos as $banco): ?>
-                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/bancos/detalhar/<?= $banco['id'] ?>';">
-                        <td><?= $banco['nome'] ?></td>
-                        <td><?= Money::centavos_para_reais($banco['saldo_em_centavos']) ?></td>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Nome</th>
+                        <th>Saldo (R$)</th>
                     </tr>
-                <?php endforeach; ?>
+                </thead>
+                <tbody>
+                    <?php foreach ($bancos as $banco): ?>
+                        <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/bancos/detalhar/<?= $banco['id'] ?>';">
+                            <td><?= $banco['nome'] ?></td>
+                            <td><?= Money::centavos_para_reais($banco['saldo_em_centavos']) ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
             </table>
         </div>
     <?php endif; ?>

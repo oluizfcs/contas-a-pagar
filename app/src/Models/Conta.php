@@ -13,6 +13,7 @@ class Conta
     public int $lastInsertId;
     public string $centro_de_custo;
     public string|null $fornecedor;
+    public string $natureza;
 
     public function __construct(
         private int $id,
@@ -243,7 +244,7 @@ class Conta
                 $stmt->bindParam(':id', $this->id, PDO::PARAM_INT);
 
                 $stmt->execute();
-                
+
                 return true;
             }
         } catch (PDOException $e) {
@@ -267,15 +268,22 @@ class Conta
         return new Conta($id, $descricao, $valor_em_centavos, $data_criacao, $data_edicao, $centro_de_custo_id, $natureza_id, $fornecedor_id, self::findInstallments($id), $enabled, $paid);
     }
 
-    public static function getAll(string $search, string $status): array
-    {
+    public static function getAll(
+        string $search,
+        string $status,
+        string $naturezaId = 'all',
+        string $centroId = 'all',
+        string $fornecedorId = 'all'
+    ): array {
         $sql = "SELECT 
             conta.id,
             descricao,
             valor_em_centavos,
+            n.nome natureza,
             c.nome centro,
             f.nome fornecedor
         FROM conta
+        INNER JOIN natureza n ON natureza_id = n.id
         INNER JOIN centro_de_custo c ON centro_de_custo_id = c.id
         LEFT JOIN fornecedor f ON fornecedor_id = f.id
         WHERE 1 = 1";
@@ -294,6 +302,18 @@ class Conta
                 $sql = $sql . " AND conta.enabled = 1";
         }
 
+        if ($naturezaId != 'all') {
+            $sql = $sql . " AND n.id = :natureza_id";
+        }
+
+        if ($centroId != 'all') {
+            $sql = $sql . " AND c.id = :centro_id";
+        }
+
+        if ($fornecedorId != 'all') {
+            $sql = $sql . " AND f.id = :fornecedor_id";
+        }
+
         if (strlen($search) > 0) {
             $sql = $sql . " AND descricao LIKE :descricao";
         }
@@ -303,6 +323,18 @@ class Conta
             if (strlen($search) > 0) {
                 $stmt->bindParam(':descricao', $search, PDO::PARAM_STR);
             }
+
+            if ($naturezaId != 'all') {
+                $stmt->bindParam(':natureza_id', $naturezaId, PDO::PARAM_INT);
+            }
+
+            if ($centroId != 'all') {
+                $stmt->bindParam(':centro_id', $centroId, PDO::PARAM_INT);
+            }
+
+            if ($fornecedorId != 'all') {
+                $stmt->bindParam(':fornecedor_id', $fornecedorId, PDO::PARAM_INT);
+            }
             $stmt->execute();
 
             $contas = [];
@@ -311,12 +343,23 @@ class Conta
                 $c = Conta::getById($conta['id']);
                 $c->centro_de_custo = $conta['centro'];
                 $c->fornecedor = $conta['fornecedor'];
+                $c->natureza = $conta['natureza'];
                 $contas[] = $c;
             }
 
             return $contas;
         } catch (PDOException $e) {
-            Logger::error('Falha ao listar contas', ['status' => $status, 'search' => $search, 'PDOException' => $e->getMessage()]);
+            Logger::error(
+                'Falha ao listar contas', 
+                [
+                    'status' => $status,
+                    'search' => $search,
+                    'natureza' => $naturezaId,
+                    'centro' => $centroId,
+                    'fornecedor' => $fornecedorId,
+                    'PDOException' => $e->getMessage()
+                ]
+            );
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
@@ -331,8 +374,9 @@ class Conta
         }
 
         $stmt = Database::getConnection()->prepare("
-            SELECT conta.id, descricao, valor_em_centavos, c.nome centro, f.nome fornecedor
+            SELECT conta.id, descricao, valor_em_centavos, c.nome centro, n.nome natureza, f.nome fornecedor
             FROM conta
+            INNER JOIN natureza n ON natureza_id = n.id
             INNER JOIN centro_de_custo c ON centro_de_custo_id = c.id
             LEFT JOIN fornecedor f ON fornecedor_id = f.id
             WHERE $foreignKey" . "_id = :id
@@ -348,6 +392,7 @@ class Conta
             $conta = new Conta($id, $descricao, $valor_em_centavos, '', '', 0, 0, 0, self::findInstallments($id), 1, 0);
             $conta->centro_de_custo = $centro;
             $conta->fornecedor = $fornecedor;
+            $conta->natureza = $natureza;
             $results[] = $conta;
         }
 

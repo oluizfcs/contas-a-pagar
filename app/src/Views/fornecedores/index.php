@@ -29,13 +29,24 @@
     <?php if (count($fornecedores) > 0): ?>
         <div class="table-section">
             <table class="sortable">
-                <tr>
-                    <th>Nome</th>
-                    <th>Telefone</th>
-                    <th>Total (R$)</th>
-                    <th>Quantidade</th>
-                    <th>Média (R$)</th>
-                </tr>
+                <thead>
+                    <tr>
+                        <th rowspan="2">Nome</th>
+                        <th rowspan="2">Telefone</th>
+                        <?php
+                        $txt = $this->status;
+                        if ($this->status == 'todos' || $this->status == 'inativados') {
+                            $txt = 'todas as contas';
+                        }
+                        ?>
+                        <th colspan="3"><?= ucfirst($txt) ?></th>
+                    </tr>
+                    <tr>
+                        <th>Total (R$)</th>
+                        <th>Quantidade</th>
+                        <th>Média (R$)</th>
+                    </tr>
+                </thead>
                 <?php foreach ($fornecedores as $fornecedor): ?>
                     <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/fornecedores/detalhar/<?= $fornecedor['id'] ?>';">
                         <td><?= $fornecedor['nome'] ?></td>

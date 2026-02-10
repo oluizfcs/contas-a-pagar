@@ -19,9 +19,6 @@ class Contas
     public static bool $onlyAdmin = false;
     private array $views = ['index', 'cadastrar', 'detalhar', 'pagar'];
     private int $id;
-    private string $rowType = 'contas';
-    private string $status = 'a pagar';
-    private string $search = '';
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -35,7 +32,6 @@ class Contas
                 exit;
             }
         }
-
         if (!empty($_POST)) {
             switch ($_POST['type']) {
                 case 'create':
@@ -52,7 +48,10 @@ class Contas
                         'search' => $_POST['search'] ?? '',
                         'rowType' => $_POST['rowType'] ?? 'contas',
                         'status' => $_POST['status'] ?? 'a pagar',
-                        'orderby' => $_POST['orderby'] ?? 'vencimento'
+                        'orderby' => $_POST['orderby'] ?? 'vencimento',
+                        'natureza'=> $_POST['natureza'] ?? 'all',
+                        'centro' => $_POST['centro'] ?? 'all',
+                        'fornecedor' => $_POST['fornecedor'] ?? 'all'
                     ];
                     header('Location: ' . $_ENV['BASE_URL'] . '/contas');
                     exit;
@@ -325,18 +324,23 @@ class Contas
             $filters = $_SESSION['contas_filters'] ?? [
                 'search' => '',
                 'rowType' => 'contas',
-                'status' => 'a pagar'
+                'status' => 'a pagar',
+                'natureza' => 'all',
+                'centro' => 'all',
+                'fornecedor' => 'all'
             ];
-
-            $this->search = $filters['search'];
-            $this->rowType = $filters['rowType'];
-            $this->status = $filters['status'];
 
             $contas = [];
             $parcelas = [];
 
-            if ($this->rowType == 'contas') {
-                $contas = Conta::getAll($this->search, $this->status);
+            $availableFilterOptions = [
+                'naturezas' => Database::getOptions(Natureza::$tableName),
+                'centros' => Database::getOptions(CentroDeCusto::$tableName),
+                'fornecedores' => Database::getOptions(Fornecedor::$tableName)
+            ];
+
+            if ($filters['rowType'] == 'contas') {
+                $contas = Conta::getAll($filters['search'], $filters['status'], $filters['natureza'], $filters['centro'], $filters['fornecedor']);
 
                 usort($contas, function($a, $b) {
                     $infoA = $a->getNextInstallmentInfo();
@@ -360,10 +364,10 @@ class Contas
                     return ($dateA < $dateB) ? -1 : 1;
                 });
             } else {
-                if ($this->status == 'inativadas') {
-                    $this->status = "a pagar";
+                if ($filters['status'] == 'inativadas') {
+                    $filters['status'] = "a pagar";
                 }
-                $parcelas = Parcela::getAll($this->status);
+                $parcelas = Parcela::getAll($filters['status'], $filters['natureza'], $filters['centro'], $filters['fornecedor']);
             }
         }
 

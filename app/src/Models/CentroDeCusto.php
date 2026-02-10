@@ -180,7 +180,7 @@ class CentroDeCusto
                     Logger::log(self::$tableName, 'sub-centros', '-', $this->nome . ': foi transferido', $this->categoriaId, $_SESSION['usuario_id']);
                 }
 
-                if ($centroAntigo->isEnabled() != $this->enabled) {
+                if ($centroAntigo->getCategoriaId() != null && $centroAntigo->isEnabled() != $this->enabled) {
                     Logger::log(self::$tableName, 'sub-centro: ' . $this->nome, $centroAntigo->isEnabled() ? 'ativado' : 'inativado', $this->enabled ? 'ativado': 'inativado', $centroAntigo->getCategoriaId(), $_SESSION['usuario_id']);
                 }
 
