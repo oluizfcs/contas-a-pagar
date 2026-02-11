@@ -1,6 +1,9 @@
 <!DOCTYPE html>
+
 <head>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contas a pagar</title>
 </head>
 <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/login.css">
 <link rel="shortcut icon" href="<?= $_ENV['BASE_URL'] ?>/images/favicon.ico" type="image/x-icon">
@@ -8,18 +11,28 @@
 <div id="login">
     <?php include '../src/templates/message.php'; ?>
     <form action="" method="post">
-        <label for="cpf">CPF</label>
-        <input type="text" id="cpf" name="cpf" required autofocus value="<?= $_POST['cpf'] ?? '' ?>">
-        <label for="senha">Senha</label>
-        <input type="password" id="senha" name="senha" required value="<?= $_POST['senha'] ?? '' ?>">
-        <input id="submit" type="submit" value="Entrar">
+        <div id="form">
+            <div>
+                <label for="cpf">CPF</label>
+                <input type="text" inputmode="numeric" id="cpf" name="cpf" required value="<?= $_POST['cpf'] ?? '' ?>">
+            </div>
+            <div>
+                <label for="senha">Senha</label>
+                <input type="password" id="senha" name="senha" required value="<?= $_POST['senha'] ?? '' ?>">
+            </div>
+            <input id="submit" type="submit" value="Entrar">
+        </div>
     </form>
 </div>
 
+<script src="https://unpkg.com/imask"></script>
 <script>
-    var cleave = new Cleave('#cpf', {
-        delimiters: ['.', '.', '-'],
-        blocks: [3, 3, 3, 2],
-        numericOnly: true
-    });
+    const cpf = document.getElementById("cpf");
+    const maskOptions = {
+        mask: '000.000.000-00'
+    }
+
+    IMask(cpf, maskOptions);
+
+    cpf.focus();
 </script>
