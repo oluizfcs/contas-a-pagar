@@ -299,7 +299,7 @@ class Parcela
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
             Logger::error(
-                'Falha ao listar contas', 
+                'Falha ao listar contas',
                 [
                     'status' => $status,
                     'natureza' => $naturezaId,
@@ -327,13 +327,14 @@ class Parcela
         return new Parcela($id, $numero_parcela, $valor_em_centavos, $data_vencimento, $data_pagamento, $conta_id, $banco_id, $paid);
     }
 
-    public static function getDailyTotal(string $start, string $end, string $status = 'todas'): array
+    public static function getDailyTotal(string $start, string $end, string $status = 'todas', string $naturezaId = 'all'): array
     {
         $sql = "SELECT 
                     data_vencimento as date, 
                     SUM(parcela.valor_em_centavos) as total 
                 FROM parcela
                 INNER JOIN conta ON conta_id = conta.id 
+                INNER JOIN natureza ON conta.natureza_id = natureza.id
                 WHERE data_vencimento BETWEEN :start AND :end
                 AND conta.enabled = 1";
 
@@ -343,6 +344,10 @@ class Parcela
             $sql .= " AND parcela.paid = 1";
         }
 
+        if ($naturezaId != 'all') {
+            $sql .= " AND conta.natureza_id = :natureza_id";
+        }
+
         $sql .= " GROUP BY data_vencimento 
                 ORDER BY data_vencimento";
 
@@ -350,6 +355,11 @@ class Parcela
             $stmt = Database::getConnection()->prepare($sql);
             $stmt->bindParam(':start', $start);
             $stmt->bindParam(':end', $end);
+
+            if ($naturezaId != 'all') {
+                $stmt->bindParam(':natureza_id', $naturezaId, PDO::PARAM_INT);
+            }
+
             $stmt->execute();
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);

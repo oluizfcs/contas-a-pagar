@@ -1,7 +1,7 @@
 <h1>Dashboard</h1>
 
-<div class="section">
-    <form method="POST" action="" class="mb-4" style="display: flex; gap: 1rem; align-items: flex-end;">
+<form method="POST" action="" class="mb-4" style="display: flex; gap: 1rem; align-items: flex-end;">
+    <div class="section" style="width: 100%; display: flex; gap: 20px; flex-wrap: wrap;">
         <div>
             <label for="start_date">Data inicial: </label>
             <input type="date" id="start_date" name="start_date" value="<?= htmlspecialchars($startDate) ?>"
@@ -20,6 +20,18 @@
                 <option value="a_pagar" <?= $status === 'a_pagar' ? 'selected' : '' ?>>A pagar</option>
             </select>
         </div>
+        <div>
+            <label for="natureza">Natureza: </label>
+            <select name="natureza" id="natureza" class="form-control" style="margin-bottom: 0;">
+                <option value="all">Todas</option>
+                <?php foreach ($naturezas as $natureza): ?>
+                    <?php
+                        $selected = $natureza['id'] == $naturezaId ? 'selected' : '';
+                    ?>
+                    <option <?= $selected ?> value="<?= $natureza['id'] ?>"><?= $natureza['nome'] ?></option>
+                <?php endforeach; ?>
+            </select>
+        </div>
         <div style="display: flex; align-items: center; margin-bottom: 0rem;">
             <input type="checkbox" id="show_zeros" name="show_zeros" <?= $showZeros ? 'checked' : '' ?>
                 style="margin-right: 0.5rem; margin-bottom: 0;">
@@ -28,8 +40,8 @@
         <div style="margin-bottom: -0.5rem;">
             <button type="submit" class="btn btn-primary">Filtrar</button>
         </div>
-    </form>
-</div>
+    </div>
+</form>
 
 <?php if (count($chartData['daily']) <= 0): ?>
     <br>
@@ -123,7 +135,7 @@
                 y: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function (value) {
+                        callback: function(value) {
                             return 'R$ ' + value.toFixed(2);
                         }
                     }
@@ -151,7 +163,7 @@
                 x: {
                     beginAtZero: true,
                     ticks: {
-                        callback: function (value) {
+                        callback: function(value) {
                             return 'R$ ' + value.toFixed(2);
                         }
                     },
@@ -183,13 +195,16 @@
             plugins: {
                 tooltip: {
                     callbacks: {
-                        label: function (context) {
+                        label: function(context) {
                             let label = context.label || '';
                             if (label) {
                                 label += ': ';
                             }
                             if (context.parsed !== null) {
-                                label += new Intl.NumberFormat('pt-BR', { style: 'currency', currency: 'BRL' }).format(context.parsed);
+                                label += new Intl.NumberFormat('pt-BR', {
+                                    style: 'currency',
+                                    currency: 'BRL'
+                                }).format(context.parsed);
                             }
                             return label;
                         }
@@ -208,7 +223,7 @@
         }
     });
 
-    document.forms[0].addEventListener('submit', function (event) {
+    document.forms[0].addEventListener('submit', function(event) {
 
         if (startDate.value == "") {
             event.preventDefault();

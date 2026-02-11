@@ -42,7 +42,6 @@
                         <?php foreach ($availableFilterOptions['naturezas'] as $natureza): ?>
                             <?php
                                 $selected = $natureza['id'] == $filters['natureza'] ? 'selected' : '';
-                                echo "uwu: $selected";
                             ?>
                             <option <?= $selected ?> value="<?= $natureza['id'] ?>"><?= $natureza['nome'] ?></option>
                         <?php endforeach; ?>
