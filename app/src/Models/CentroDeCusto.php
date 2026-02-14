@@ -181,7 +181,7 @@ class CentroDeCusto
                 }
 
                 if ($centroAntigo->getCategoriaId() != null && $centroAntigo->isEnabled() != $this->enabled) {
-                    Logger::log(self::$tableName, 'sub-centro: ' . $this->nome, $centroAntigo->isEnabled() ? 'ativado' : 'inativado', $this->enabled ? 'ativado': 'inativado', $centroAntigo->getCategoriaId(), $_SESSION['usuario_id']);
+                    Logger::log(self::$tableName, 'sub-centro: ' . $this->nome, $centroAntigo->isEnabled() ? 'ativado' : 'inativado', $this->enabled ? 'ativado' : 'inativado', $centroAntigo->getCategoriaId(), $_SESSION['usuario_id']);
                 }
 
                 return true;
@@ -269,7 +269,7 @@ class CentroDeCusto
                     }
                 }
             };
-            
+
             if (!$enabled) {
                 return $rows;
             }
@@ -307,7 +307,7 @@ class CentroDeCusto
         return new CentroDeCusto($id, $nome, $data_criacao, $data_edicao, $enabled, $categoria_id);
     }
 
-    public static function getTotalsByPeriod(string $start, string $end, string $status = 'todas'): array
+    public static function getTotalsByPeriod(string $start, string $end, string $status = 'todas', string $naturezaId = 'all'): array
     {
         $sql = "SELECT 
                     cc.nome, 
@@ -324,11 +324,18 @@ class CentroDeCusto
             $sql .= " AND p.paid = 1";
         }
 
+        if ($naturezaId != 'all') {
+            $sql .= " AND c.natureza_id = :natureza_id";
+        }
+
         $sql .= " GROUP BY cc.id
                 ORDER BY total DESC";
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
+            if ($naturezaId != 'all') {
+                $stmt->bindParam(':natureza_id', $naturezaId, PDO::PARAM_INT);
+            }
             $stmt->bindParam(':start', $start);
             $stmt->bindParam(':end', $end);
             $stmt->execute();

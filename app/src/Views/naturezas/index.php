@@ -22,7 +22,7 @@
     use App\Controllers\Services\Money;
 
     if ($naturezas == []) {
-        echo '<p> Nenhum natureza encontrada.</p>';
+        echo '<p> Nenhuma natureza encontrada.</p>';
     }
     ?>
 

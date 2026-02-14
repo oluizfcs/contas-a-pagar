@@ -11,7 +11,7 @@ WORKDIR /app
 RUN --mount=type=bind,source=composer.json,target=composer.json \
     --mount=type=bind,source=composer.lock,target=composer.lock \
     --mount=type=cache,target=/tmp/cache \
-    composer install --no-dev --no-interaction
+    composer install --no-dev --no-interaction --ignore-platform-req=ext-gd
 
 FROM php:8.5-apache as base
 
@@ -21,10 +21,15 @@ RUN a2enmod rewrite && \
 RUN apt-get update && apt-get install -y \
     libicu-dev \
     libonig-dev \
+    libfreetype-dev \
+    libjpeg62-turbo-dev \
+    libpng-dev \
     && docker-php-ext-configure intl \
     && docker-php-ext-install intl \
     && docker-php-ext-install mbstring \
-    && docker-php-ext-install pdo_mysql
+    && docker-php-ext-install pdo_mysql \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install -j$(nproc) gd
 RUN docker-php-ext-enable intl mbstring
 
 COPY --from=deps app/vendor/ /var/www/vendor
@@ -32,7 +37,8 @@ COPY ./src /var/www/src
 
 COPY ./config/custom-php.ini /usr/local/etc/php/conf.d
 COPY ./public /var/www/html
-RUN mkdir /var/www/Logs
+RUN mkdir /var/www/Logs \
+ && chown www-data /var/www/vendor/mpdf/mpdf/tmp/
 
 FROM base as production
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
@@ -40,6 +46,6 @@ USER www-data
 
 FROM base as development
 RUN pecl install xdebug && \
-docker-php-ext-enable xdebug
+    docker-php-ext-enable xdebug
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 USER www-data

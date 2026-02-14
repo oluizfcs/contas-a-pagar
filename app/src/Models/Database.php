@@ -141,4 +141,79 @@ class Database
         $stmt = self::getConnection()->query("SELECT id, nome FROM $table WHERE `enabled` = 1");
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+    public static function getReport(
+        $startDate,
+        $endDate,
+        $naturezaId = 'all',
+        $centroId = 'all',
+        $fornecedorId = 'all',
+        $status = 'all'
+    ): array {
+        try {
+            $query = "SELECT 
+                    data_vencimento,
+                    natureza.nome natureza,
+                    centro_de_custo.nome centro,
+                    fornecedor.nome fornecedor,
+                    conta.descricao,
+                    parcela.valor_em_centavos
+                FROM parcela
+                INNER JOIN conta ON parcela.conta_id = conta.id
+                INNER JOIN natureza ON conta.natureza_id = natureza.id
+                INNER JOIN centro_de_custo ON conta.centro_de_custo_id = centro_de_custo.id
+                LEFT JOIN fornecedor ON conta.fornecedor_id = fornecedor.id
+                WHERE conta.enabled = 1
+            ";
+
+            switch ($status) {
+                case 'unpaid':
+                    $query .= ' AND parcela.paid = 0';
+                    break;
+                case 'paid':
+                    $query .= ' AND parcela.paid = 1';
+                    break;
+            }
+
+            if ($naturezaId != 'all') {
+                $query .= " AND natureza.id = :natureza_id";
+            }
+
+            if ($centroId != 'all') {
+                $query .= " AND centro_de_custo.id = :centro_id";
+            }
+
+            if ($fornecedorId != 'all') {
+                $query .= " AND fornecedor.id = :fornecedor_id";
+            }
+
+            $query .= ' AND data_vencimento BETWEEN :startDate AND :endDate';
+
+            $stmt = self::getConnection()->prepare($query);
+
+            $stmt->bindParam(':startDate', $startDate, PDO::PARAM_STR);
+            $stmt->bindParam(':endDate', $endDate, PDO::PARAM_STR);
+
+            if ($naturezaId != 'all') {
+                $stmt->bindParam(':natureza_id', $naturezaId, PDO::PARAM_INT);
+            }
+
+            if ($centroId != 'all') {
+                $stmt->bindParam(':centro_id', $centroId, PDO::PARAM_INT);
+            }
+
+            if ($fornecedorId != 'all') {
+                $stmt->bindParam(':fornecedor_id', $fornecedorId, PDO::PARAM_INT);
+            }
+
+            $stmt->execute();
+
+            return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } catch (PDOException $e) {
+            Logger::error('Erro ao gerar relatório: ' . $e->getMessage(), ['usuario_id' => $_SESSION['usuario_id']]);
+            $_SESSION['message'] = ['Não foi possível gerar relatório', 'fail'];
+            header('Location: ' . $_ENV['BASE_URL'] . '/relatorios');
+            exit;
+        }
+    }
 }

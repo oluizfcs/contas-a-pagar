@@ -258,7 +258,7 @@ class Fornecedor
         return new Fornecedor($id, $nome, $telefone, $data_criacao, $data_edicao, $enabled);
     }
 
-    public static function getTopByPeriod(string $start, string $end, int $limit = 10, string $status = 'todas'): array
+    public static function getTopByPeriod(string $start, string $end, int $limit = 10, string $status = 'todas', string $naturezaId = 'all'): array
     {
         $sql = "SELECT 
                     f.nome, 
@@ -275,12 +275,19 @@ class Fornecedor
             $sql .= " AND p.paid = 1";
         }
 
+        if ($naturezaId != 'all') {
+            $sql .= " AND c.natureza_id = :natureza_id";
+        }
+
         $sql .= " GROUP BY f.id
                 ORDER BY total DESC
                 LIMIT :limit";
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
+            if ($naturezaId != 'all') {
+                $stmt->bindParam(':natureza_id', $naturezaId, PDO::PARAM_INT);
+            }
             $stmt->bindParam(':start', $start);
             $stmt->bindParam(':end', $end);
             $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);

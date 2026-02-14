@@ -47,7 +47,7 @@
                         <?php endforeach; ?>
                     </select>
                     <br>
-                    <label for="centro">Centro:</label>
+                    <label for="centro">Centro de custo:</label>
                     <select name="centro" id="centro" class="select2">
                         <option value="all">Todos</option>
                         <?php foreach ($availableFilterOptions['centros'] as $centro): ?>

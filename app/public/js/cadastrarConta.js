@@ -220,9 +220,9 @@ document.forms[0].addEventListener("submit", function (e) {
         inputValorTotalConta.focus();
         inputValorTotalConta.setSelectionRange(0, -1);
         return;
-    } else if (document.getElementById("descricao").value.length > 500) {
+    } else if (document.getElementById("descricao").value.length > 400) {
         e.preventDefault();
-        alert("A descrição não pode exceder 500 caracteres.");
+        alert("A descrição não pode exceder 400 caracteres.");
         document.getElementById("descricao").focus();
         return;
     } else if (formaPagamento == "parcelado") {

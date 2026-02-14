@@ -75,8 +75,8 @@ class Dashboard
             }
         }
 
-        $topSuppliers = Fornecedor::getTopByPeriod($startDate, $endDate, 10, $status);
-        $costCenterTotals = CentroDeCusto::getTotalsByPeriod($startDate, $endDate, $status);
+        $topSuppliers = Fornecedor::getTopByPeriod($startDate, $endDate, 10, $status, $naturezaId);
+        $costCenterTotals = CentroDeCusto::getTotalsByPeriod($startDate, $endDate, $status, $naturezaId);
 
         $chartData = [
             'daily' => $dailyTotals,

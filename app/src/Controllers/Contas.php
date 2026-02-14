@@ -102,8 +102,8 @@ class Contas
             $descricao = "Nenhuma observação foi informada.";
         }
 
-        if (strlen(trim($descricao)) >= 500) {
-            $_SESSION['message'] = ['A descrição não pode exceder 500 caracteres', 'fail'];
+        if (strlen(trim($descricao)) >= 400) {
+            $_SESSION['message'] = ['A descrição não pode exceder 400 caracteres', 'fail'];
             $_SESSION['post_data'] = $_POST;
             header('Location: ' . $_ENV['BASE_URL'] . '/contas/cadastrar');
             exit;

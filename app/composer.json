@@ -1,6 +1,7 @@
 {
     "name": "oluizfcs/contas-a-pagar",
     "description": "A side project to understand more about web development.",
+    "license": "GPL-2.0",
     "type": "project",
     "authors": [
         {
@@ -12,6 +13,7 @@
         "psr-4": {"App\\": "src/"}
     },
     "require": {
-        "monolog/monolog": "^3.9"
+        "monolog/monolog": "^3.9",
+        "mpdf/mpdf": "^8.2"
     }
 }

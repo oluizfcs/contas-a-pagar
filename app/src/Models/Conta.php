@@ -321,7 +321,7 @@ class Conta
         try {
             $stmt = Database::getConnection()->prepare($sql);
             if (strlen($search) > 0) {
-                $stmt->bindParam(':descricao', $search, PDO::PARAM_STR);
+                $stmt->bindValue(':descricao',  '%'.$search.'%', PDO::PARAM_STR);
             }
 
             if ($naturezaId != 'all') {
