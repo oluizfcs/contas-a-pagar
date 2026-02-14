@@ -162,7 +162,7 @@
                             <td><?= $parcela['centro'] ?></td>
                             <td><?= $parcela['fornecedor'] ?? '-' ?></td>
                             <td><?= Money::centavos_para_reais($parcela['valor_em_centavos']) ?></td>
-                            <td><?= new DateTime($parcela['data_vencimento'])->format('d/m/Y') ?></td>
+                            <td class="nextInstallment"><?= new DateTime($parcela['data_vencimento'])->format('d/m/Y') ?></td>
                             <td><?= $parcela['numero_parcela'] . '/' . $parcela['total_parcelas'] ?></td>
                         </tr>
                     <?php endforeach; ?>
