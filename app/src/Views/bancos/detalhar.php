@@ -45,7 +45,7 @@ use App\Models\Conta;
     <h2><i class="fa-solid fa-arrow-down"></i> Depósitos</h2>
         <?php if (count($depositos) > 0): ?>
         <div class="table-section">
-            <table class="sortable">
+            <table>
                 <tr>
                     <th>Valor (R$)</th>
                     <th>Depositado em</th>
@@ -69,7 +69,7 @@ use App\Models\Conta;
     <h2><i class="fa-solid fa-hand-holding-dollar"></i> Parcelas pagas</h2>
         <?php if (count($parcelas) > 0): ?>
         <div class="table-section">
-            <table class="sortable">
+            <table>
                 <tr>
                     <th>Centro de custo</th>
                     <th>Fornecedor</th>

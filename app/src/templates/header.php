@@ -9,12 +9,13 @@
     <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/reset.css">
     <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/style.css">
     <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/bsbuttons.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/cleave.js/1.6.0/cleave.min.js"></script>
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js" type="text/javascript"></script>
+    <link rel="stylesheet" href="<?= $_ENV['BASE_URL'] ?>/css/solid.min.css">
+    <script src="<?= $_ENV['BASE_URL'] ?>/js/fontawesome.min.js"></script>
+    <script src="<?= $_ENV['BASE_URL'] ?>/js/solid.min.js"></script>
+    <script src="<?= $_ENV['BASE_URL'] ?>/js/jquery.min.js" type="text/javascript"></script>
     <script src="<?= $_ENV['BASE_URL'] ?>/js/jquery.maskMoney.js" type="text/javascript"></script>
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <link href="<?= $_ENV['BASE_URL'] ?>/css/select2.min.css" rel="stylesheet" />
+    <script src="<?= $_ENV['BASE_URL'] ?>/js/select2.min.js"></script>
 </head>
 
 <body>

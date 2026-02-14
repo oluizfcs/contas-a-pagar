@@ -43,7 +43,7 @@ Telefone: <?= $fornecedor->getTelefone() ?? '<span style="color: #999;">N/A</spa
     <div class="section">
         <h2><i class="fa-solid fa-receipt"></i> Contas a pagar</h2>
         <div class="table-section">
-            <table class="sortable" id="contas-table">
+            <table id="contas-table">
                 <tr>
                     <th>Centro de Custo</th>
                     <th>Próximo vencimento</th>

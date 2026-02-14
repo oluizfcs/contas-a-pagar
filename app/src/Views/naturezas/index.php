@@ -28,7 +28,7 @@
 
     <?php if (count($naturezas) > 0): ?>
         <div class="table-section">
-            <table class="sortable">
+            <table>
                 <thead>
                     <tr>
                         <th rowspan="2">Nome</th>

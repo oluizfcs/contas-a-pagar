@@ -46,7 +46,7 @@ use App\Models\CentroDeCusto;
     <div class="section">
         <h2><i class="fa-solid fa-receipt"></i> Contas a pagar</h2>
         <div class="table-section">
-            <table class="sortable" id="contas-table">
+            <table id="contas-table">
                 <tr>
                     <th>Fornecedor</th>
                     <th>Próximo vencimento</th>
@@ -94,7 +94,7 @@ use App\Models\CentroDeCusto;
     <div class="section">
         <h2><i class="fa-solid fa-receipt"></i> Sub-centros</h2>
         <div class="table-section">
-            <table class="sortable" id="centros-table">
+            <table id="centros-table">
                 <thead>
                     <tr>
                         <th>Nome</th>

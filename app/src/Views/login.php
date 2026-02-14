@@ -25,7 +25,7 @@
     </form>
 </div>
 
-<script src="https://unpkg.com/imask"></script>
+<script src="<?= $_ENV['BASE_URL'] . '/js/imask.js' ?>"></script>
 <script>
     const cpf = document.getElementById("cpf");
     const maskOptions = {

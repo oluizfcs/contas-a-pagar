@@ -33,7 +33,7 @@
 
     <?php if (count($usuarios) > 0): ?>
         <div class="table-section">
-            <table class="sortable">
+            <table>
                 <tr>
                     <th>Nome</th>
                     <th class="sorttable_nosort">CPF</th>

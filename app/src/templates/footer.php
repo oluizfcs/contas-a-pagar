@@ -1,7 +1,6 @@
         </div>
     </div>
 <script src="<?= $_ENV['BASE_URL'] ?>/js/charcounter.js"></script>
-<script src="<?= $_ENV['BASE_URL'] ?>/js/sorttable.js"></script>
 <script>
 $(document).ready(function () {
     $('.select2').select2({
