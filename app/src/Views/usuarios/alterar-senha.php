@@ -30,12 +30,6 @@
 </div>
 
 <script>
-    var cleave = new Cleave('#cpf', {
-        delimiters: ['.', '.', '-'],
-        blocks: [3, 3, 3, 2],
-        numericOnly: true
-    });
-
     function check() {
         let senha = document.getElementById("senha").value;
         let confirmarsenha = document.getElementById("confirmarsenha").value;

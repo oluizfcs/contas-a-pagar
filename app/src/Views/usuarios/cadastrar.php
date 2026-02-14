@@ -49,12 +49,14 @@
     </div>
 </div>
 
+<script src="<?= $_ENV['BASE_URL'] ?>/js/imask.js"></script>
 <script>
-    var cleave = new Cleave('#cpf', {
-        delimiters: ['.', '.', '-'],
-        blocks: [3, 3, 3, 2],
-        numericOnly: true
-    });
+    const cpf = document.getElementById("cpf");
+    const maskOptions = {
+        mask: '000.000.000-00'
+    }
+
+    IMask(cpf, maskOptions);
 
     function check() {
         let senha = document.getElementById("senha").value;
