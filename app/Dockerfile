@@ -15,7 +15,7 @@ RUN --mount=type=bind,source=composer.json,target=composer.json \
 
 FROM php:8.5-apache as base
 
-RUN a2enmod rewrite && \
+RUN a2enmod rewrite ssl && \
     echo "ServerName localhost" >> /etc/apache2/apache2.conf
 
 RUN apt-get update && apt-get install -y \
@@ -32,13 +32,25 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install -j$(nproc) gd
 RUN docker-php-ext-enable intl mbstring
 
+COPY ./config/apache/server.crt /etc/ssl/certs/server.crt
+COPY ./config/apache/server.key /etc/ssl/private/server.key
+RUN chmod 755 /etc/ssl/private && chmod 644 /etc/ssl/private/server.key
+COPY ./config/apache/http.conf /etc/apache2/sites-available/000-default.conf
+COPY ./config/apache/https.conf /etc/apache2/sites-available/default-ssl.conf
+
+RUN a2ensite default-ssl.conf
+
 COPY --from=deps app/vendor/ /var/www/vendor
 COPY ./src /var/www/src
 
 COPY ./config/custom-php.ini /usr/local/etc/php/conf.d
 COPY ./public /var/www/html
 RUN mkdir /var/www/Logs \
- && chown www-data /var/www/vendor/mpdf/mpdf/tmp/
+    && chown www-data /var/www/vendor/mpdf/mpdf/tmp/
+
+EXPOSE 80 443
+
+CMD ["apache2-foreground"]
 
 FROM base as production
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"

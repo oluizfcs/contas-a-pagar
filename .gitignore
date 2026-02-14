@@ -1,3 +1,5 @@
 /app/vendor/
 /app/config/.env
 /app/public/images/
+/app/config/apache/ca*
+/app/config/apache/server*
