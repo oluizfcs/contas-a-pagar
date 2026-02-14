@@ -44,7 +44,7 @@ class Logger
         string $campo,
         string $valor_antigo,
         string $valor_novo,
-        int $entidade_id,
+        int|null $entidade_id,
         int $usuario_id
     ): void {
 
