@@ -13,7 +13,7 @@ class Logger
     public static function error(string $message, array $context = [])
     {
         $log = new Monolog('monolog');
-        $log->pushHandler(new StreamHandler('php://stdout'));
+        $log->pushHandler(new StreamHandler('../Logs/errors.log'));
 
         $log->error($message, $context);
     }
