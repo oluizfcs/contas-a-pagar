@@ -9,14 +9,14 @@ use App\Models\Banco;
 use App\Models\Parcela;
 use App\Models\Deposito;
 
-class Bancos
+class Cadastros
 {
     public static bool $needLogin = true;
-    public static bool $onlyAdmin = false;
-    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar', 'depositar'];
+    public static bool $onlyAdmin = true;
+    private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';
-    private bool $enabled = true;
+    private string $status = 'todos';
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -26,7 +26,7 @@ class Bancos
                 $this->id = $id;
             } else {
                 $_SESSION['message'] = ['Conta bancária não encontrada', 'fail'];
-                header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
+                header('Location: ' . $_ENV['BASE_URL'] . '/cadastros');
                 exit;
             }
         }
@@ -49,11 +49,11 @@ class Bancos
                     $this->depositar();
                     break;
                 case 'search':
-                    $_SESSION['bancos_filters'] = [
+                    $_SESSION['cadastros_filters'] = [
                         'search' => $_POST['search'],
-                        'enabled' => $_POST['enabled']
+                        'status' => $_POST['status']
                     ];
-                    header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
+                    header('Location: ' . $_ENV['BASE_URL'] . '/cadastros');
                     exit;
                     break;
             }
@@ -72,7 +72,7 @@ class Bancos
             $d = new Deposito(0, $_SESSION['usuario_id'], $b->lastInsertId, $saldoDeAbertura, 'Saldo de abertura', '');
             $d->save();
             $_SESSION['message'] = ['Banco cadastrado com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
+            header('Location: ' . $_ENV['BASE_URL'] . '/cadastros');
             exit;
         }
     }
@@ -84,7 +84,7 @@ class Bancos
 
         if ($b->save()) {
             $_SESSION['message'] = ['Banco atualizado com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar/' . $_POST['entity_id']);
+            header('Location: ' . $_ENV['BASE_URL'] . '/cadastros/detalhar/' . $_POST['entity_id']);
             exit;
         }
     }
@@ -97,7 +97,7 @@ class Bancos
         if ($b->save()) {
             Logger::log_unable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Banco inativado com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar/' . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/cadastros/detalhar/' . $b->getId());
             exit;
         }
     }
@@ -110,7 +110,7 @@ class Bancos
         if ($b->save()) {
             Logger::log_enable(Banco::$tableName, $b->getId(), $_SESSION['usuario_id']);
             $_SESSION['message'] = ['Banco ativado com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar/' . $b->getId());
+            header('Location: ' . $_ENV['BASE_URL'] . '/cadastros/detalhar/' . $b->getId());
             exit;
         }
     }
@@ -123,7 +123,7 @@ class Bancos
 
         if($valor > Deposito::$LIMITE_DEPOSITO) {
             $_SESSION['message'] = ['O limite para depósitos é de R$ ' . Money::centavos_para_reais(Deposito::$LIMITE_DEPOSITO), 'fail'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/depositar/' . $_POST['banco_id']);
+            header('Location: ' . $_ENV['BASE_URL'] . '/cadastros/depositar/' . $_POST['banco_id']);
             exit;
         }
 
@@ -131,7 +131,7 @@ class Bancos
         $descricao = $_POST['descricao'];
         if (strlen($descricao) > 255) {
             $_SESSION['message'] = ['Descrição muito longa!', 'fail'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar/' . $banco_id);
+            header('Location: ' . $_ENV['BASE_URL'] . '/cadastros/detalhar/' . $banco_id);
             exit;
         }
         $banco = Banco::getById($banco_id);
@@ -143,7 +143,7 @@ class Bancos
 
         if ($d->save()) {
             $_SESSION['message'] = ['Depósito realizado com sucesso!', 'success'];
-            header('Location: ' . $_ENV['BASE_URL'] . '/bancos/detalhar/' . $banco_id);
+            header('Location: ' . $_ENV['BASE_URL'] . '/cadastros/detalhar/' . $banco_id);
             exit;
         }
     }
@@ -166,19 +166,25 @@ class Bancos
         }
 
         if ($view == 'index') {
-            $this->search = $_SESSION['bancos_filters']['search'] ?? $this->search;
-            $this->enabled = $_SESSION['bancos_filters']['enabled'] ?? $this->enabled;
 
-            unset($_SESSION['bancos_filters']);
+            $this->search = $_SESSION['cadastros_filters']['search'] ?? $this->search;
+            $this->status = $_SESSION['cadastros_filters']['status'] ?? $this->status;
 
-            $bancos = Banco::getAll($this->enabled, $this->search);
+            $enabled = $this->status != 'inativadas';
+            $paid = $this->status == 'contas pagas';
+
+            if($this->status == 'todos') {
+                $paid = 2;
+            }
+
+            $cadastros = Banco::getAll($enabled, $paid, $this->search);
         }
 
         include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
-            include "../src/Views/bancos/form.php";
+            include "../src/Views/cadastros/form.php";
         } else {
-            include "../src/Views/bancos/$view.php";
+            include "../src/Views/cadastros/$view.php";
         }
         include '../src/templates/footer.php';
     }

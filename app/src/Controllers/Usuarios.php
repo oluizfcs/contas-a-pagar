@@ -138,6 +138,8 @@ class Usuarios
         $this->search = $filters['search'];
         $this->mostrar = $filters['mostrar'];
 
+        unset($_SESSION['usuarios_filters']);
+
         if (!in_array($view, $this->views)) {
             include 'src/404.php';
             exit;
@@ -174,7 +176,12 @@ class Usuarios
         }
 
         include '../src/templates/header.php';
-        include "../src/Views/usuarios/$view.php";
+        if ($view == 'index') {
+            include '../src/Views/cadastros/index.php';
+            include '../src/Views/usuarios/index.php';
+        } else {
+            include "../src/Views/usuarios/$view.php";
+        }
         include '../src/templates/footer.php';
     }
 }

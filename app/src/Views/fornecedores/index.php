@@ -1,4 +1,4 @@
-<h1>Fornecedores</h1>
+<h1>Fornecedores<?= !$this->enabled ? ' inativados' : '' ?></h1>
 <a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/fornecedores/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <div class="section">
     <div class="section search-section">
@@ -6,20 +6,18 @@
             <input type="hidden" name="type" value="search">
             <i class="search-icon fa-solid fa-magnifying-glass"></i>
             <input type="text" name="search" id="search" autocomplete="off" value="<?= $this->search ?? '' ?>">
-            <select name="status" onchange="form.submit()">
-                <?php
-                $options = ['contas a pagar', 'contas pagas', 'todos', 'inativados'];
-                foreach ($options as $option) {
-                    $selected = $this->status == $option ? 'selected' : '';
-                    echo "<option value='$option' $selected>" . ucfirst($option) . '</option>';
-                }
-                ?>
-            </select>
+            <label>
+                <input type="radio" name="enabled" value="1" <?= $this->enabled ? 'checked' : '' ?> onclick="form.submit()">
+                ativos
+            </label>
+
+            <label>
+                <input type="radio" name="enabled" value="0" <?= !$this->enabled ? 'checked' : '' ?> onclick="form.submit()">
+                inativados
+            </label>
         </form>
     </div>
     <?php
-
-    use App\Controllers\Services\Money;
 
     if ($fornecedores == []) {
         echo '<p> Nenhum fornecedor encontrado.</p>';
@@ -31,31 +29,18 @@
             <table>
                 <thead>
                     <tr>
-                        <th rowspan="2">Nome</th>
-                        <th rowspan="2">Telefone</th>
-                        <?php
-                        $txt = $this->status;
-                        if ($this->status == 'todos' || $this->status == 'inativados') {
-                            $txt = 'todas as contas';
-                        }
-                        ?>
-                        <th colspan="3"><?= ucfirst($txt) ?></th>
-                    </tr>
-                    <tr>
-                        <th>Total (R$)</th>
-                        <th>Quantidade</th>
-                        <th>Média (R$)</th>
+                        <th>Nome</th>
+                        <th>Telefone</th>
                     </tr>
                 </thead>
-                <?php foreach ($fornecedores as $fornecedor): ?>
-                    <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/fornecedores/detalhar/<?= $fornecedor['id'] ?>';">
-                        <td><?= $fornecedor['nome'] ?></td>
-                        <td><?= $fornecedor['telefone'] ?? '-' ?></td>
-                        <td><?= Money::centavos_para_reais($fornecedor['total']) ?></td>
-                        <td><?= $fornecedor['quantidade'] ?></td>
-                        <td><?= Money::centavos_para_reais($fornecedor['media']) ?></td>
-                    </tr>
-                <?php endforeach; ?>
+                <tbody>
+                    <?php foreach ($fornecedores as $fornecedor): ?>
+                        <tr onclick="window.location.href='<?= $_ENV['BASE_URL'] ?>/fornecedores/detalhar/<?= $fornecedor['id'] ?>';">
+                            <td><?= $fornecedor['nome'] ?></td>
+                            <td><?= $fornecedor['telefone'] ?? '-' ?></td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
             </table>
         </div>
 </div>

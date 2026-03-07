@@ -1,6 +1,11 @@
 <?php
 
-$controllers = ['Dashboard', 'Contas', 'Usuarios', 'Fornecedores', 'Bancos', 'CentrosDeCusto', 'Login', 'Relatorios', 'Naturezas'];
+$controllers = [
+    'Dashboard', 'Contas', 'Usuarios',
+    'Fornecedores', 'Bancos', 'CentrosDeCusto',
+    'Login', 'Relatorios', 'Naturezas',
+    'Cadastros', 'Admin'
+];
 
 $url = explode('/', rtrim(filter_input(INPUT_GET, 'url', FILTER_DEFAULT), '/'), 5);
 

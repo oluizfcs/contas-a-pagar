@@ -198,37 +198,19 @@ class Fornecedor
         }
     }
 
-    public static function getAll(bool $enabled, int $paid, string $search): array
+    public static function getAll(bool $enabled, string $search): array
     {
-        $sql = "SELECT 
-            fornecedor.id,
-            nome,
-            telefone,
-            SUM(valor_em_centavos) as total,
-            COUNT(conta.id) as quantidade,
-            SUM(valor_em_centavos) / COUNT(conta.id) as media
+        $sql = "SELECT id, nome, telefone
         FROM fornecedor
-        LEFT JOIN conta ON fornecedor.id = fornecedor_id
-        WHERE fornecedor.enabled = :enabled
-        AND (conta.enabled = 1 OR conta.enabled IS NULL)";
-
-        if (($paid == 0) && $enabled) {
-            $sql = $sql . ' AND conta.paid = 0';
-        }
-
-        if ($paid == 1) {
-            $sql = $sql . ' AND conta.paid = 1';
-        }
+        WHERE fornecedor.enabled = :enabled";
 
         if (strlen($search) > 0) {
             $sql = $sql . ' AND nome LIKE :search OR telefone LIKE :search';
         }
 
-        $sql = $sql . ' GROUP BY fornecedor.id';
-
         try {
             $stmt = Database::getConnection()->prepare($sql);
-            $stmt->bindValue(':enabled', $enabled ? 1 : 0);
+            $stmt->bindValue(':enabled', $enabled, PDO::PARAM_BOOL);
 
             if (strlen($search) > 0) {
                 $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
@@ -238,7 +220,7 @@ class Fornecedor
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao listar fornecedores', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao listar fornecedores', ['enabled' => $enabled, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
@@ -258,7 +240,7 @@ class Fornecedor
         return new Fornecedor($id, $nome, $telefone, $data_criacao, $data_edicao, $enabled);
     }
 
-    public static function getTopByPeriod(string $start, string $end, int $limit = 10, string $status = 'todas', string $naturezaId = 'all'): array
+    public static function getTotalsByPeriod(string $start, string $end, string $status = 'todas', string $naturezaId = 'all'): array
     {
         $sql = "SELECT 
                     f.nome, 
@@ -280,8 +262,7 @@ class Fornecedor
         }
 
         $sql .= " GROUP BY f.id
-                ORDER BY total DESC
-                LIMIT :limit";
+                ORDER BY total DESC";
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
@@ -290,12 +271,11 @@ class Fornecedor
             }
             $stmt->bindParam(':start', $start);
             $stmt->bindParam(':end', $end);
-            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
             $stmt->execute();
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao buscar top fornecedores', ['start' => $start, 'end' => $end, 'status' => $status, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao buscar totais por fornecedores', ['start' => $start, 'end' => $end, 'status' => $status, 'PDOException' => $e->getMessage()]);
             return [];
         }
     }

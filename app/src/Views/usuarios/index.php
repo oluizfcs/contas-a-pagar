@@ -1,4 +1,4 @@
-<h1>Usuarios<?= $this->mostrar == 'inativados' ? ' Inativados' : '' ?></h1>
+<h1>Usuarios<?= $this->mostrar == ' inativados' ? $this->mostrar : '' ?></h1>
 <?php if ($_SESSION['usuario_id'] == 1): ?>
     <a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/usuarios/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <?php endif; ?>

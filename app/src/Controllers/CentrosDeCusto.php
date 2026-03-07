@@ -10,11 +10,11 @@ use App\Models\Conta;
 class CentrosDeCusto
 {
     public static bool $needLogin = true;
-    public static bool $onlyAdmin = false;
+    public static bool $onlyAdmin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';
-    private string $status = 'todos';
+    private bool $enabled = true;
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -46,7 +46,7 @@ class CentrosDeCusto
                 case 'search':
                     $_SESSION['centrosDeCusto_filters'] = [
                         'search' => $_POST['search'],
-                        'status' => $_POST['status']
+                        'enabled' => $_POST['enabled']
                     ];
                     header('Location: ' . $_ENV['BASE_URL'] . '/centros-de-custo');
                     exit;
@@ -153,23 +153,20 @@ class CentrosDeCusto
             ];
 
             $this->search = $_SESSION['centrosDeCusto_filters']['search'] ?? $this->search;
-            $this->status = $_SESSION['centrosDeCusto_filters']['status'] ?? $this->status;
+            $this->enabled = $_SESSION['centrosDeCusto_filters']['enabled'] ?? $this->enabled;
 
+            unset($_SESSION['centrosDeCusto_filters']);
 
-            $enabled = $this->status != 'inativados';
-            $paid = $this->status == 'contas pagas';
-
-            if ($this->status == 'todos') {
-                $paid = 2;
-            }
-
-            $centrosDeCusto = CentroDeCusto::getAll($enabled, $paid, $this->search);
+            $centrosDeCusto = CentroDeCusto::getAll($this->enabled, $this->search);
         }
 
         include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
             $categorias = CentroDeCusto::getAll(true, 2, '');
             include "../src/Views/centros-de-custo/form.php";
+        } elseif ($view == 'index') {
+            include '../src/Views/cadastros/index.php';
+            include '../src/Views/centros-de-custo/index.php';
         } else {
             include "../src/Views/centros-de-custo/$view.php";
         }

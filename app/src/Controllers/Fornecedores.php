@@ -10,11 +10,11 @@ use App\Models\Conta;
 class Fornecedores
 {
     public static bool $needLogin = true;
-    public static bool $onlyAdmin = false;
+    public static bool $onlyAdmin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';
-    private string $status = 'todos';
+    private bool $enabled = true;
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -46,7 +46,7 @@ class Fornecedores
                 case 'search':
                     $_SESSION['fornecedores_filters'] = [
                         'search' => $_POST['search'],
-                        'status' => $_POST['status']
+                        'enabled' => $_POST['enabled']
                     ];
                     header('Location: ' . $_ENV['BASE_URL'] . '/fornecedores');
                     exit;
@@ -139,21 +139,19 @@ class Fornecedores
         if ($view == 'index') {
 
             $this->search = $_SESSION['fornecedores_filters']['search'] ?? $this->search;
-            $this->status = $_SESSION['fornecedores_filters']['status'] ?? $this->status;
+            $this->enabled = $_SESSION['fornecedores_filters']['enabled'] ?? $this->enabled;
 
-            $enabled = $this->status != 'inativados';
-            $paid = $this->status == 'contas pagas';
+            unset($_SESSION['fornecedores_filters']);
 
-            if ($this->status == 'todos') {
-                $paid = 2;
-            }
-
-            $fornecedores = Fornecedor::getAll($enabled, $paid, $this->search);
+            $fornecedores = Fornecedor::getAll($this->enabled, $this->search);
         }
 
         include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
-            include "../src/Views/fornecedores/form.php";
+            include '../src/Views/fornecedores/form.php';
+        } elseif ($view == 'index') {
+            include '../src/Views/cadastros/index.php';
+            include '../src/Views/fornecedores/index.php';
         } else {
             include "../src/Views/fornecedores/$view.php";
         }

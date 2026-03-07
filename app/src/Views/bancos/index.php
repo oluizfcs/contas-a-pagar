@@ -1,4 +1,4 @@
-<h1>Contas bancárias</h1>
+<h1>Contas bancárias<?= !$this->enabled ? ' inativadas' : '' ?></h1>
 <a class="btn btn-success" href="<?= $_ENV['BASE_URL'] ?>/bancos/cadastrar"><i class="fa-solid fa-plus"></i> Cadastrar</a>
 <div class="section">
     <div class="section search-section">
@@ -6,16 +6,15 @@
             <input type="hidden" name="type" value="search">
             <i class="search-icon fa-solid fa-magnifying-glass"></i>
             <input type="text" name="search" id="search" autocomplete="off" value="<?= $this->search ?? '' ?>">
-            <select name="status" onchange='form.submit()'>
-                <?php
-                $options = ['contas a pagar', 'contas pagas', 'todos', 'inativadas'];
+            <label>
+                <input type="radio" name="enabled" value="1" <?= $this->enabled ? 'checked' : '' ?> onclick="form.submit()">
+                ativas
+            </label>
 
-                foreach ($options as $option) {
-                    $selected = $this->status == $option ? 'selected' : '';
-                    echo "<option value='$option' $selected>" . ucfirst($option) . '</option>';
-                }
-                ?>
-            </select>
+            <label>
+                <input type="radio" name="enabled" value="0" <?= !$this->enabled ? 'checked' : '' ?> onclick="form.submit()">
+                inativadas
+            </label>
         </form>
     </div>
     <?php
@@ -23,7 +22,7 @@
     use App\Controllers\Services\Money;
 
     if ($bancos == []) {
-        echo '<p> Nenhum banco encontrado.</p>';
+        echo '<p> Nenhuma conta bancária encontrada.</p>';
     }
     ?>
 

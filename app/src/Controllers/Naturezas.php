@@ -10,11 +10,11 @@ use App\Models\Conta;
 class Naturezas
 {
     public static bool $needLogin = true;
-    public static bool $onlyAdmin = false;
+    public static bool $onlyAdmin = true;
     private array $views = ['index', 'cadastrar', 'detalhar', 'atualizar'];
     private int $id;
     private string $search = '';
-    private string $status = 'todas';
+    private bool $enabled = true;
 
     function __construct(string $view = 'index', string $param = '')
     {
@@ -46,7 +46,7 @@ class Naturezas
                 case 'search':
                     $_SESSION['naturezas_filters'] = [
                         'search' => $_POST['search'],
-                        'status' => $_POST['status']
+                        'enabled' => $_POST['enabled']
                     ];
                     header('Location: ' . $_ENV['BASE_URL'] . '/naturezas');
                     exit;
@@ -144,21 +144,19 @@ class Naturezas
         if ($view == 'index') {
 
             $this->search = $_SESSION['naturezas_filters']['search'] ?? $this->search;
-            $this->status = $_SESSION['naturezas_filters']['status'] ?? $this->status;
+            $this->enabled = $_SESSION['naturezas_filters']['enabled'] ?? $this->enabled;
 
-            $enabled = $this->status != 'inativadas';
-            $paid = $this->status == 'contas pagas';
+            unset($_SESSION['naturezas_filters']);
 
-            if ($this->status == 'todas') {
-                $paid = 2;
-            }
-
-            $naturezas = Natureza::getAll($enabled, $paid, $this->search);
+            $naturezas = Natureza::getAll($this->enabled, $this->search);
         }
 
         include '../src/templates/header.php';
         if ($view == 'cadastrar' || $view == 'atualizar') {
-            include "../src/Views/naturezas/form.php";
+            include '../src/Views/naturezas/form.php';
+        } elseif ($view == 'index') {
+            include '../src/Views/cadastros/index.php';
+            include '../src/Views/naturezas/index.php';
         } else {
             include "../src/Views/naturezas/$view.php";
         }

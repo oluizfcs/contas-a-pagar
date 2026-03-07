@@ -194,43 +194,19 @@ class CentroDeCusto
         }
     }
 
-    public static function getAll(bool $enabled, int $paid, string $search): array
+    public static function getAll(bool $enabled, string $search): array
     {
-        $sql = "SELECT 
-            centro_de_custo.id,
-            centro_de_custo.categoria_id,
-            nome,
-            COALESCE(SUM(
-                CASE 
-                    WHEN (conta.enabled = 1 OR conta.enabled IS NULL) " . ($paid !== 2 ? "AND conta.paid = :paid" : "") . " 
-                    THEN valor_em_centavos 
-                    ELSE 0 
-                END
-            ), 0) as total,
-            COUNT(
-                CASE 
-                    WHEN (conta.enabled = 1 OR conta.enabled IS NULL) " . ($paid !== 2 ? "AND conta.paid = :paid" : "") . " 
-                    THEN conta.id 
-                    ELSE NULL 
-                END
-            ) as quantidade
+        $sql = "SELECT id, categoria_id, nome
         FROM centro_de_custo
-        LEFT JOIN conta ON centro_de_custo.id = centro_de_custo_id
-        WHERE centro_de_custo.enabled = :enabled";
+        WHERE enabled = :enabled";
 
         if (strlen($search) > 0) {
             $sql = $sql . ' AND nome LIKE :search';
         }
 
-        $sql = $sql . ' GROUP BY centro_de_custo.id';
-
         try {
             $stmt = Database::getConnection()->prepare($sql);
-            $stmt->bindValue(':enabled', $enabled ? 1 : 0);
-
-            if ($paid !== 2) {
-                $stmt->bindValue(':paid', $paid, PDO::PARAM_INT);
-            }
+            $stmt->bindValue(':enabled', $enabled, PDO::PARAM_BOOL);
 
             if (strlen($search) > 0) {
                 $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
@@ -243,7 +219,6 @@ class CentroDeCusto
             $map = [];
             foreach ($rows as $i => $row) {
                 $rows[$i]['children'] = [];
-                $rows[$i]['media'] = $row['quantidade'] > 0 ? $row['total'] / $row['quantidade'] : 0;
                 $map[$row['id']] = &$rows[$i];
             }
 
@@ -256,16 +231,10 @@ class CentroDeCusto
                 }
             }
 
-            $prune = function (array &$nodes) use (&$prune, $paid) {
+            $prune = function (array &$nodes) use (&$prune) {
                 foreach ($nodes as $key => &$node) {
                     if (!empty($node['children'])) {
                         $prune($node['children']);
-                    }
-
-                    if ($paid !== 2) {
-                        if ($node['quantidade'] == 0 && empty($node['children'])) {
-                            unset($nodes[$key]);
-                        }
                     }
                 }
             };
@@ -273,21 +242,10 @@ class CentroDeCusto
             if (!$enabled) {
                 return $rows;
             }
-            if ($paid !== 2) {
-                $prune($roots);
-            }
-
-            foreach ($roots as &$root) {
-                foreach ($root['children'] as $child) {
-                    $root['total'] += $child['total'];
-                    $root['quantidade'] += $child['quantidade'];
-                }
-                $root['media'] = $root['quantidade'] > 0 ? $root['total'] / $root['quantidade'] : 0;
-            }
-
+            
             return $roots;
         } catch (PDOException $e) {
-            Logger::error('Falha ao listar centros de custo', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao listar centros de custo', ['enabled' => $enabled, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;

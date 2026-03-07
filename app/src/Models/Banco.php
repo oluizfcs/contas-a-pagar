@@ -186,7 +186,7 @@ class Banco
         }
     }
 
-    public static function getAll(bool $enabled, int $paid, string $search): array
+    public static function getAll(bool $enabled, string $search): array
     {
         $sql = "SELECT 
             id,
@@ -201,7 +201,7 @@ class Banco
 
         try {
             $stmt = Database::getConnection()->prepare($sql);
-            $stmt->bindValue(':enabled', $enabled ? 1 : 0);
+            $stmt->bindValue(':enabled', $enabled, PDO::PARAM_BOOL);
 
             if (strlen($search) > 0) {
                 $stmt->bindValue(':search', "%$search%", PDO::PARAM_STR);
@@ -211,7 +211,7 @@ class Banco
 
             return $stmt->fetchAll(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
-            Logger::error('Falha ao listar bancos', ['enabled' => $enabled, 'paid' => $paid, 'search' => $search, 'PDOException' => $e->getMessage()]);
+            Logger::error('Falha ao listar bancos', ['enabled' => $enabled, 'search' => $search, 'PDOException' => $e->getMessage()]);
             $_SESSION['message'] = ['Erro inesperado, entre em contato com o desenvolvedor do sistema.', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
             exit;
@@ -222,7 +222,7 @@ class Banco
     {
         $banco = Database::getById(self::$tableName, $id);
         if (!$banco) {
-            $_SESSION['message'] = ['Banco não encontrado', 'fail'];
+            $_SESSION['message'] = ['Conta bancária não encontrada', 'fail'];
             header('Location: ' . $_ENV['BASE_URL'] . '/bancos');
             exit;
         }
