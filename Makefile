@@ -23,7 +23,7 @@ cert:
 	openssl req -x509 -nodes -days 3650 -newkey rsa:2048 \
 		-keyout ./app/config/apache/ca.key \
 		-out ./app/config/apache/ca.crt \
-		-config ./app/config/apache/openssl.conf -subj "/CN=Minha CA Raiz"
+		-config ./app/config/apache/openssl.conf
 
 	openssl req -nodes -newkey rsa:2048 \
 		-keyout ./app/config/apache/server.key \

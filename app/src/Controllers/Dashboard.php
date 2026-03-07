@@ -27,7 +27,7 @@ class Dashboard
                 'end_date' => $_POST['end_date'],
                 'status' => $_POST['status'] ?? 'todas',
                 'natureza' => $_POST['natureza'] ?? 'all',
-                'show_zeros' => isset($_POST['show_zeros']),
+                'hide_zeros' => isset($_POST['hide_zeros']),
             ];
 
             header('Location: ' . $_ENV['BASE_URL'] . '/dashboard');
@@ -39,14 +39,16 @@ class Dashboard
             'end_date' => date('Y-m-t'),
             'status' => 'todas',
             'natureza' => 'all',
-            'show_zeros' => false
+            'hide_zeros' => true
         ];
 
         $startDate = $filters['start_date'] ?? date('Y-m-01');
         $endDate = $filters['end_date'] ?? date('Y-m-t');
         $status = $filters['status'] ?? 'todas';
         $naturezaId = $filters['natureza'] ?? 'all';
-        $showZeros = $filters['show_zeros'] ?? false;
+        $hideZeros = $filters['hide_zeros'] ?? true;
+
+        unset($_SESSION['dashboard_filters']);
 
         if (trim($startDate) == "" || trim($endDate) == "") {
             $startDate = date('Y-m-01');
@@ -55,7 +57,7 @@ class Dashboard
 
         $dailyTotals = Parcela::getDailyTotal($startDate, $endDate, $status, $naturezaId);
 
-        if ($showZeros) {
+        if (!$hideZeros) {
             $dailyTotalsMap = [];
             foreach ($dailyTotals as $day) {
                 $dailyTotalsMap[$day['date']] = $day['total'];
@@ -75,12 +77,22 @@ class Dashboard
             }
         }
 
-        $topSuppliers = Fornecedor::getTopByPeriod($startDate, $endDate, 10, $status, $naturezaId);
+        foreach($dailyTotals as $day) {
+            $sumDailyTotals = ($sumDailyTotals ?? 0) + $day['total'];
+        }
+
+        if ($naturezaId == 'all') {
+            $naturezasTotals = Natureza::getTotalsByPeriod($startDate, $endDate, $status);
+        } else {
+            $naturezasTotals = Natureza::getById($naturezaId)->getNome();
+        }
+        $suppliersTotals = Fornecedor::getTotalsByPeriod($startDate, $endDate, $status, $naturezaId);
         $costCenterTotals = CentroDeCusto::getTotalsByPeriod($startDate, $endDate, $status, $naturezaId);
 
         $chartData = [
             'daily' => $dailyTotals,
-            'suppliers' => $topSuppliers,
+            'naturezas' => $naturezasTotals,
+            'suppliers' => $suppliersTotals,
             'costCenters' => $costCenterTotals
         ];
 

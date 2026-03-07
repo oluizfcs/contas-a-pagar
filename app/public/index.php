@@ -5,7 +5,7 @@ session_start();
 require '../vendor/autoload.php';
 
 $dotenv = Dotenv\Dotenv::createImmutable(__DIR__ . '\\..\\config');
-$dotenv->load();
+$dotenv->safeLoad();
 
 $_ENV['BASE_URL'] = $_SERVER['REQUEST_SCHEME'] . '://' . $_SERVER['HTTP_HOST'];
 

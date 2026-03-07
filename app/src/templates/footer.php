@@ -14,6 +14,8 @@ $(document).ready(function () {
     $('.money').maskMoney({
         prefix: 'R$ '
     }).trigger('mask.maskMoney');
+
+    document.getElementById("content").focus();
 });
 </script>
 </body>
