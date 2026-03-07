@@ -46,7 +46,6 @@ class Contas
                 case 'search':
                     $_SESSION['contas_filters'] = [
                         'search' => $_POST['search'] ?? '',
-                        'rowType' => $_POST['rowType'] ?? 'contas',
                         'status' => $_POST['status'] ?? 'a pagar',
                         'orderby' => $_POST['orderby'] ?? 'vencimento',
                         'natureza'=> $_POST['natureza'] ?? 'all',
@@ -320,17 +319,16 @@ class Contas
         }
 
         if ($view == 'index') {
-
             $filters = $_SESSION['contas_filters'] ?? [
                 'search' => '',
-                'rowType' => 'contas',
                 'status' => 'a pagar',
                 'natureza' => 'all',
                 'centro' => 'all',
                 'fornecedor' => 'all'
             ];
 
-            $contas = [];
+            unset($_SESSION['contas_filters']);
+
             $parcelas = [];
 
             $availableFilterOptions = [
@@ -339,36 +337,7 @@ class Contas
                 'fornecedores' => Database::getOptions(Fornecedor::$tableName)
             ];
 
-            if ($filters['rowType'] == 'contas') {
-                $contas = Conta::getAll($filters['search'], $filters['status'], $filters['natureza'], $filters['centro'], $filters['fornecedor']);
-
-                usort($contas, function($a, $b) {
-                    $infoA = $a->getNextInstallmentInfo();
-                    $infoB = $b->getNextInstallmentInfo();
-                    
-                    $dateA = $infoA['installment'] ? $infoA['installment']->getData_vencimento() : null;
-                    $dateB = $infoB['installment'] ? $infoB['installment']->getData_vencimento() : null;
-
-                    if ($dateA === $dateB) {
-                        return 0;
-                    }
-
-                    // Null dates (no pending installments) go to the end
-                    if ($dateA === null) {
-                        return 1;
-                    }
-                    if ($dateB === null) {
-                        return -1;
-                    }
-
-                    return ($dateA < $dateB) ? -1 : 1;
-                });
-            } else {
-                if ($filters['status'] == 'inativadas') {
-                    $filters['status'] = "a pagar";
-                }
-                $parcelas = Parcela::getAll($filters['status'], $filters['natureza'], $filters['centro'], $filters['fornecedor']);
-            }
+            $parcelas = Parcela::getAll($filters['status'], $filters['natureza'], $filters['centro'], $filters['fornecedor']);
         }
 
         if ($view == 'cadastrar') {

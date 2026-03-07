@@ -75,6 +75,7 @@ CREATE TABLE parcela(
     banco_id SMALLINT UNSIGNED NULL,
     conta_id INT UNSIGNED NOT NULL,
     paid TINYINT NOT NULL DEFAULT 0,
+    `enabled` TINYINT NOT NULL DEFAULT 1,
     FOREIGN KEY (banco_id) REFERENCES banco(id),
     FOREIGN KEY (conta_id) REFERENCES conta(id)
 ) ENGINE=INNODB;

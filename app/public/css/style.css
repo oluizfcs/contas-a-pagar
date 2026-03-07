@@ -35,7 +35,7 @@ tbody tr:hover {
     cursor: pointer;
 }
 
-th {
+thead td, th {
     font-weight: 600;
     background-color: var(--clr-dark-blue);
     color: var(--clr-white);

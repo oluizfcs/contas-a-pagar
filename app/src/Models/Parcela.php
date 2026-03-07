@@ -242,6 +242,7 @@ class Parcela
             n.nome natureza,
             cc.nome centro,
             f.nome fornecedor,
+            c.descricao,
             (
                 SELECT COUNT(*)
                 FROM parcela p2
@@ -256,10 +257,13 @@ class Parcela
 
         switch ($status) {
             case "a pagar":
-                $sql = $sql . ' AND p.paid = 0';
+                $sql .= ' AND p.paid = 0';
                 break;
             case "pagas":
-                $sql = $sql . ' AND p.paid = 1';
+                $sql .= ' AND p.paid = 1';
+                break;
+            case "inativadas":
+                $sql .= ' AND p.enabled = 0';
                 break;
             default: // also "todas"
                 // do nothing
